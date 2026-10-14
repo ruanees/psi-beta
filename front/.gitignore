@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.open-next/
+.wrangler/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+.dev.vars
+# Gerado de ../back/openapi.json a cada build (npm run tipos).
+lib/api-tipos.ts

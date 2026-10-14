@@ -1,0 +1,51 @@
+# Cloudflare Worker do psi-back.
+#
+# Três coisas que quebram o deploy de quem mexer sem saber (pagas no DIME):
+#  1. a flag enable_nodejs_http_server_modules — sem ela não existe http.createServer;
+#  2. os [alias] — o Nest carrega microservices e websockets por require dinâmico,
+#     que o esbuild não resolve; sem eles o bundle nem gera;
+#  3. nada de Swagger UI — swagger-ui-dist usa __dirname e derruba o boot inteiro.
+#
+# O que o serviço precisa para subir mora aqui, versionado: `wrangler deploy`
+# sobrescreve a configuração do painel, até a cadastrada como Secret.
+# URL e chave anon do Supabase são públicas por design.
+# Segredo de verdade (só se o projeto assina JWT em HS256):
+#   npx wrangler secret put SUPABASE_JWT_SECRET [--env producao]
+
+name = "psi-back-homolog"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat", "enable_nodejs_http_server_modules"]
+workers_dev = true
+
+[build]
+command = "npm run build"
+
+[alias]
+"@nestjs/microservices" = "./stubs/vazio.js"
+"@nestjs/microservices/microservices-module" = "./stubs/vazio.js"
+"@nestjs/websockets" = "./stubs/vazio.js"
+"@nestjs/websockets/socket-module" = "./stubs/vazio.js"
+# Este é real, não stub: o mapped-types procura o storage num caminho que o pacote não exporta.
+"class-transformer/storage" = "./node_modules/class-transformer/cjs/storage.js"
+
+[observability]
+enabled = true
+
+# Homologação: só dado sintético. É o padrão — `wrangler deploy` sem --env cai aqui.
+[vars]
+SUPABASE_URL = "https://PREENCHER-HOMOLOG.supabase.co"
+SUPABASE_ANON_KEY = "PREENCHER-CHAVE-ANON-HOMOLOG"
+ORIGENS = "http://localhost:3000,https://psi-front-homolog.PREENCHER.workers.dev"
+FRONT_URL = "https://psi-front-homolog.PREENCHER.workers.dev"
+
+# Produção: só nasce na véspera do beta, com o primeiro paciente real.
+#   npx wrangler deploy --env producao
+[env.producao]
+name = "psi-back"
+
+[env.producao.vars]
+SUPABASE_URL = "https://PREENCHER-PRODUCAO.supabase.co"
+SUPABASE_ANON_KEY = "PREENCHER-CHAVE-ANON-PRODUCAO"
+ORIGENS = "https://psi-front.PREENCHER.workers.dev"
+FRONT_URL = "https://psi-front.PREENCHER.workers.dev"
