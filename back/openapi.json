@@ -734,9 +734,6 @@
       "ConfiguracoesDto": {
         "type": "object",
         "properties": {
-          "faltaConsomePacote": {
-            "type": "boolean"
-          },
           "faltaCobraAvulsa": {
             "type": "boolean"
           },
@@ -752,7 +749,6 @@
           }
         },
         "required": [
-          "faltaConsomePacote",
           "faltaCobraAvulsa",
           "avisoMinimoHoras",
           "inatividadeMinutos"
@@ -819,9 +815,6 @@
       "ConfiguracoesParciaisDto": {
         "type": "object",
         "properties": {
-          "faltaConsomePacote": {
-            "type": "boolean"
-          },
           "faltaCobraAvulsa": {
             "type": "boolean"
           },

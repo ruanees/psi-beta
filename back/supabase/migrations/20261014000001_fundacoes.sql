@@ -41,12 +41,13 @@ create table public.profissionais (
 
 create table public.configuracoes (
   conta_id              uuid primary key references public.contas (id) on delete restrict,
-  falta_consome_pacote  boolean not null default true,
   falta_cobra_avulsa    boolean not null default true,
   aviso_minimo_horas    integer not null default 24 check (aviso_minimo_horas between 0 and 168),
   inatividade_minutos   integer not null default 30 check (inatividade_minutos between 5 and 240)
 );
-comment on column public.configuracoes.falta_consome_pacote is
+-- Falta sempre gasta sessão do pacote (resposta dos psicólogos, PLANO.md seção 02);
+-- o que decide se é falta é o aviso_minimo_horas, não uma chave a mais.
+comment on column public.configuracoes.falta_cobra_avulsa is
   'Padrão até a resposta dos psicólogos (PLANO.md, seção 02).';
 
 create table public.super_admins (
@@ -215,7 +216,6 @@ begin
       ),
       'configuracoes', (
         select jsonb_build_object(
-          'falta_consome_pacote', cf.falta_consome_pacote,
           'falta_cobra_avulsa', cf.falta_cobra_avulsa,
           'aviso_minimo_horas', cf.aviso_minimo_horas,
           'inatividade_minutos', cf.inatividade_minutos
@@ -256,8 +256,6 @@ begin
     raise exception 'so_titular' using errcode = 'P0001';
   end if;
   update public.configuracoes set
-    falta_consome_pacote = case when p ? 'falta_consome_pacote'
-                                then (p ->> 'falta_consome_pacote')::boolean else falta_consome_pacote end,
     falta_cobra_avulsa   = case when p ? 'falta_cobra_avulsa'
                                 then (p ->> 'falta_cobra_avulsa')::boolean else falta_cobra_avulsa end,
     aviso_minimo_horas   = case when p ? 'aviso_minimo_horas'

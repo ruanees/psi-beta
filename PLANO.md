@@ -30,14 +30,14 @@ Levantado com os psicólogos. Nada fora desta lista entra no beta; o que é pedi
 | 1 | **Cadastro de pacientes** — nome, pais/responsáveis, telefone, queixa principal | Tabela `pacientes` + `responsaveis` (vários por paciente). A queixa principal é dado clínico: só o psicólogo do paciente lê | 1 |
 | 2 | **Registro dos atendimentos** — data, horário, presença/falta, observações do dia | `sessoes` com status e `observacoes` com versões guardadas. Juridicamente, a observação é o registro de evolução do prontuário — é tratada com esse rigor | 2 |
 | 3 | **Controle financeiro** — pagou ou não, valor, forma de pagamento | `cobrancas` com situação (pendente/pago), valor, forma e data do pagamento | 3 |
-| 4 | **Controle de sessões** — individual ou pacote, usadas e restantes | `pacotes` + saldo calculado **num lugar só** (view no banco), nunca contado na tela | 3 |
+| 4 | **Controle de sessões** — individual ou pacote, usadas e restantes | `pacotes` pagos adiantado + saldo calculado **num lugar só** (view no banco), nunca contado na tela. Falta sem aviso no prazo gasta sessão; desmarcação avisada no prazo não gasta | 3 |
 | 5 | **Histórico do paciente** — atendimentos, observações e pagamentos anteriores | Aba **Histórico** na ficha: linha do tempo que junta sessão, observação e pagamento | 2 e 3 |
-| 6 | **Recibos e notas fiscais** — controle da emissão e histórico | `documentos_fiscais` ligados às cobranças: tipo, número, data, situação, arquivo. Recibo interno em PDF gerado pela plataforma; a emissão oficial (Receita Saúde / NFS-e) é feita fora e **registrada** aqui | 4 |
+| 6 | **Recibos e notas fiscais** — controle da emissão e histórico | `documentos_fiscais` ligados às cobranças: número, data, situação, comprovante. O caminho oficial é o **Receita Saúde**: a plataforma separa o que falta emitir e entrega os dados prontos para copiar; a emissão é feita no app da Receita e **registrada** aqui | 4 |
 | 7 | **Relatórios** — realizados, faltas, recebidos, pendentes, valores mensais | `ReportBuilderService`: um construtor, três saídas (tela, CSV, impressão) | 4 |
 | 8 | **Agenda** — pacientes por dia e horário | Visão dia e semana; repetição semanal opcional | 1 |
 | 9 | **Busca de pacientes** — por nome, rápido | Busca no topo, sem acento e com erro de digitação (`unaccent` + `pg_trgm`), também pelo nome do responsável | 1 |
 | 10 | **Acesso privado** — login e senha | Supabase Auth via BFF; recuperação de senha; saída automática por inatividade; segundo fator (TOTP) opcional | 0 |
-| 11 | **Atendimento online** — gerir consultas online, espaço para atender | Sessão com modalidade online e **sala online** própria: página da sala para o psicólogo e link seguro para o paciente entrar sem login | 5 |
+| 11 | **Atendimento online** — gerir consultas online, espaço para atender | Sessão online com **link do Google Meet gerado pela plataforma** (conta Google do psicólogo conectada uma vez). Sem conexão, o psicólogo cola o link. Página da sala para o paciente entrar sem login | 5 |
 
 **Para quem é o beta:** psicólogos que atendem sozinhos, cada um na sua conta. O modelo de dados já nasce multiprofissional (o autônomo é "uma clínica de um"), mas a tela de equipe, a recepção e a gestão de clínica com vários profissionais ficam para depois do beta. Isso corta a Fase de equipe inteira sem criar dívida.
 
@@ -45,27 +45,36 @@ Levantado com os psicólogos. Nada fora desta lista entra no beta; o que é pedi
 
 ### Duas coisas que o levantamento implica, e não foram ditas
 
-- **CPF do pagador.** O pedido 6 (recibos e notas) depende dele: o recibo do Receita Saúde e a NFS-e exigem CPF de quem paga e de quem foi atendido. Por isso o cadastro ganha CPF **opcional** no paciente e no responsável financeiro, e o recibo avisa quando falta.
+- **CPF do pagador.** O pedido 6 depende dele: o recibo do Receita Saúde exige CPF de quem paga e de quem foi atendido. Por isso o cadastro ganha CPF no paciente e no responsável financeiro — **opcional para cadastrar, obrigatório para entrar na fila do recibo**, e a tela avisa quando falta.
 - **Data de nascimento.** O pedido 1 cita pais e responsáveis, o que indica atendimento infantil. Com a data de nascimento o sistema sabe que o paciente é menor e exige ao menos um responsável — regra no servidor.
 
 ---
 
 ## 02 — Perguntas a fechar com os psicólogos
 
+### Respondidas (14/10/2026)
+
+| Pergunta | Resposta | O que muda no sistema |
+|---|---|---|
+| Falta **consome** uma sessão do pacote? | Gasta se não for avisada com antecedência | Desmarcar **dentro** do prazo de aviso vira Falta e gasta a sessão; desmarcar **fora** dele vira Cancelada e não gasta. Quem decide é o servidor, pela hora do aviso contra `aviso_minimo_horas` — a tela só mostra o resultado antes de confirmar |
+| Pacote é pago adiantado, parcelado ou conforme usa? | Adiantado | Uma cobrança só, do valor inteiro, criada com o pacote. Sessão de pacote nunca gera cobrança própria. Sem parcelas no beta |
+| Recibo pelo Receita Saúde ou NFS-e? | Receita Saúde | NFS-e sai do beta. O recibo do Receita Saúde é o caminho principal (Fase 4) |
+| Atendimento online | Meet integrado à plataforma ou gerado por ela; se não der, o mais otimizado possível | O Meet **não pode ser embutido** numa página de outro site — o Google bloqueia. O que dá, e é o plano: a plataforma **gera o link do Meet sozinha** para cada sessão online, pela conta Google do psicólogo. Vídeo embutido sai do beta (Fase 5) |
+
+### Ainda abertas
+
 Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o padrão da coluna da direita, configurável por conta.
 
 | Pergunta | Bloqueia | Padrão até a resposta |
 |---|---|---|
-| Falta **consome** uma sessão do pacote? | Fase 3 | Configurável: "falta conta como sessão usada" ligado |
-| Falta de sessão avulsa é cobrada? Com quanto tempo de aviso deixa de ser? | Fase 3 | Configurável: cobra se o aviso vier com menos de 24 h |
-| Pacote é pago adiantado inteiro, parcelado, ou conforme usa? | Fase 3 | Uma cobrança por pacote, com parcelas opcionais |
+| Com **quantas horas** de antecedência o aviso de falta conta? | Fase 1 | 24 h |
+| Falta de sessão avulsa (sem pacote) também é cobrada? | Fase 3 | Sim, pela mesma regra do aviso |
 | Pacote tem validade? | Fase 3 | Sem validade |
 | A observação pode ser corrigida depois? Até quando? | Fase 2 | Editável sempre, **toda versão guardada** e visível no histórico |
 | Cada paciente tem um valor de sessão próprio, ou é um valor único? | Fase 3 | Valor padrão da conta, sobrescrito por paciente |
-| Emitem recibo como pessoa física (Receita Saúde) ou nota como empresa (NFS-e)? | Fase 4 | Os dois tipos disponíveis |
-| Hoje atendem online por Meet, Zoom, WhatsApp? Querem o vídeo **dentro** da plataforma? | Fase 5 | Link externo primeiro, vídeo embutido em seguida |
 | A maioria dos pacientes tem horário fixo semanal? | Fase 1 | Repetição semanal disponível |
 | Alguém além do psicólogo (secretária) precisa entrar no beta? | Fase 0 | Não |
+| O psicólogo usa conta Google pessoal (gmail.com) ou do Google Workspace? | Fase 5 | As duas funcionam; Workspace pode exigir liberação do administrador |
 
 ---
 
@@ -145,8 +154,8 @@ O DIME aprendeu que dois estados com o mesmo selo confundem (Confirmado e Realiz
 | Agendada | cinza | marcada, sem confirmação | não | não |
 | Confirmada | âmbar | fechada, **parada esperando a data** | não | não |
 | Realizada | verde | aconteceu | sim | sim |
-| Falta | vermelho | paciente não veio, sem aviso no prazo | configurável | configurável |
-| Cancelada | cinza tracejado | desmarcada no prazo | não | não |
+| Falta | vermelho | não veio, ou desmarcou **dentro** do prazo de aviso | sim | sim (padrão; pergunta aberta) |
+| Cancelada | cinza tracejado | desmarcada **com** antecedência | não | não |
 
 Status nunca violeta — violeta é escopo e ação, como no kit do DIME. Situação de cobrança tem mapa próprio: **Pendente** âmbar, **Paga** verde, **Vencida** vermelho.
 
@@ -160,13 +169,14 @@ Next.js (browser)  --REST + JWT-->  NestJS (BFF, DTO)  --supabase-js-->  Supabas
                                                                           ├── Storage (bucket privado `fiscais`)
                                                                           └── Edge Function `admin-contas`
          \--- upload direto por URL assinada -----------------------------> Storage
-Paciente (browser) --/sala/:token (público)--> NestJS --> provedor de vídeo (Fase 5)
+Paciente (browser) --/sala/:token (público)--> NestJS --> link do Google Meet (Fase 5)
+NestJS --OAuth do psicólogo--> Google Meet API (cria a sala da sessão)
 ```
 
 - **Região**: projeto Supabase em São Paulo (`sa-east-1`).
 - **Backup**: PITR ligado na produção desde o primeiro paciente real.
-- **CSP**: `connect-src` = domínio do back + URL **exata** do projeto Supabase; na Fase 5, `frame-src` com o domínio exato do provedor de vídeo e `Permissions-Policy` liberando câmera e microfone só na rota da sala.
-- **`wrangler.toml`**: `SUPABASE_URL` e `SUPABASE_ANON_KEY` ficam no arquivo (são públicas por design e o deploy sobrescreve config do painel). Segredos de verdade: `SUPABASE_JWT_SECRET` e, na Fase 5, a chave do provedor de vídeo.
+- **CSP**: `connect-src` = domínio do back + URL **exata** do projeto Supabase. O Meet abre na aba dele, então a CSP não ganha `frame-src` nem libera câmera.
+- **`wrangler.toml`**: `SUPABASE_URL` e `SUPABASE_ANON_KEY` ficam no arquivo (são públicas por design e o deploy sobrescreve config do painel). Segredos de verdade: `SUPABASE_JWT_SECRET` e, na Fase 5, o client secret do OAuth do Google e a chave que cifra os tokens dos psicólogos.
 - **As três armadilhas do Nest no Workers**, já pagas no DIME: flag `enable_nodejs_http_server_modules`, `alias` para `@nestjs/microservices`/`@nestjs/websockets`, e **nada de Swagger UI**.
 - **`NEXT_PUBLIC_*` é variável de build**, e o `buildCommand` do `open-next.config.ts` não pode chamar `npm run build` (recursão).
 
@@ -177,7 +187,7 @@ Paciente (browser) --/sala/:token (público)--> NestJS --> provedor de vídeo (F
 contas              id, nome, criada_em                 -- "clínica de um"; vira clínica depois
 membros             conta_id, user_id, papel             -- no beta só 'psicologo'
 profissionais       membro_id, nome, crp, uf_crp, epsi_numero, valor_sessao_padrao
-configuracoes       conta_id, falta_consome_pacote, falta_cobra_avulsa, aviso_minimo_horas,
+configuracoes       conta_id, falta_cobra_avulsa, aviso_minimo_horas,
                     inatividade_minutos
 auditoria           id, quem, acao (ler|criar|editar|arquivar|exportar), tabela,
                     registro_id, paciente_id?, em
@@ -190,7 +200,8 @@ responsaveis        id, paciente_id, nome, parentesco, telefone, cpf?, financeir
 recorrencias        id, paciente_id, dia_semana, hora, duracao, inicio, fim?
 sessoes             id, conta_id, paciente_id, profissional_id, recorrencia_id?,
                     inicio, fim, modalidade (presencial|online), status,
-                    tipo (avulsa|pacote), pacote_id?, valor?
+                    tipo (avulsa|pacote), pacote_id?, valor?, desmarcada_em?
+                    -- desmarcada_em contra aviso_minimo_horas decide Falta x Cancelada
                     -- EXCLUDE USING gist: duas sessões do mesmo profissional não se sobrepõem
 
 -- Fase 2  (pedidos 2, 5)
@@ -199,20 +210,23 @@ observacoes_versoes observacao_id, texto, gravada_em, gravada_por   -- trigger, 
 
 -- Fase 3  (pedidos 3, 4)
 pacotes             id, paciente_id, quantidade, valor_total, inicio, validade?, situacao
+                    -- pago adiantado: nasce com uma cobrança do valor inteiro
 pacote_saldo        VIEW: pacote_id, usadas, restantes        -- a única conta de saldo
 cobrancas           id, conta_id, paciente_id, origem (sessao|pacote), sessao_id?, pacote_id?,
                     valor, vencimento, situacao (pendente|paga|cancelada),
                     forma (pix|dinheiro|cartao|transferencia|boleto)?, paga_em?
 
 -- Fase 4  (pedidos 6, 7)
-documentos_fiscais  id, conta_id, paciente_id, tipo (recibo_interno|receita_saude|nfse),
+documentos_fiscais  id, conta_id, paciente_id, tipo (recibo_interno|receita_saude),   -- nfse depois do beta
                     numero?, emitido_em?, valor, situacao (pendente|emitido|cancelado),
                     arquivo_caminho?, pagador_nome, pagador_cpf?
 documento_cobrancas documento_id, cobranca_id            -- um recibo pode cobrir várias
 
 -- Fase 5  (pedido 11)
-salas_online        sessao_id, provedor (externo|daily|jaas), link_profissional,
+salas_online        sessao_id, origem (google_meet|colado), link, meet_espaco_id?,
                     token_paciente, abre_em, expira_em
+integracoes_google  membro_id, email_google, refresh_token_cifrado, conectada_em, revogada_em?
+                    -- token cifrado pelo back com chave em segredo do Worker; nunca volta ao front
 ```
 
 ### Funções de acesso
@@ -248,11 +262,11 @@ A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `histori
 
 ### Menu do beta (`lib/menu.ts`)
 
-`Início · Agenda · Pacientes · Financeiro · Relatórios`, com a busca e a conta na ponta direita. Financeiro tem duas abas: **Cobranças** e **Recibos e notas**. Atendimento online não é item de menu — mora na sessão, que é onde ele acontece; o Início mostra "próxima sessão online" com o botão de entrar.
+`Início · Agenda · Pacientes · Financeiro · Relatórios`, com a busca e a conta na ponta direita. Financeiro tem duas abas: **Cobranças** e **Recibos**. Atendimento online não é item de menu — mora na sessão, que é onde ele acontece; o Início mostra "próxima sessão online" com o botão de entrar.
 
 ### Ficha do paciente (abas)
 
-**Resumo** (próxima sessão, saldo do pacote, a receber, queixa principal) · **Histórico** (linha do tempo: sessão + observação + pagamento — o pedido 5 inteiro numa tela) · **Pacotes** · **Financeiro** · **Recibos e notas** · **Dados** (cadastro, responsáveis, consentimento, acessos à ficha).
+**Resumo** (próxima sessão, saldo do pacote, a receber, queixa principal) · **Histórico** (linha do tempo: sessão + observação + pagamento — o pedido 5 inteiro numa tela) · **Pacotes** · **Financeiro** · **Recibos** · **Dados** (cadastro, responsáveis, consentimento, acessos à ficha).
 
 ---
 
@@ -350,11 +364,12 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 10 — Fase 3 — Financeiro e pacotes (pedidos 3, 4, 5)
 
-**Banco:** `pacotes`, view `pacote_saldo`, `cobrancas`; o saldo é contado **só** na view, a partir do status das sessões e de `configuracoes.falta_consome_pacote`; pgTAP de saldo com falta ligada e desligada.
+**Banco:** `pacotes`, view `pacote_saldo`, `cobrancas`; o saldo é contado **só** na view: Realizada e Falta gastam, Cancelada não; pgTAP de saldo com sessão desmarcada dentro e fora do prazo.
 
 **Back**
-- [ ] `PacoteService`: criar pacote (quantidade, valor total, parcelas opcionais); sessão marcada como "do pacote" é recusada se o saldo for zero
-- [ ] Cobrança nasce sozinha: sessão avulsa Realizada (e Falta, conforme a configuração) gera cobrança pendente com o valor do paciente ou o padrão; pacote gera a cobrança na criação — uma vez só, idempotente
+- [ ] `PacoteService`: criar pacote (quantidade, valor total) já com a cobrança do valor inteiro; sessão marcada como "do pacote" é recusada se o saldo for zero
+- [ ] Cobrança nasce sozinha: sessão avulsa Realizada ou Falta gera cobrança pendente com o valor do paciente ou o padrão; sessão de pacote nunca gera — uma vez só, idempotente
+- [ ] Desmarcar sessão: o servidor compara a hora do aviso com o prazo e devolve Falta ou Cancelada; a tela mostra qual vai ser **antes** de confirmar ("O aviso veio com 6 h. Vai contar como falta e gastar 1 sessão do pacote.")
 - [ ] `POST /cobrancas/:id/pagar` com forma e data; desfazer pagamento com motivo
 - [ ] `PendenciaService` ganha: cobrança vencida, pacote com 1 sessão restante
 - [ ] `HistoricoService` ganha os pagamentos na linha do tempo
@@ -365,45 +380,47 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [ ] Na sessão e na agenda: selo da cobrança e "sessão 3 de 10" quando é de pacote
 - [ ] Aba **Pacotes** e **Financeiro** na ficha; `<SaldoPacote>` no Resumo
 
-## 11 — Fase 4 — Recibos, notas e relatórios (pedidos 6, 7)
+## 11 — Fase 4 — Recibos (Receita Saúde) e relatórios (pedidos 6, 7)
 
 **Banco:** `documentos_fiscais`, `documento_cobrancas`, bucket privado `fiscais`; `pode_arquivo` conhecendo o bucket **no mesmo commit** (a lição do `producoes` no DIME).
 
 **Back**
-- [ ] `FiscalService`: registrar documento (tipo, número, data, valor, pagador) ligado a uma ou mais cobranças pagas
-- [ ] Recibo interno em PDF a partir das cobranças, com numeração sequencial por conta e os dados do profissional (nome, CRP)
-- [ ] Anexar o comprovante oficial (PDF do Receita Saúde ou da NFS-e): servidor decide o caminho e devolve URL assinada
+- [ ] Fila "a emitir no Receita Saúde": toda cobrança paga sem recibo, com os dados do recibo já montados — CPF do paciente, CPF do pagador (o responsável, quando é menor), valor, data do pagamento, forma e descrição do serviço
+- [ ] `FiscalService`: registrar a emissão (número, data) ligada a uma ou mais cobranças pagas, e anexar o PDF que o Receita Saúde gera — servidor decide o caminho e devolve URL assinada
+- [ ] Recibo interno em PDF, para quem pedir um comprovante antes do oficial
+- [ ] Conferir se a Receita oferece integração (API) para emissão; até onde se sabe hoje não oferece, e a emissão é pelo app ou pelo e-CAC — se surgir, a fila vira emissão automática sem mudar o resto
 - [ ] `PendenciaService` ganha: pagamento sem documento fiscal ao fim do mês
 - [ ] `ReportBuilderService`: atendimentos realizados, faltas e taxa de falta, recebido, pendente, valor por mês (últimos 12) — um construtor, três saídas
 
 **Front**
-- [ ] Financeiro → **Recibos e notas**: lista com situação e filtro por mês; "Emitir recibo" a partir das cobranças pagas
-- [ ] Aviso quando falta CPF do pagador para o tipo escolhido
-- [ ] Aba **Recibos e notas** na ficha
+- [ ] Financeiro → **Recibos**: a fila do que falta emitir (com botão de copiar cada dado, na ordem dos campos do Receita Saúde) e o histórico do que já foi emitido, com filtro por mês
+- [ ] Aviso quando falta CPF do paciente ou do pagador, com atalho para o cadastro
+- [ ] Aba **Recibos** na ficha
 - [ ] **Relatórios**: seletor de mês, quadros de resumo, gráfico mensal com legenda, exportar CSV e imprimir
 
-## 12 — Fase 5 — Atendimento online (pedido 11)
+## 12 — Fase 5 — Atendimento online com Google Meet (pedido 11)
 
-Em dois passos, para o beta não esperar a decisão do provedor de vídeo.
+O Meet não pode ser embutido numa página de outro site — o Google bloqueia por segurança, e não há como contornar. O que dá para fazer, e é o mais próximo de "integrado": **a plataforma cria a sala do Meet sozinha** para cada sessão online e entrega o link ao psicólogo e ao paciente. Em dois passos, para o beta não depender da aprovação do Google.
 
-**5a — Sala com link externo**
-- [ ] Sessão com modalidade online ganha uma sala: o psicólogo cola o link que já usa (Meet, Zoom) ou o perfil guarda um link fixo
-- [ ] `token_paciente` aleatório e longo; `/sala/:token` pública mostra só data, hora, nome do profissional e o botão de entrar, e só a partir de 15 minutos antes até o fim da sessão
+**5a — Sala da sessão, com link colado**
+- [ ] Sessão com modalidade online ganha uma sala; sem Google conectado, o psicólogo cola o link do Meet (ou guarda um link fixo no perfil)
+- [ ] `token_paciente` aleatório e longo; `/sala/:token` pública mostra só data, hora, nome do profissional e o botão "Entrar no Meet", e só a partir de 15 minutos antes até o fim da sessão — o link do Meet não circula solto
 - [ ] Botão "Copiar link do paciente" na sessão, para mandar pelo canal que o psicólogo já usa
-- [ ] Início: "próxima sessão online" com "Entrar na sala"
+- [ ] Início: "próxima sessão online" com "Entrar no Meet"
 - [ ] Aviso no perfil se o e-Psi estiver vazio
 - [ ] Filtro de agenda por modalidade e quadro de online x presencial em Relatórios
 
-**5b — Vídeo dentro da plataforma**
-- [ ] Escolher o provedor (seção 15) e criar a sala pela API dele, com acesso por token que expira — sem sala pública reaproveitável
-- [ ] `<SalaOnline>` embute o vídeo na página do psicólogo e na do paciente; sala de espera até o psicólogo entrar
-- [ ] CSP: `frame-src` exato do provedor; câmera e microfone liberados só na rota da sala
-- [ ] Nenhuma gravação, de propósito
-- [ ] Registro de entrada e saída na sala vira sugestão de presença na sessão — quem confirma é o psicólogo
+**5b — Link do Meet gerado pela plataforma**
+- [ ] Projeto no Google Cloud com a Google Meet API e tela de consentimento OAuth (ver seção 15: aprovação do Google)
+- [ ] Configurações → "Conectar Google": o psicólogo autoriza uma vez; o back guarda o token **cifrado** e nunca o devolve ao front
+- [ ] Ao marcar sessão online, o back cria o espaço do Meet (`spaces.create`) com acesso restrito a quem tem o link, e grava na sala; remarcar mantém o espaço, cancelar o encerra
+- [ ] Falhou o Google (token revogado, fora do ar): a sessão é criada mesmo assim, com aviso "Não foi possível gerar o link do Meet. Cole um link ou tente de novo." — nunca trava a agenda
+- [ ] "Desconectar Google" revoga o token no Google e apaga do banco
+- [ ] Nenhuma gravação, de propósito; o PSI não pede escopo de gravação nem de transcrição
 
 ## 13 — Fase 6 — Beta com psicólogos
 
-- [ ] Teste de invasão focado em RLS, IDOR e na rota pública da sala
+- [ ] Teste de invasão focado em RLS, IDOR, na rota pública da sala e no armazenamento dos tokens do Google
 - [ ] Política de privacidade, termos e DPA publicados
 - [ ] Plano de resposta a incidente (quem avisa a ANPD e os psicólogos, em quanto tempo)
 - [ ] Criar as contas dos 3 a 5 psicólogos do teste; uma sessão de uso guiada com cada um
@@ -427,9 +444,10 @@ Na ordem provável, a conferir com o retorno do beta.
 ## 15 — Em aberto
 
 - **Nome do produto** e domínio.
-- **Provedor de vídeo** (bloqueia a 5b). Candidatos: Daily (sala pronta para embutir, plano gratuito por minutos), JaaS da 8x8 (Jitsi gerenciado, gratuito até certo número de usuários) e Whereby Embedded. O `meet.jit.si` público não serve para embutir em produção. Conferir preços, limites e onde o dado trafega antes de decidir — os números mudam.
+- **Aprovação do Google para o OAuth** (bloqueia a 5b em produção). Criar sala do Meet em nome do psicólogo usa escopo que o Google classifica como sensível: app com usuários externos precisa passar pela verificação (política de privacidade publicada, domínio próprio, vídeo de demonstração), que pode levar semanas. Antes dela, o app roda em modo de teste com até 100 usuários cadastrados à mão — o que serve ao beta, com um custo: nesse modo a autorização expira a cada 7 dias e o psicólogo reconecta. Começar a verificação junto com a Fase 5a, não depois. Conferir as regras na hora — mudam.
+- **Vídeo embutido na plataforma** (Daily, JaaS, Whereby) — fora do beta; volta à mesa só se o Meet em outra aba incomodar no uso real.
 - **Criptografia de campo** para `observacoes.texto` e `pacientes.queixa_principal`, além da criptografia em repouso do Supabase. Protege contra vazamento de backup, mas impede busca no texto. Decidir antes da Fase 2, porque mudar depois exige migrar todo o histórico.
 - **Gateway de pagamento** — recomendação: **Asaas** (Pix, boleto, cartão, NFS-e e split, foco no Brasil). Não bloqueia o beta.
 - **App nativo** — começar como PWA instalável.
 
-**Fora de escopo, de propósito:** prontuário de outras profissões (o nicho é a força do produto), gravação de sessão online e qualquer recurso de IA sobre conteúdo clínico — este último exige uma conversa de consentimento e ética própria antes de existir.
+**Fora de escopo, de propósito:** prontuário de outras profissões (o nicho é a força do produto), NFS-e no beta, gravação de sessão online e qualquer recurso de IA sobre conteúdo clínico — este último exige uma conversa de consentimento e ética própria antes de existir.

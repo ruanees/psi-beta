@@ -44,9 +44,6 @@ export class PerfilDto {
 
 export class ConfiguracoesDto {
   @ApiProperty()
-  faltaConsomePacote: boolean;
-
-  @ApiProperty()
   faltaCobraAvulsa: boolean;
 
   @ApiProperty({ minimum: 0, maximum: 168 })
@@ -98,11 +95,6 @@ export class PerfilParcialDto {
 }
 
 export class ConfiguracoesParciaisDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  faltaConsomePacote?: boolean;
-
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()

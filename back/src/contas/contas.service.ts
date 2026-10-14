@@ -20,7 +20,6 @@ export const CAMPOS_PERFIL = {
 } as const satisfies Record<keyof PerfilParcialDto, string>;
 
 export const CAMPOS_CONFIGURACOES = {
-  faltaConsomePacote: 'falta_consome_pacote',
   faltaCobraAvulsa: 'falta_cobra_avulsa',
   avisoMinimoHoras: 'aviso_minimo_horas',
   inatividadeMinutos: 'inatividade_minutos',
