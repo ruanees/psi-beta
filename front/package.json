@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Front do PSI: Next.js no Cloudflare Workers, fala só com o psi-back",
   "dependencies": {
-    "next": "16.4.1",
+    "next": "16.3.8",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

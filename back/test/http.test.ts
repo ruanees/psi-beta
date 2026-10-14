@@ -95,6 +95,7 @@ describe('banco fora do ar', () => {
       body: JSON.stringify({ email: 'ana@teste.psi', senha: 'qualquer' }),
     });
     assert.equal(r.status, 503);
+    assert.match(r.corpo.mensagem, /serviço de login/);
   });
 
   it('configuração ausente é 503 com o nome do que falta', async () => {

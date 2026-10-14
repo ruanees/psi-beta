@@ -77,7 +77,7 @@ const CODIGOS_AUTH: Record<string, [number, string]> = {
 };
 
 export function traduzirAuth(e: ErroAuth): RespostaErro {
-  if (e.status >= 500) return { status: 503, mensagem: MENSAGEM_TRANSPORTE };
+  if (e.status >= 500) return { status: 503, mensagem: 'O serviço de login não respondeu. Tente de novo em instantes.' };
   const conhecido = e.codigo ? CODIGOS_AUTH[e.codigo] : undefined;
   if (conhecido) return { status: conhecido[0], mensagem: conhecido[1], codigo: e.codigo };
   if (e.status === 429) return { status: 429, mensagem: CODIGOS_AUTH.over_request_rate_limit[1] };

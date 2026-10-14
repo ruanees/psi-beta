@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { exigirConfig } from '../comum/config';
-import { ErroAuth, ErroTransporte } from '../comum/erros';
+import { ErroAuth } from '../comum/erros';
 
 // Conversa direta com o servidor de autenticação do Supabase (GoTrue) por
 // REST. O supabase-js guarda sessão em memória e renova sozinho, o que num
@@ -36,15 +36,18 @@ export class GoTrueService {
     try {
       r = await fetch(`${base}/auth/v1${caminho}`, {
         method: metodo,
+        // A chave nova do Supabase (sb_publishable_…) não é JWT: vai só no apikey.
+        // Authorization leva apenas o token de quem chamou, quando há um.
         headers: {
           apikey: anon,
-          Authorization: `Bearer ${jwt ?? anon}`,
+          ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
           'Content-Type': 'application/json',
         },
         body: corpo === undefined ? undefined : JSON.stringify(corpo),
       });
-    } catch (e) {
-      throw new ErroTransporte(e);
+    } catch {
+      // Rede caída até o servidor de login: mesma frase do 5xx dele.
+      throw new ErroAuth(503, undefined);
     }
     const texto = await r.text();
     let dados: unknown = null;
@@ -53,7 +56,7 @@ export class GoTrueService {
         dados = JSON.parse(texto);
       } catch {
         // Resposta que não é JSON veio de proxy ou página de erro, não do GoTrue.
-        throw new ErroTransporte(new Error(`resposta não-JSON (${r.status})`));
+        throw new ErroAuth(503, undefined);
       }
     }
     if (!r.ok) {

@@ -84,7 +84,7 @@ Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o pad
 
 | No DIME | No PSI | Por quê |
 |---|---|---|
-| Dois repos, `DIME-FRONT` (Next) e `DIME-BACK` (Nest) | `PSI-FRONT` e `PSI-BACK` | Contrato por OpenAPI resolveu o alinhamento sem monorepo nem pacote publicado |
+| Dois repos, `DIME-FRONT` (Next) e `DIME-BACK` (Nest) | Um repo, `psi-beta`, com `back/` e `front/` independentes (cada um com seu `package.json`, CI e Worker) | O contrato por OpenAPI continua sendo o único elo; no mesmo repo, o front gera os tipos do `back/openapi.json` versionado, sem depender do back no ar |
 | NestJS como **BFF**, regra de acesso no Postgres (RLS + `security definer`) | Idem | Regra de acesso escrita em dois lados se desencontra calada |
 | Front nunca fala com o Supabase, só com o back | Idem, com a mesma exceção: upload vai direto ao Storage por URL assinada | Nenhuma credencial no bundle; o Worker não carrega bytes |
 | `@nestjs/swagger` → `/openapi.json` público → `openapi-typescript` no build do front | Idem | DTO muda, tipo desatualizado vira erro de build |
@@ -280,46 +280,59 @@ A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `histori
 
 ## 07 — Fase 0 — Fundações e acesso privado (pedido 10)
 
-Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o login.
+Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o login. **Código pronto em 14/10/2026; falta a publicação**, que é feita no painel (passo a passo no `README.md`).
 
 **Infra**
-- [ ] Criar `PSI-FRONT` e `PSI-BACK`, privados, `main` protegida, `.env.example` com placeholder e `.env` no `.gitignore`
-- [ ] Dois projetos Supabase: `psi-prod` e `psi-homolog` (São Paulo); PITR na produção
-- [ ] `wrangler.toml` do back com as flags, os `alias` e as variáveis públicas; Workers Builds conectado nos dois repos
-- [ ] Preview de PR do front aponta para o back de homologação, nunca para produção
-- [ ] CI do back: typecheck + testes + gerar `openapi.json` + gerar bundle do Worker + `supabase start` + `supabase db reset` + pgTAP
-- [ ] CI do front: typecheck + `npm run build` (o mesmo da publicação) + codegen contra o back de homologação + `prova:menu`
-- [ ] CSP com `connect-src` exato
-- [ ] Selo do rodapé carimbado no build
+- [x] Repositório `psi-beta` com `back/` e `front/` independentes, `.env.example` com placeholder e `.env` no `.gitignore`
+- [x] `wrangler.toml` do back com as flags, os `alias` (incluindo `class-transformer/storage`, que o DIME não precisou) e as variáveis públicas; ambientes de homologação (padrão) e produção
+- [x] CI do back: typecheck + testes + `openapi.json` conferido + bundle do Worker + `supabase start` + `db reset` + pgTAP
+- [x] CI do front: typecheck (gera os tipos do `openapi.json`) + provas + `npm run build` (o mesmo da publicação)
+- [x] CSP com `connect-src` exato
+- [x] Selo do rodapé carimbado no build
+- [ ] Projeto Supabase `psi-homolog` (São Paulo) — no painel
+- [ ] Workers Builds conectado: `psi-back-homolog` (pasta `back`) e `psi-front-homolog` (pasta `front`) — no painel
+- [ ] Primeira execução da CI no GitHub conferida (o job do banco só roda lá: o Docker Hub recusou as imagens neste ambiente)
+- [ ] `main` protegida exigindo PR
+- [ ] Projeto `psi-prod` com PITR — na véspera do beta
 
 **Banco**
-- [ ] `contas`, `membros`, `profissionais`, `configuracoes`, `auditoria`
-- [ ] `eh_membro`, `eh_super`, `registrar_leitura`
-- [ ] pgTAP: conta A não lê nada da conta B, em nenhuma tabela
+- [x] `contas`, `membros`, `profissionais`, `configuracoes`, `super_admins`, `auditoria`
+- [x] `eh_membro`, `tem_papel`, `eh_super`, `aal_ok` (segundo fator exigido pelo banco), `privado.registrar`
+- [x] pgTAP (22 provas): conta A não lê nem grava nada da conta B; escrita direta recusada; `aal1` com fator cadastrado não lê nada. Conferido quebrando a política de propósito
+- [x] Conta nasce por `conta_criar`, só pelo editor SQL — sem Edge Function `admin-contas` no beta
 
 **Back**
-- [ ] `AuthModule` com guard global, `@Publico()` explícito
-- [ ] `SupabaseService` por request com o JWT de quem chamou
-- [ ] `POST /sessao/entrar|renovar|recuperar|senha`
-- [ ] Segundo fator TOTP (Supabase MFA) disponível e opcional
-- [ ] Filtro de erro: sem `code` do PostgREST → 503 com frase pronta
-- [ ] `/saude` com origem da configuração, sem valores
-- [ ] Interceptor de log que **remove** corpo de requisição e qualquer campo de paciente
-- [ ] `GET /conta`, `PATCH /conta/perfil` (CRP, e-Psi, valor padrão), `PATCH /conta/configuracoes`
-- [ ] Criação de conta só pelo super-admin via `admin-contas` — o beta é fechado, sem cadastro aberto
+- [x] Guard global de JWT (HS256 com segredo ou JWKS), `@Publico()` explícito; prova que toda rota fora da lista pede sessão
+- [x] Cliente Supabase com o JWT de quem chamou e a chave pública
+- [x] `POST /sessao/entrar|segundo-fator|renovar|recuperar|senha|sair`, `GET|POST|DELETE /sessao/fatores`
+- [x] Segundo fator TOTP disponível e opcional
+- [x] Erro sem `code` → 503; serviço de login fora → 503 com frase própria; erro desconhecido do banco não vaza o texto do Postgres
+- [x] `/saude` com origem da configuração, sem valores
+- [x] Log só com método, padrão da rota e status — nunca corpo, query ou valor de parâmetro
+- [x] `GET /contas`, `GET /contas/:conta`, `PATCH /contas/:conta/perfil`, `PATCH /contas/:conta/configuracoes`, gravando campo a campo; prova que prende os nomes de campo contra a migration
+- [x] Testado rodando dentro do workerd (runtime da Cloudflare) contra Postgres + serviço de login do Supabase: login, segundo fator, renovação, isolamento entre contas, queda do banco
 
 **Front**
-- [ ] Portar `tokens.css` + `components.css` do DIME e trocar só a paleta (tons mais calmos); mapa de status da seção 04
-- [ ] Tema pré-paint (`data-theme`) via `next/script beforeInteractive`
-- [ ] Login com entrar / esqueci / nova senha (repetir a senha nova) na mesma tela
-- [ ] Saída automática após N minutos sem uso (consultório tem computador compartilhado)
-- [ ] `lib/menu.ts` com os cinco itens; item sem tela com selo "em breve"; barra no topo no desktop, rodapé com alvos de 56px no celular
-- [ ] Tela de perfil e configurações
-- [ ] `useFicha()` sobre a tabela de fichas
-- [ ] `api()` como porta única de escrita; selo de gravação que só fala quando falha
-- [ ] `fd`, `fdDe`, `moeda`, `duracao` em `lib/formato.ts`
+- [x] Login com entrar / código do autenticador / esqueci / nova senha (repetir a senha nova) na mesma tela
+- [x] Saída automática após N minutos sem uso (configurável por conta)
+- [x] `lib/menu.ts` com os cinco itens; item sem tela com selo "em breve"; barra no topo no desktop, barra de baixo no celular; `prova:menu` na CI
+- [x] Configurações: perfil profissional e regras do consultório gravando no blur, troca de senha, ativar e desativar o código do autenticador
+- [x] Tabela de fichas (`lib/fichas.ts`) — módulo novo é uma linha, nunca if/else
+- [x] `api()` tipada pelo OpenAPI como porta única; renova a sessão sozinha; selo de gravação que só fala quando falha
+- [x] `fd`, `fdDe`, `fdh`, `moeda`, `duracao` em `lib/formato.ts`, com prova
+- [x] Tema claro/escuro pré-paint
+- [x] Testado no navegador com o build da Cloudflare: login, senha errada, gravação no blur, recarregar mantém o dado, celular, sair limpa a sessão
+- [ ] **Design system** — o CSS atual é provisório. Entra a partir das referências em `docs/referencias/`, antes da Fase 1
 
 > **Armadilha herdada:** função com parâmetro opcional no fim não vai direto para `map/filter/forEach`. Tipar como obrigatório com overload.
+
+### O que a Fase 0 aprendeu
+
+**O Next mais novo nem sempre roda na Cloudflare.** O Next 16.4.1 saiu no mesmo dia e o adaptador do OpenNext ainda não o conhecia: o build passava e toda página respondia 500. O front fica fixo na versão que o adaptador declara (`next` 16.3.8) e só sobe quando o adaptador acompanhar — conferindo com `npm run build` e uma página aberta, não só com o build verde.
+
+**A chave nova do Supabase não é JWT.** A *publishable key* vai só no cabeçalho `apikey`; o `Authorization` leva apenas o token de quem chamou.
+
+**Teste no navegador pega o que o typecheck não pega.** O Next tem um anunciador de rota com `role="alert"` em toda página — seletor de teste por `role=alert` pegava o elemento errado e lia vazio.
 
 ## 08 — Fase 1 — Pacientes, busca e agenda (pedidos 1, 8, 9)
 
