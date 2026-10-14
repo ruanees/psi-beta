@@ -4,7 +4,6 @@ name: front
 
 on:
   push:
-    branches: [main]
     paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']
   pull_request:
     paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']

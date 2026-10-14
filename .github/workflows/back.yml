@@ -4,7 +4,6 @@ name: back
 
 on:
   push:
-    branches: [main]
     paths: ['back/**', '.github/workflows/back.yml']
   pull_request:
     paths: ['back/**', '.github/workflows/back.yml']
