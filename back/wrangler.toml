@@ -34,10 +34,12 @@ enabled = true
 
 # Homologação: só dado sintético. É o padrão — `wrangler deploy` sem --env cai aqui.
 [vars]
-SUPABASE_URL = "https://PREENCHER-HOMOLOG.supabase.co"
-SUPABASE_ANON_KEY = "PREENCHER-CHAVE-ANON-HOMOLOG"
-ORIGENS = "http://localhost:3000,https://psi-front-homolog.PREENCHER.workers.dev"
-FRONT_URL = "https://psi-front-homolog.PREENCHER.workers.dev"
+SUPABASE_URL = "https://azvycgsgqjsugykqtsdl.supabase.co"
+# Publishable key: pública por design. A secret key (sb_secret_…) nunca entra aqui nem no código.
+SUPABASE_ANON_KEY = "sb_publishable_HHWraD9Pdzwo0beqH9821w_M4E5OmR8"
+# Subdomínio da conta Cloudflare (o mesmo do DIME). Confirmar quando o front existir.
+ORIGENS = "http://localhost:3000,https://psi-front-homolog.balbuquerc.workers.dev"
+FRONT_URL = "https://psi-front-homolog.balbuquerc.workers.dev"
 
 # Produção: só nasce na véspera do beta, com o primeiro paciente real.
 #   npx wrangler deploy --env producao
