@@ -291,7 +291,7 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] Selo do rodapé carimbado no build
 - [ ] Projeto Supabase `psi-homolog` (São Paulo) — no painel
 - [ ] Workers Builds conectado: `psi-back-homolog` (pasta `back`) e `psi-front-homolog` (pasta `front`) — no painel
-- [ ] Primeira execução da CI no GitHub conferida (o job do banco só roda lá: o Docker Hub recusou as imagens neste ambiente)
+- [x] Primeira execução da CI no GitHub verde, incluindo as 22 provas de RLS num Supabase local de verdade (14/10/2026)
 - [ ] `main` protegida exigindo PR
 - [ ] Projeto `psi-prod` com PITR — na véspera do beta
 
