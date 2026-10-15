@@ -71,6 +71,21 @@ export default function Configuracoes() {
               </select>
               <small>Desmarcar com menos tempo conta como falta: é cobrada e gasta sessão do pacote.</small>
             </label>
+            <label className="campo">
+              <span>Vencimento da mensalidade</span>
+              <select
+                className="ent"
+                value={c.vencimentoMensalDia}
+                onChange={(e) => void gravarConfig({ vencimentoMensalDia: Number(e.target.value) }).catch(() => undefined)}
+              >
+                {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                  <option key={d} value={d}>
+                    Dia {d}
+                  </option>
+                ))}
+              </select>
+              <small>Para pacientes no plano mensal. A cobrança do mês nasce sozinha, com este vencimento.</small>
+            </label>
             <CampoGravavel
               rotulo="Sair sozinho após quantos minutos sem uso"
               valor={String(c.inatividadeMinutos)}

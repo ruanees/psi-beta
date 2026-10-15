@@ -26,6 +26,7 @@ export const CAMPOS_CONFIGURACOES = {
   faltaCobraAvulsa: 'falta_cobra_avulsa',
   avisoMinimoHoras: 'aviso_minimo_horas',
   inatividadeMinutos: 'inatividade_minutos',
+  vencimentoMensalDia: 'vencimento_mensal_dia',
 } as const satisfies Record<keyof ConfiguracoesDto, string>;
 
 interface ContaBanco {

@@ -1868,3 +1868,77 @@ select.ent {
     break-inside: avoid;
   }
 }
+
+/* ------------------------------------------------------------ financeiro */
+
+.cobrancas > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--e3);
+}
+.cobranca-texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cobranca-valor {
+  font-weight: 600;
+}
+.cobranca-acoes {
+  display: flex;
+  gap: var(--e2);
+  justify-content: flex-end;
+}
+@media (max-width: 760px) {
+  .cobrancas > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .cobranca-acoes {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+.campo-inline {
+  min-width: 0;
+}
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+.filtros .linha {
+  flex-wrap: wrap;
+}
+.cobrancas .selo {
+  justify-self: start;
+}
+@media (max-width: 760px) {
+  .filtros > *,
+  .filtros .campo-inline {
+    flex: 1 1 100%;
+  }
+  .filtros .segmento {
+    flex-wrap: nowrap;
+  }
+  .filtros .segmento button {
+    flex: 1 1 0;
+    padding-inline: 6px;
+  }
+}
+.barra-saldo {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg2);
+  overflow: hidden;
+  max-width: 240px;
+}
+.barra-saldo > span {
+  display: block;
+  height: 100%;
+  background: var(--ac);
+}

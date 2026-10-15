@@ -23,7 +23,7 @@ export const MENU: readonly ItemMenu[] = [
   { id: 'inicio', rotulo: 'Início', rota: '/inicio', icone: 'inicio', pronta: true, fase: 0 },
   { id: 'agenda', rotulo: 'Agenda', rota: '/agenda', icone: 'agenda', pronta: true, fase: 1 },
   { id: 'pacientes', rotulo: 'Pacientes', rota: '/pacientes', icone: 'pacientes', pronta: true, fase: 1 },
-  { id: 'financeiro', rotulo: 'Financeiro', rota: '/financeiro', icone: 'financeiro', pronta: false, fase: 3 },
+  { id: 'financeiro', rotulo: 'Financeiro', rota: '/financeiro', icone: 'financeiro', pronta: true, fase: 3 },
   { id: 'relatorios', rotulo: 'Relatórios', rota: '/relatorios', icone: 'relatorios', pronta: false, fase: 4 },
 ];
 

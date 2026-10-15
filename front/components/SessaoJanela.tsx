@@ -8,6 +8,7 @@ import { duracao } from '@/lib/formato.ts';
 import { MODALIDADE, STATUS_SESSAO } from '@/lib/status.ts';
 import { useApp } from './EstadoApp';
 import { Icone } from './Icone';
+import { FinanceiroDaSessao } from './FinanceiroDaSessao';
 import { Janela } from './Janela';
 import { ObservacaoEditor } from './ObservacaoEditor';
 
@@ -365,6 +366,9 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                 </button>
               )}
             </div>
+            {(status === 'realizada' || status === 'falta') && (
+              <FinanceiroDaSessao key={status} sessao={sessao.id} paciente={sessao.pacienteNome} />
+            )}
             {(status === 'realizada' || status === 'falta') && <ObservacaoEditor sessao={sessao.id} aoGravar={aoMudar} />}
           </div>
         )}
