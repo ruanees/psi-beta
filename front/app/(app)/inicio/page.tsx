@@ -23,10 +23,15 @@ export default function Inicio() {
   const [erro, setErro] = useState<string | null>(null);
   const [janela, setJanela] = useState<ModoSessao | null>(null);
   const [dia, setDia] = useState<string | null>(null);
+  const [semObservacao, setSemObservacao] = useState<Dto<'PendenciaDto'>[]>([]);
 
   const carregar = useCallback(async () => {
     try {
-      setPainel(await api('get', '/contas/{conta}/painel', { params: { conta: conta.id } }));
+      const params = { conta: conta.id };
+      // Pendência é extra: se falhar, o resto do Início aparece mesmo assim.
+      const pend = api('get', '/contas/{conta}/pendencias', { params }).catch(() => []);
+      setPainel(await api('get', '/contas/{conta}/painel', { params }));
+      setSemObservacao(await pend);
       setErro(null);
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao carregar o início.');
@@ -139,6 +144,29 @@ export default function Inicio() {
             </ul>
           )}
         </section>
+
+        {semObservacao.length > 0 && (
+          <section className="cartao">
+            <div className="cartao-topo">
+              <h2>Observações pendentes</h2>
+              <span className="mudo pequeno">Sessões realizadas ainda sem observação</span>
+            </div>
+            <ul className="lista-sessoes">
+              {semObservacao.map((s) => {
+                const dias = Math.ceil((new Date(s.editavelAte).getTime() - Date.now()) / 864e5);
+                return (
+                  <li key={s.id}>
+                    <LinhaSessao sessao={s} aoAbrir={() => setJanela({ tipo: 'ver', sessao: s })} />
+                    <small className="mudo">
+                      {diaPorExtenso(partes(s.inicio).dia)} ·{' '}
+                      {dias > 0 ? `pode ser escrita até ${fd(s.editavelAte)}` : 'travada: entra como adendo'}
+                    </small>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
 
         {painel && painel.semProxima.length > 0 && (
           <section className="cartao">

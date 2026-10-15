@@ -6,7 +6,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { CampoGravavel } from '@/components/CampoGravavel';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
+import { HistoricoPaciente } from '@/components/HistoricoPaciente';
 import { LinhaSessao } from '@/components/LinhaSessao';
+import { AcessosPaciente } from '@/components/AcessosPaciente';
 import { PlanoPaciente } from '@/components/PlanoPaciente';
 import { iniciais } from '@/components/Moldura';
 import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
@@ -18,16 +20,16 @@ import { resumoPlano } from '@/lib/planos.ts';
 import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
-// Dados agora; Histórico, Pacotes, Financeiro e Recibos chegam nas fases 2 a 4.
+// Histórico e Dados agora; Pacotes, Financeiro e Recibos chegam nas fases 3 e 4.
 
 type Paciente = Dto<'PacienteDto'>;
-type Aba = 'resumo' | 'sessoes' | 'dados';
+type Aba = 'resumo' | 'sessoes' | 'historico' | 'dados';
 
 const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }[] = [
   { id: 'resumo', rotulo: 'Resumo', pronta: true },
   { id: 'sessoes', rotulo: 'Sessões', pronta: true },
+  { id: 'historico', rotulo: 'Histórico', pronta: true },
   { id: 'dados', rotulo: 'Dados', pronta: true },
-  { id: 'historico', rotulo: 'Histórico', pronta: false, fase: 2 },
   { id: 'pacotes', rotulo: 'Pacotes', pronta: false, fase: 3 },
   { id: 'financeiro', rotulo: 'Financeiro', pronta: false, fase: 3 },
   { id: 'recibos', rotulo: 'Recibos', pronta: false, fase: 4 },
@@ -41,6 +43,7 @@ export default function FichaDoPaciente() {
   const [erro, setErro] = useState<string | null>(null);
   const [aba, setAba] = useState<Aba>('resumo');
   const [janela, setJanela] = useState<ModoSessao | null>(null);
+  const [recarga, setRecarga] = useState(0);
 
   const carregar = useCallback(async () => {
     try {
@@ -111,6 +114,11 @@ export default function FichaDoPaciente() {
           </p>
         </div>
         <div className="ficha-topo-acoes">
+          {p.podeClinico && (
+            <Link className="btn" data-v="sec" href={`/pacientes/${p.id}/ficha`}>
+              Exportar ficha
+            </Link>
+          )}
           {p.situacao === 'ativo' && (
             <button className="btn" onClick={() => setJanela({ tipo: 'nova', paciente: { id: p.id, nome: p.nome } })}>
               <Icone nome="mais" tamanho={18} /> Agendar sessão
@@ -157,9 +165,22 @@ export default function FichaDoPaciente() {
         </section>
       )}
 
+      {aba === 'historico' && (
+        <HistoricoPaciente paciente={p.id} podeClinico={p.podeClinico} recarga={recarga} aoAbrir={abrirSessao} />
+      )}
+
       {aba === 'dados' && <Dados p={p} gravar={gravar} recarregar={carregar} />}
 
-      {janela && <SessaoJanela modo={janela} aoFechar={() => setJanela(null)} aoMudar={() => void carregar()} />}
+      {janela && (
+        <SessaoJanela
+          modo={janela}
+          aoFechar={() => setJanela(null)}
+          aoMudar={() => {
+            void carregar();
+            setRecarga((n) => n + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -389,6 +410,8 @@ function Dados({
           })
         )}
       </section>
+
+      <AcessosPaciente paciente={p.id} />
 
       <section className="cartao">
         <h2>Situação do paciente</h2>

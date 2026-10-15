@@ -1766,3 +1766,105 @@ select.ent {
 .consentimento input {
   margin-top: 2px;
 }
+
+/* ------------------------------------------------------------ prontuário */
+
+.observacao-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+/* Prévia no histórico: três linhas, o resto na janela da sessão. */
+.observacao-texto[data-curta] {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.observacao {
+  border-top: 1px solid var(--bd);
+  padding-top: var(--e4);
+}
+.versoes {
+  list-style: none;
+  margin: var(--e2) 0 0;
+  padding: 0 0 0 var(--e3);
+  border-left: 2px solid var(--bd2);
+  display: grid;
+  gap: var(--e3);
+}
+.linha-do-tempo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e3);
+}
+.linha-do-tempo-obs {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: var(--e2) 0 0 var(--e4);
+  margin-left: var(--e4);
+  border-left: 2px solid var(--bd2);
+}
+.dados-ficha {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px var(--e4);
+  margin: 0;
+}
+.dados-ficha dt {
+  color: var(--tx2);
+}
+.dados-ficha dd {
+  margin: 0;
+}
+.sessoes-ficha {
+  margin: 0;
+  padding-left: var(--e4);
+  display: grid;
+  gap: var(--e3);
+}
+
+/* Impressão da ficha: só o documento, sem a moldura do aplicativo. */
+@media print {
+  /* Papel é sempre claro, mesmo com o tema escuro ligado na tela. */
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: light;
+    --bg: #fff;
+    --sf: #fff;
+    --tx: #111;
+    --tx2: #444;
+    --bd: #ddd;
+    --bd2: #bbb;
+  }
+  .lateral,
+  .topo,
+  .rodape,
+  .nav-baixo,
+  .nao-imprimir {
+    display: none !important;
+  }
+  .app,
+  .principal,
+  .conteudo {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .impressao .cartao {
+    box-shadow: none;
+    border: 0;
+    padding: 0;
+    break-inside: auto;
+  }
+  .impressao .sessoes-ficha > li {
+    break-inside: avoid;
+  }
+}
