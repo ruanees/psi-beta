@@ -446,13 +446,15 @@ O Meet não pode ser embutido numa página de outro site — o Google bloqueia p
 - [x] Aviso na sala se o e-Psi estiver vazio (o Início já lista o e-Psi nas pendências do perfil)
 - [x] Filtro de agenda por modalidade (Todas, Presencial, Online) e realizadas presenciais × online em Relatórios
 
-**5b — Link do Meet gerado pela plataforma**
-- [ ] Projeto no Google Cloud com a Google Meet API e tela de consentimento OAuth (ver seção 15: aprovação do Google)
-- [ ] Configurações → "Conectar Google": o psicólogo autoriza uma vez; o back guarda o token **cifrado** e nunca o devolve ao front
-- [ ] Ao marcar sessão online, o back cria o espaço do Meet (`spaces.create`) com acesso restrito a quem tem o link, e grava na sala; remarcar mantém o espaço, cancelar o encerra
-- [ ] Falhou o Google (token revogado, fora do ar): a sessão é criada mesmo assim, com aviso "Não foi possível gerar o link do Meet. Cole um link ou tente de novo." — nunca trava a agenda
-- [ ] "Desconectar Google" revoga o token no Google e apaga do banco
-- [ ] Nenhuma gravação, de propósito; o PSI não pede escopo de gravação nem de transcrição
+**5b — Link do Meet gerado pela plataforma** — código pronto, desligado até o Google
+- [x] Configurações → "Conectar Google": o psicólogo autoriza uma vez (conta pessoal ou Workspace). O back guarda o refresh token **cifrado** (AES-GCM, chave `GOOGLE_CHAVE` só no Worker) e nunca o devolve ao front
+- [x] OAuth com retorno numa página do front (`/google/retorno`), que repassa código e `state` ao back com o login de quem pediu; `state` assinado e amarrado ao usuário e à conta (10 min), PKCE S256 sem estado guardado
+- [x] **Uma sala do Meet por paciente** (`spaces.create`), criada na primeira sessão online e reaproveitada, como o link do paciente. Ordem do link: colado na sessão > Meet do paciente > fixo do perfil
+- [x] Falhou o Google: a sessão é criada mesmo assim; a janela mostra "Não foi possível gerar o link do Meet. Cole um link ou tente de novo." e o botão "Gerar link do Meet" — nunca trava a agenda
+- [x] Token recusado (revogado ou vencido): marca para reconectar e a tela pede "Conectar de novo"
+- [x] "Desconectar" apaga a conexão e revoga o token no Google
+- [x] Escopos: só `meetings.space.created`, `openid` e `email`. Nenhuma gravação nem transcrição
+- [ ] **Ligar** (depende do domínio próprio — ver seção 15): projeto no Google Cloud com a Google Meet API, tela de consentimento, cliente OAuth "Aplicativo da Web" com o URI de redirecionamento `https://<front>/google/retorno`, e três segredos no Worker do back: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `GOOGLE_CHAVE` (`openssl rand -base64 32`). Sem os três, o cartão do Google nem aparece
 
 ## 13 — Fase 6 — Beta com psicólogos
 
@@ -480,6 +482,7 @@ Na ordem provável, a conferir com o retorno do beta.
 ## 15 — Em aberto
 
 - **Nome do produto** e domínio.
+- **Lembrete: domínio próprio → aprovação do Google.** Quando o domínio do Senda estiver criado, começar a verificação do OAuth (a 5b já está pronta no código, só espera isto).
 - **Aprovação do Google para o OAuth** (bloqueia a 5b em produção). Criar sala do Meet em nome do psicólogo usa escopo que o Google classifica como sensível: app com usuários externos precisa passar pela verificação (política de privacidade publicada, domínio próprio, vídeo de demonstração), que pode levar semanas. Antes dela, o app roda em modo de teste com até 100 usuários cadastrados à mão — o que serve ao beta, com um custo: nesse modo a autorização expira a cada 7 dias e o psicólogo reconecta. Começar a verificação junto com a Fase 5a, não depois. Conferir as regras na hora — mudam.
 - **Vídeo embutido na plataforma** (Daily, JaaS, Whereby) — fora do beta; volta à mesa só se o Meet em outra aba incomodar no uso real.
 - **Criptografia de campo** para `observacoes.texto` e `pacientes.queixa_principal`, além da criptografia em repouso do Supabase. Protege contra vazamento de backup, mas impede busca no texto. Decidir antes da Fase 2, porque mudar depois exige migrar todo o histórico.

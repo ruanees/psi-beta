@@ -7,6 +7,8 @@ import { ContasController } from './contas/contas.controller';
 import { ContasService } from './contas/contas.service';
 import { FinanceiroController } from './financeiro/financeiro.controller';
 import { FinanceiroService } from './financeiro/financeiro.service';
+import { GoogleController } from './google/google.controller';
+import { GoogleService } from './google/google.service';
 import { PacientesController } from './pacientes/pacientes.controller';
 import { PacientesService } from './pacientes/pacientes.service';
 import { ProntuarioController } from './prontuario/prontuario.controller';
@@ -19,7 +21,7 @@ import { GoTrueService } from './supabase/gotrue.service';
 import { SupabaseService } from './supabase/supabase.service';
 
 @Module({
-  controllers: [SaudeController, SessaoController, ContasController, PacientesController, AgendaController, ProntuarioController, FinanceiroController, SalaController],
+  controllers: [SaudeController, SessaoController, ContasController, PacientesController, AgendaController, ProntuarioController, FinanceiroController, SalaController, GoogleController],
   providers: [
     SupabaseService,
     GoTrueService,
@@ -29,6 +31,7 @@ import { SupabaseService } from './supabase/supabase.service';
     ProntuarioService,
     FinanceiroService,
     SalaService,
+    GoogleService,
     { provide: APP_GUARD, useClass: AutenticacaoGuard },
   ],
 })

@@ -32,6 +32,14 @@ export class SalaController {
   }
 
   @ApiBearerAuth()
+  @Post('contas/:conta/sessoes/:sessao/sala/meet')
+  @HttpCode(200)
+  @ApiOkResponse({ type: SalaSessaoDto, description: 'Cria a sala do Meet do paciente pela conta Google conectada.' })
+  gerarMeet(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Param('sessao', UUID) sessao: string) {
+    return this.sala.gerarMeet(jwt, conta, sessao);
+  }
+
+  @ApiBearerAuth()
   @Post('contas/:conta/pacientes/:paciente/sala/renovar')
   @HttpCode(200)
   @ApiOkResponse({ type: TokenSalaDto, description: 'O link anterior do paciente para de funcionar.' })

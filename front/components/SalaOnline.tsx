@@ -53,6 +53,11 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
     );
   const copiar = () =>
     executar(() => navigator.clipboard.writeText(linkDoPaciente(sala.token)), 'Link do paciente copiado. Mande pelo canal que vocês já usam.');
+  const gerarMeet = () =>
+    executar(async () => {
+      const s = await api('post', '/contas/{conta}/sessoes/{sessao}/sala/meet', { params: { conta: conta.id, sessao } });
+      setSala(s);
+    }, 'Sala do Meet do paciente criada. Ela vale para as próximas sessões online dele.');
   const renovar = () =>
     executar(async () => {
       const r = await api('post', '/contas/{conta}/pacientes/{paciente}/sala/renovar', { params: { conta: conta.id, paciente } });
@@ -65,7 +70,13 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
       <div className="cartao-topo">
         <strong>Sala online</strong>
         <span className="etiqueta">
-          {sala.linkSessao ? 'Link desta sessão' : sala.linkPerfil ? 'Link fixo do perfil' : 'Sem link da chamada'}
+          {sala.linkSessao
+            ? 'Link desta sessão'
+            : sala.linkMeet
+              ? 'Meet do paciente'
+              : sala.linkPerfil
+                ? 'Link fixo do perfil'
+                : 'Sem link da chamada'}
         </span>
       </div>
 
@@ -73,6 +84,17 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
         <div className="aviso" data-t="atencao">
           Atendimento online pede cadastro no e-Psi (Resolução CFP 11/2018). Preencha o número em{' '}
           <Link href="/configuracoes">Configurações</Link>.
+        </div>
+      )}
+      {sala.google === 'reconectar' && (
+        <div className="aviso" data-t="atencao">
+          O Google não aceita mais a sua conexão, então o Senda não cria salas do Meet. Conecte de novo em{' '}
+          <Link href="/configuracoes">Configurações</Link>.
+        </div>
+      )}
+      {sala.avisoMeet && sala.google !== 'reconectar' && (
+        <div className="aviso" data-t="atencao">
+          {sala.avisoMeet}
         </div>
       )}
       {erro && (
@@ -93,7 +115,7 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
             className="ent"
             type="url"
             inputMode="url"
-            placeholder={sala.linkPerfil ?? 'https://meet.google.com/…'}
+            placeholder={sala.linkMeet ?? sala.linkPerfil ?? 'https://meet.google.com/…'}
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             style={{ flex: 1, minWidth: 0 }}
@@ -105,9 +127,11 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
           )}
         </div>
         <small>
-          {sala.linkPerfil
-            ? 'Em branco, vale o link fixo do seu perfil.'
-            : 'Cole o link do Meet desta sessão, ou guarde um link fixo em Configurações.'}
+          {sala.linkMeet
+            ? 'Em branco, vale a sala do Meet do paciente, criada pelo Senda.'
+            : sala.linkPerfil
+              ? 'Em branco, vale o link fixo do seu perfil.'
+              : 'Cole o link do Meet desta sessão, ou guarde um link fixo em Configurações.'}
         </small>
       </label>
 
@@ -116,6 +140,11 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
           <a className="btn" href={sala.link} target="_blank" rel="noopener noreferrer">
             <Icone nome="video" tamanho={16} /> {nomeDaChamada(sala.link)}
           </a>
+        )}
+        {sala.google === 'conectada' && !sala.linkMeet && (
+          <button type="button" className="btn" data-v="sec" disabled={ocupado} onClick={gerarMeet}>
+            <Icone nome="video" tamanho={16} /> Gerar link do Meet
+          </button>
         )}
         <button type="button" className="btn" data-v="sec" disabled={ocupado} onClick={copiar}>
           Copiar link do paciente

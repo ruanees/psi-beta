@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { NOMES_CONFIG, lerConfig, type NomeConfig, type Origem } from '../comum/config';
+import { NOMES_CONFIG, lerConfig, versaoPublicada, type NomeConfig, type Origem } from '../comum/config';
 import { Publico } from '../comum/publico';
 import { documentoOpenApi } from '../openapi';
 
@@ -14,7 +14,7 @@ class SaudeDto {
   })
   config: Record<NomeConfig, Origem>;
 
-  @ApiProperty({ description: 'Data e hora da geração do bundle.' })
+  @ApiProperty({ description: 'Data e hora em que esta versão do Worker foi publicada (`local` fora do Worker).' })
   versao: string;
 }
 
@@ -29,7 +29,7 @@ export class SaudeController {
     return {
       supabase: config.SUPABASE_URL !== 'faltando' && config.SUPABASE_ANON_KEY !== 'faltando',
       config,
-      versao: process.env.PSI_VERSAO ?? 'local',
+      versao: versaoPublicada(),
     };
   }
 

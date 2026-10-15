@@ -32,6 +32,10 @@ command = "npm run build"
 [observability]
 enabled = true
 
+# Carimbo de quando a versão foi publicada: o /saude mostra em `versao`.
+[version_metadata]
+binding = "VERSAO_CF"
+
 # Homologação: só dado sintético. É o padrão — `wrangler deploy` sem --env cai aqui.
 [vars]
 SUPABASE_URL = "https://azvycgsgqjsugykqtsdl.supabase.co"
@@ -51,3 +55,6 @@ SUPABASE_URL = "https://PREENCHER-PRODUCAO.supabase.co"
 SUPABASE_ANON_KEY = "PREENCHER-CHAVE-ANON-PRODUCAO"
 ORIGENS = "https://psi-front.PREENCHER.workers.dev"
 FRONT_URL = "https://psi-front.PREENCHER.workers.dev"
+
+[env.producao.version_metadata]
+binding = "VERSAO_CF"

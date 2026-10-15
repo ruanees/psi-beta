@@ -6,6 +6,7 @@ import { AgendaService } from '../src/agenda/agenda.service';
 import { traduzirBanco, ErroBanco } from '../src/comum/erros';
 import { SalaController } from '../src/sala/sala.controller';
 import { LINK_SALA } from '../src/sala/sala.dto';
+import { GoogleService } from '../src/google/google.service';
 import { SalaService } from '../src/sala/sala.service';
 import type { SupabaseService } from '../src/supabase/supabase.service';
 
@@ -40,24 +41,24 @@ function servico(respostas: Record<string, unknown>) {
 describe('sala online: API x banco', () => {
   it('cada RPC recebe exatamente os parâmetros que a função declara', async () => {
     const { falso, chamadas } = servico({
-      sala_sessao: { link: null, link_sessao: null, link_perfil: null, token: 'x', epsi_ok: true },
+      sala_sessao: { link: null, link_sessao: null, link_meet: null, link_perfil: null, token: 'x', epsi_ok: true, paciente_id: 'p', modalidade: 'online', google: 'desconectada' },
       sala_publica: { profissional: 'Ana', situacao: 'sem_sessao' },
       painel_inicio: { hoje: [], sessoes_semana: 0, pacientes_ativos: 0, sem_proxima: [] },
       proxima_online: null,
     });
-    const s = new SalaService(falso);
+    const s = new SalaService(falso, new GoogleService(falso));
     const c = '00000000-0000-0000-0000-000000000001';
     await s.daSessao('t', c, c);
     await s.gravarLink('t', c, c, null);
     await s.renovar('t', c, c);
     await s.publica('a'.repeat(64));
-    await new AgendaService(falso).painel('t', c);
+    await new AgendaService(falso, s).painel('t', c);
     for (const { funcao, args } of chamadas) assert.deepEqual(args, parametros(funcao), funcao);
     assert.deepEqual(chamadas.filter((x) => x.publica).map((x) => x.funcao), ['sala_publica'], 'só a sala é sem login');
   });
 
   it('o serviço lê as chaves que as funções devolvem', () => {
-    for (const chave of ['link', 'link_sessao', 'link_perfil', 'token', 'epsi_ok']) {
+    for (const chave of ['link', 'link_sessao', 'link_meet', 'link_perfil', 'token', 'epsi_ok', 'paciente_id', 'modalidade', 'google']) {
       assert.match(definicao('sala_sessao')[0], new RegExp(`'${chave}'`), chave);
     }
     for (const chave of ['profissional', 'situacao', 'inicio', 'fim', 'abre_em', 'link']) {
@@ -77,7 +78,7 @@ describe('sala online: API x banco', () => {
 
   it('a porta pública recusa token fora do formato sem ir ao banco', async () => {
     const { falso, chamadas } = servico({});
-    const ctrl = new SalaController(new SalaService(falso));
+    const ctrl = new SalaController(new SalaService(falso, new GoogleService(falso)));
     assert.throws(() => ctrl.publica('abc'), (e: unknown) => e instanceof ErroBanco && e.chave === 'sala_nao_encontrada');
     assert.throws(() => ctrl.publica('G'.repeat(64)));
     assert.equal(chamadas.length, 0);

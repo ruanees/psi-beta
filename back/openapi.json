@@ -2377,6 +2377,49 @@
         ]
       }
     },
+    "/contas/{conta}/sessoes/{sessao}/sala/meet": {
+      "post": {
+        "operationId": "Sala_gerarMeet",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cria a sala do Meet do paciente pela conta Google conectada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaSessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sala"
+        ]
+      }
+    },
     "/contas/{conta}/pacientes/{paciente}/sala/renovar": {
       "post": {
         "operationId": "Sala_renovar",
@@ -2449,6 +2492,140 @@
           "sala"
         ]
       }
+    },
+    "/contas/{conta}/google": {
+      "get": {
+        "operationId": "Google_status",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "google"
+        ]
+      },
+      "delete": {
+        "operationId": "Google_desconectar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Apaga a conexão e revoga o acesso no Google."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "google"
+        ]
+      }
+    },
+    "/contas/{conta}/google/conectar": {
+      "post": {
+        "operationId": "Google_conectar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "google"
+        ]
+      }
+    },
+    "/contas/{conta}/google/retorno": {
+      "post": {
+        "operationId": "Google_retorno",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetornoGoogleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Troca o código pelo token, que fica guardado cifrado."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "google"
+        ]
+      }
     }
   },
   "info": {
@@ -2485,7 +2662,7 @@
           },
           "versao": {
             "type": "string",
-            "description": "Data e hora da geração do bundle."
+            "description": "Data e hora em que esta versão do Worker foi publicada (`local` fora do Worker)."
           }
         },
         "required": [
@@ -4776,6 +4953,16 @@
           "cobranca"
         ]
       },
+      "GoogleSala": {
+        "type": "string",
+        "enum": [
+          "indisponivel",
+          "desconectada",
+          "conectada",
+          "reconectar"
+        ],
+        "description": "`indisponivel`: integração desligada; `reconectar`: o Google recusou o token."
+      },
       "SalaSessaoDto": {
         "type": "object",
         "properties": {
@@ -4789,6 +4976,11 @@
             "nullable": true,
             "description": "Colado nesta sessão."
           },
+          "linkMeet": {
+            "type": "string",
+            "nullable": true,
+            "description": "Sala do Meet do paciente, criada pela conta Google do psicólogo."
+          },
           "linkPerfil": {
             "type": "string",
             "nullable": true,
@@ -4801,14 +4993,30 @@
           "epsiOk": {
             "type": "boolean",
             "description": "Falso quando o perfil não tem o número do e-Psi."
+          },
+          "google": {
+            "description": "`indisponivel`: integração desligada; `reconectar`: o Google recusou o token.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GoogleSala"
+              }
+            ]
+          },
+          "avisoMeet": {
+            "type": "string",
+            "nullable": true,
+            "description": "Por que o Meet não foi gerado agora, quando tentou e falhou."
           }
         },
         "required": [
           "link",
           "linkSessao",
+          "linkMeet",
           "linkPerfil",
           "token",
-          "epsiOk"
+          "epsiOk",
+          "google",
+          "avisoMeet"
         ]
       },
       "LinkSalaDto": {
@@ -4888,6 +5096,68 @@
           "fim",
           "abreEm",
           "link"
+        ]
+      },
+      "GoogleStatusDto": {
+        "type": "object",
+        "properties": {
+          "disponivel": {
+            "type": "boolean",
+            "description": "Falso enquanto os segredos do Google não estão no Worker: a tela não oferece a conexão."
+          },
+          "conectada": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "description": "A conta Google conectada."
+          },
+          "conectadaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "falhou": {
+            "type": "boolean",
+            "description": "O Google recusou o token (revogado ou vencido): pede reconexão."
+          }
+        },
+        "required": [
+          "disponivel",
+          "conectada",
+          "email",
+          "conectadaEm",
+          "falhou"
+        ]
+      },
+      "UrlDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Endereço de autorização do Google, para onde o navegador vai."
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "RetornoGoogleDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "description": "O `code` que o Google pôs na URL de retorno."
+          },
+          "estado": {
+            "type": "string",
+            "description": "O `state` que voltou junto, assinado pelo back na ida."
+          }
+        },
+        "required": [
+          "codigo",
+          "estado"
         ]
       }
     }

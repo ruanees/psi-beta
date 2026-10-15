@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { SalaService } from '../sala/sala.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import type {
   AlterarSessaoDto,
@@ -36,7 +37,10 @@ function sessao(b: SessaoBanco): SessaoAgendaDto {
 
 @Injectable()
 export class AgendaService {
-  constructor(private readonly supabase: SupabaseService) {}
+  constructor(
+    private readonly supabase: SupabaseService,
+    private readonly sala: SalaService,
+  ) {}
 
   async listar(jwt: string, conta: string, de: string, ate: string): Promise<SessaoAgendaDto[]> {
     const linhas = await this.supabase.rpc<SessaoBanco[]>(jwt, 'agenda_listar', { c: conta, de, ate });
@@ -89,6 +93,7 @@ export class AgendaService {
         repetir_semanal: dto.repetirSemanal ?? false,
       },
     });
+    if (dto.modalidade === 'online') await this.sala.prepararMeet(jwt, conta, id);
     return { id };
   }
 
@@ -103,6 +108,7 @@ export class AgendaService {
       d,
       escopo: dto.escopo ?? 'esta',
     });
+    if (dto.modalidade === 'online') await this.sala.prepararMeet(jwt, conta, id);
     return { id };
   }
 
