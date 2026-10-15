@@ -9,6 +9,7 @@ import { Icone } from '@/components/Icone';
 import { FinanceiroPaciente } from '@/components/FinanceiroPaciente';
 import { HistoricoPaciente } from '@/components/HistoricoPaciente';
 import { PacotesPaciente, SaldoPacote } from '@/components/PacotesPaciente';
+import { Recibos } from '@/components/Recibos';
 import { LinhaSessao } from '@/components/LinhaSessao';
 import { AcessosPaciente } from '@/components/AcessosPaciente';
 import { PlanoPaciente } from '@/components/PlanoPaciente';
@@ -22,10 +23,9 @@ import { resumoPlano } from '@/lib/planos.ts';
 import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
-// Recibos chega na fase 4.
 
 type Paciente = Dto<'PacienteDto'>;
-type Aba = 'resumo' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'dados';
+type Aba = 'resumo' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'recibos' | 'dados';
 
 const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }[] = [
   { id: 'resumo', rotulo: 'Resumo', pronta: true },
@@ -34,7 +34,7 @@ const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }
   { id: 'dados', rotulo: 'Dados', pronta: true },
   { id: 'pacotes', rotulo: 'Pacotes', pronta: true },
   { id: 'financeiro', rotulo: 'Financeiro', pronta: true },
-  { id: 'recibos', rotulo: 'Recibos', pronta: false, fase: 4 },
+  { id: 'recibos', rotulo: 'Recibos', pronta: true },
 ];
 
 export default function FichaDoPaciente() {
@@ -174,6 +174,8 @@ export default function FichaDoPaciente() {
       {aba === 'pacotes' && <PacotesPaciente paciente={p.id} plano={p.plano} />}
 
       {aba === 'financeiro' && <FinanceiroPaciente paciente={p.id} recarga={recarga} />}
+
+      {aba === 'recibos' && <Recibos paciente={p.id} />}
 
       {aba === 'dados' && <Dados p={p} gravar={gravar} recarregar={carregar} />}
 

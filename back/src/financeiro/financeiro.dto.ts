@@ -1,5 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsInt, IsNumber, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export const SITUACOES_COBRANCA = ['pendente', 'vencida', 'paga', 'cancelada'] as const;
 export type SituacaoCobranca = (typeof SITUACOES_COBRANCA)[number];
@@ -46,6 +61,7 @@ export class PainelFinanceiroDto {
   @ApiProperty() vencidas: number;
   @ApiProperty() valorVencido: number;
   @ApiProperty({ description: 'Pagas neste mês.' }) recebidoMes: number;
+  @ApiProperty({ description: 'Cobranças pagas ainda sem recibo registrado.' }) semRecibo: number;
   @ApiProperty({ type: PacienteAcabandoDto, isArray: true, description: 'Pacientes ativos com 1 ou 0 sessão de pacote restante.' })
   pacotesAcabando: PacienteAcabandoDto[];
 }
@@ -151,4 +167,113 @@ export class NovoPacoteDto {
   @Min(0)
   @Max(99999.99)
   valor?: number;
+}
+
+// ------------------------------------------------------------ recibos
+
+export class PessoaReciboDto {
+  @ApiProperty() nome: string;
+  @ApiProperty({ type: String, nullable: true, description: '11 dígitos, sem pontuação.' }) cpf: string | null;
+}
+
+export class PacienteReciboDto extends PessoaReciboDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+}
+
+export class PagadorReciboDto extends PessoaReciboDto {
+  @ApiProperty({ description: 'É o responsável marcado como "paga as sessões" (não o próprio paciente).' })
+  responsavel: boolean;
+}
+
+export class ItemFilaReciboDto {
+  @ApiProperty({ format: 'uuid', description: 'A cobrança paga.' }) id: string;
+  @ApiProperty({ enum: ORIGENS_COBRANCA, enumName: 'OrigemCobranca' }) origem: OrigemCobranca;
+  @ApiProperty() valor: number;
+  @ApiProperty({ format: 'date' }) pagaEm: string;
+  @ApiProperty({ enum: FORMAS_PAGAMENTO, enumName: 'FormaPagamento' }) forma: FormaPagamento;
+  @ApiProperty({ type: String, nullable: true, format: 'date-time' }) sessaoInicio: string | null;
+  @ApiProperty({ type: Number, nullable: true }) pacoteQuantidade: number | null;
+  @ApiProperty({ type: String, nullable: true, format: 'date' }) referencia: string | null;
+  @ApiProperty({ type: PacienteReciboDto }) paciente: PacienteReciboDto;
+  @ApiProperty({ type: PagadorReciboDto }) pagador: PagadorReciboDto;
+}
+
+export class ReciboDto {
+  @ApiProperty({ format: 'uuid' }) id: string;
+  @ApiProperty({ format: 'uuid' }) pacienteId: string;
+  @ApiProperty() numero: string;
+  @ApiProperty({ format: 'date' }) emitidoEm: string;
+  @ApiProperty() valor: number;
+  @ApiProperty() pagadorNome: string;
+  @ApiProperty({ type: String, nullable: true }) pagadorCpf: string | null;
+  @ApiProperty() beneficiarioNome: string;
+  @ApiProperty({ type: String, nullable: true }) beneficiarioCpf: string | null;
+  @ApiProperty({ type: String, nullable: true, format: 'date-time' }) canceladoEm: string | null;
+  @ApiProperty({ type: String, nullable: true }) canceladoMotivo: string | null;
+  @ApiProperty({ description: 'Quantas cobranças o recibo cobre.' }) cobrancas: number;
+}
+
+export class FiltroRecibosDto {
+  @ApiPropertyOptional({ format: 'date', description: 'Emitido a partir de.' })
+  @IsOptional()
+  @Matches(DATA, { message: 'Data no formato AAAA-MM-DD.' })
+  de?: string;
+
+  @ApiPropertyOptional({ format: 'date', description: 'Emitido até.' })
+  @IsOptional()
+  @Matches(DATA, { message: 'Data no formato AAAA-MM-DD.' })
+  ate?: string;
+
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID('all', { message: 'Paciente inválido.' })
+  paciente?: string;
+}
+
+export class NovoReciboDto {
+  @ApiProperty({ type: String, format: 'uuid', isArray: true, description: 'Cobranças pagas do mesmo paciente.' })
+  @IsArray()
+  @ArrayMinSize(1, { message: 'Escolha ao menos um pagamento.' })
+  @ArrayMaxSize(60)
+  @IsUUID('all', { each: true, message: 'Pagamento inválido.' })
+  cobrancas: string[];
+
+  @ApiProperty({ description: 'Número do recibo no Receita Saúde.' })
+  @IsString()
+  @MinLength(1, { message: 'Informe o número do recibo.' })
+  @MaxLength(60)
+  numero: string;
+
+  @ApiProperty({ format: 'date' })
+  @Matches(DATA, { message: 'Data de emissão no formato AAAA-MM-DD.' })
+  emitidoEm: string;
+}
+
+// ------------------------------------------------------------ relatório
+
+export class MesRelatorioDto {
+  @ApiProperty({ format: 'date', description: 'Primeiro dia do mês.' }) mes: string;
+  @ApiProperty() realizadas: number;
+  @ApiProperty() faltas: number;
+  @ApiProperty() recebido: number;
+}
+
+export class RelatorioMensalDto {
+  @ApiProperty({ format: 'date', description: 'Primeiro dia do mês.' }) mes: string;
+  @ApiProperty() realizadas: number;
+  @ApiProperty() faltas: number;
+  @ApiProperty() desmarcadas: number;
+  @ApiProperty({ description: 'Realizadas online.' }) online: number;
+  @ApiProperty() pacientesAtendidos: number;
+  @ApiProperty() pacientesNovos: number;
+  @ApiProperty({ description: 'Pagamentos com data no mês.' }) recebido: number;
+  @ApiProperty({ description: 'Pendentes com vencimento no mês.' }) aReceber: number;
+  @ApiProperty({ type: MesRelatorioDto, isArray: true, description: 'Os 12 meses até o escolhido, do mais antigo ao mais novo.' })
+  porMes: MesRelatorioDto[];
+}
+
+export class MesDto {
+  @ApiProperty({ example: '2026-10' })
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, { message: 'Mês no formato AAAA-MM.' })
+  mes: string;
 }

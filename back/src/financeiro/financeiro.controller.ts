@@ -5,6 +5,12 @@ import { Jwt } from '../comum/publico';
 import { IdDto } from '../pacientes/pacientes.dto';
 import {
   CobrancaDto,
+  FiltroRecibosDto,
+  ItemFilaReciboDto,
+  MesDto,
+  NovoReciboDto,
+  ReciboDto,
+  RelatorioMensalDto,
   FiltroCobrancasDto,
   MotivoDto,
   NovoPacoteDto,
@@ -97,6 +103,42 @@ export class FinanceiroController {
     @Body() dto: NovoPacoteDto,
   ) {
     return this.financeiro.novoPacote(jwt, conta, paciente, dto);
+  }
+
+  @Get('recibos/fila')
+  @ApiOkResponse({ type: ItemFilaReciboDto, isArray: true, description: 'Pagamentos ainda sem recibo, com os dados do Receita Saúde.' })
+  filaRecibos(@Jwt() jwt: string, @Param('conta', UUID) conta: string) {
+    return this.financeiro.filaRecibos(jwt, conta);
+  }
+
+  @Get('recibos')
+  @ApiOkResponse({ type: ReciboDto, isArray: true })
+  recibos(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Query() filtro: FiltroRecibosDto) {
+    return this.financeiro.recibos(jwt, conta, filtro);
+  }
+
+  @Post('recibos')
+  @ApiOkResponse({ type: IdDto, description: 'Registra o recibo emitido no Receita Saúde.' })
+  registrarRecibo(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Body() dto: NovoReciboDto) {
+    return this.financeiro.registrarRecibo(jwt, conta, dto);
+  }
+
+  @Post('recibos/:recibo/cancelar')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'As cobranças voltam para a fila; o registro fica, com o motivo.' })
+  cancelarRecibo(
+    @Jwt() jwt: string,
+    @Param('conta', UUID) conta: string,
+    @Param('recibo', UUID) recibo: string,
+    @Body() dto: MotivoDto,
+  ) {
+    return this.financeiro.cancelarRecibo(jwt, conta, recibo, dto.motivo);
+  }
+
+  @Get('relatorios/mensal')
+  @ApiOkResponse({ type: RelatorioMensalDto })
+  relatorio(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Query() q: MesDto) {
+    return this.financeiro.relatorio(jwt, conta, q.mes);
   }
 
   @Get('sessoes/:sessao/financeiro')

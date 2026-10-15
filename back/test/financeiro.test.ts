@@ -24,6 +24,8 @@ const RESPOSTAS: Record<string, unknown> = {
   painel_financeiro: { a_receber: '10.50', vencidas: 1, valor_vencido: 0, recebido_mes: 0, pacotes_acabando: [] },
   sessao_financeiro: { pacote: null, cobranca: null },
   pacote_criar: 'id',
+  recibo_registrar: 'id',
+  relatorio_mensal: { por_mes: [] },
 };
 
 function servicoQueAnota() {
@@ -50,7 +52,12 @@ describe('financeiro: API x banco', () => {
     await s.pacotes('t', c, c);
     await s.novoPacote('t', c, c, {});
     await s.daSessao('t', c, c);
-    assert.equal(chamadas.length, 9);
+    await s.filaRecibos('t', c);
+    await s.recibos('t', c, {});
+    await s.registrarRecibo('t', c, { cobrancas: [c], numero: '1', emitidoEm: '2026-10-15' });
+    await s.cancelarRecibo('t', c, c, 'm');
+    await s.relatorio('t', c, '2026-10');
+    assert.equal(chamadas.length, 14);
     for (const { funcao, args } of chamadas) assert.deepEqual(args, parametros(funcao), funcao);
   });
 
@@ -58,6 +65,12 @@ describe('financeiro: API x banco', () => {
     const corpo = /create function public\.cobrancas_listar[\s\S]*?\n\$\$;/.exec(sql)![0];
     const lidas = [...new Set([...corpo.matchAll(/filtro ->> '([a-z_]+)'/g)].map((m) => m[1]))].sort();
     assert.deepEqual(lidas, ['ate', 'de', 'paciente_id', 'situacao']);
+  });
+
+  it('recibo_registrar lê o que o serviço manda', () => {
+    const corpo = /create function public\.recibo_registrar[\s\S]*?\n\$\$;/.exec(sql)![0];
+    const lidas = [...new Set([...corpo.matchAll(/d (?:->>|->) '([a-z_]+)'/g)].map((m) => m[1]))].sort();
+    assert.deepEqual(lidas, ['cobrancas', 'emitido_em', 'numero']);
   });
 
   it('dinheiro sai como número, mesmo se o banco mandar texto', async () => {

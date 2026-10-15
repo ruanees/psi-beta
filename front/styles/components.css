@@ -342,6 +342,15 @@ p {
 .grade[data-n='4'] {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
+/* Cinco números lado a lado só cabem em tela larga; no meio, viram 3 + 2. */
+.grade[data-n='5'] {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 1500px) {
+  .grade[data-n='5'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 @media (max-width: 760px) {
   .grade[data-n] {
     grid-template-columns: minmax(0, 1fr);
@@ -1941,4 +1950,157 @@ select.ent {
   display: block;
   height: 100%;
   background: var(--ac);
+}
+
+/* ------------------------------------------------------------ recibos */
+
+.bloco-recibo {
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  padding: var(--e4);
+}
+.dados-recibo {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px var(--e4);
+  margin: 0;
+}
+.dados-recibo dt {
+  color: var(--tx2);
+}
+.dados-recibo dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e3);
+  align-items: baseline;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .dados-recibo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dados-recibo dd {
+    margin-bottom: var(--e2);
+  }
+}
+
+/* ------------------------------------------------------------ relatórios */
+
+.grafico {
+  margin: 0;
+  display: grid;
+  gap: var(--e3);
+}
+.grafico-topo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+.legenda {
+  display: flex;
+  gap: var(--e4);
+  color: var(--tx2);
+  font-size: 13px;
+}
+.legenda > span,
+.grafico-dica > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legenda i,
+.grafico-dica i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.grafico-area {
+  position: relative;
+}
+.grafico-area svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.grafico-grade {
+  stroke: var(--bd);
+  stroke-width: 1;
+}
+.grafico-eixo {
+  fill: var(--tx2);
+  font-size: 12px;
+}
+.grafico-alvo {
+  fill: transparent;
+  cursor: default;
+  outline: none;
+}
+.grafico-alvo:focus-visible {
+  stroke: var(--ac);
+  stroke-width: 2;
+}
+.grafico-dica {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 8px));
+  background: var(--sf);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r2);
+  box-shadow: var(--sombra);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.tabela-rola {
+  overflow-x: auto;
+}
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.tabela th,
+.tabela td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bd);
+  text-align: right;
+}
+.tabela th:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+.tabela thead th {
+  color: var(--tx2);
+  font-weight: 500;
+}
+.tabela tr[aria-current] {
+  background: var(--sf2);
+}
+@media print {
+  .grafico-dica {
+    display: none;
+  }
+}
+
+/* Caixa de marcar comum (escolher itens), diferente do .alternar (liga/desliga). */
+.marcar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e3);
+  cursor: pointer;
+}
+.marcar input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ac);
+}
+.lista .num {
+  white-space: nowrap;
 }

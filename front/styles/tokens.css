@@ -70,6 +70,7 @@
   --at: #9a5b00;
   --at-sf: #fdf0d9;
   --er: #c0353f;
+  --graf-falta: #c0353f; /* gráficos: série "faltas" (validada com --ac, dataviz) */
   --er-sf: #fde6e7;
   --ci: #0d6e8c;
   --ci-sf: #dff2f8;
@@ -111,6 +112,7 @@
     --at: #f0b34a;
     --at-sf: #3a2a10;
     --er: #f2848b;
+    --graf-falta: #e36670;
     --er-sf: #3d1a20;
     --ci: #62c3e0;
     --ci-sf: #10303b;
@@ -151,6 +153,7 @@
   --at: #f0b34a;
   --at-sf: #3a2a10;
   --er: #f2848b;
+  --graf-falta: #e36670;
   --er-sf: #3d1a20;
   --ci: #62c3e0;
   --ci-sf: #10303b;

@@ -27,3 +27,33 @@ export function descricaoCobranca(c: Cobranca): string {
   if (c.origem === 'pacote') return c.pacoteQuantidade ? `Pacote de ${c.pacoteQuantidade} sessões` : 'Pacote';
   return c.referencia ? `Mensalidade de ${nomeDoMes(c.referencia.slice(0, 7))}` : 'Mensalidade';
 }
+
+type ItemRecibo = Pick<Dto<'ItemFilaReciboDto'>, 'origem' | 'sessaoInicio' | 'pacoteQuantidade' | 'referencia'>;
+
+/** Descrição do serviço para o campo do Receita Saúde, de um ou mais pagamentos. */
+export function descricaoRecibo(itens: ItemRecibo[]): string {
+  const sessoes = itens
+    .filter((i) => i.origem === 'sessao' && i.sessaoInicio)
+    .map((i) => i.sessaoInicio!)
+    .sort()
+    .map((iso) => fd(partes(iso).dia));
+  const partesTexto: string[] = [];
+  if (sessoes.length === 1) partesTexto.push(`Sessão de psicoterapia em ${sessoes[0]}`);
+  if (sessoes.length > 1) {
+    partesTexto.push(`Sessões de psicoterapia em ${sessoes.slice(0, -1).join(', ')} e ${sessoes[sessoes.length - 1]}`);
+  }
+  for (const i of itens) {
+    if (i.origem === 'pacote') partesTexto.push(`Pacote de ${i.pacoteQuantidade ?? ''} sessões de psicoterapia`.replace('  ', ' '));
+    if (i.origem === 'mensal' && i.referencia) partesTexto.push(`Psicoterapia, mensalidade de ${nomeDoMes(i.referencia.slice(0, 7))}`);
+  }
+  return partesTexto.join('; ');
+}
+
+/** Linhas de CSV com ponto e vírgula e vírgula decimal, como o Excel em português abre. */
+export function csv(linhas: (string | number)[][]): string {
+  const campo = (v: string | number) => {
+    const t = typeof v === 'number' ? v.toFixed(2).replace('.', ',') : v;
+    return /[;"\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  };
+  return '﻿' + linhas.map((l) => l.map(campo).join(';')).join('\r\n');
+}
