@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { paraApi, paraBanco } from '../comum/campos';
 import { SupabaseService } from '../supabase/supabase.service';
+
+export { paraApi, paraBanco };
 import type {
   ConfiguracoesDto,
   ConfiguracoesParciaisDto,
@@ -62,20 +65,4 @@ export class ContasService {
       p: paraBanco(dto, CAMPOS_CONFIGURACOES),
     });
   }
-}
-
-/** Só as chaves presentes atravessam — `undefined` fica de fora, `null` vai. */
-export function paraBanco(dto: object, mapa: Record<string, string>): Record<string, unknown> {
-  const saida: Record<string, unknown> = {};
-  for (const [api, banco] of Object.entries(mapa)) {
-    const v = (dto as Record<string, unknown>)[api];
-    if (v !== undefined) saida[banco] = v;
-  }
-  return saida;
-}
-
-export function paraApi(linha: Record<string, unknown>, mapa: Record<string, string>): Record<string, unknown> {
-  const saida: Record<string, unknown> = {};
-  for (const [api, banco] of Object.entries(mapa)) saida[api] = linha[banco] ?? null;
-  return saida;
 }

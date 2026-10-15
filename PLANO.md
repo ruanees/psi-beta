@@ -61,16 +61,21 @@ Levantado com os psicólogos. Nada fora desta lista entra no beta; o que é pedi
 | Recibo pelo Receita Saúde ou NFS-e? | Receita Saúde | NFS-e sai do beta. O recibo do Receita Saúde é o caminho principal (Fase 4) |
 | Atendimento online | Meet integrado à plataforma ou gerado por ela; se não der, o mais otimizado possível | O Meet **não pode ser embutido** numa página de outro site — o Google bloqueia. O que dá, e é o plano: a plataforma **gera o link do Meet sozinha** para cada sessão online, pela conta Google do psicólogo. Vídeo embutido sai do beta (Fase 5) |
 
+### Respondidas (15/10/2026)
+
+| Pergunta | Resposta | O que muda no sistema |
+|---|---|---|
+| Com quantas horas de antecedência o aviso de falta conta? | 24 h ou 6 h | Escolha do psicólogo nas Configurações (24 h ou 6 h, padrão 24 h); o servidor aplica a regra |
+| Falta de sessão avulsa também é cobrada? | Sim | Falta avulsa gera cobrança, pela mesma regra do aviso |
+| Pacote tem validade? | Não | Pacote sem validade |
+| A observação pode ser corrigida depois? Até quando? | Por um mês (*interpretação: a resposta veio como "É pra ser um mês"; confirmar*) | Editável por 30 dias depois da sessão, toda versão guardada; depois disso trava e correção vira adendo |
+
 ### Ainda abertas
 
 Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o padrão da coluna da direita, configurável por conta.
 
 | Pergunta | Bloqueia | Padrão até a resposta |
 |---|---|---|
-| Com **quantas horas** de antecedência o aviso de falta conta? | Fase 1 | 24 h |
-| Falta de sessão avulsa (sem pacote) também é cobrada? | Fase 3 | Sim, pela mesma regra do aviso |
-| Pacote tem validade? | Fase 3 | Sem validade |
-| A observação pode ser corrigida depois? Até quando? | Fase 2 | Editável sempre, **toda versão guardada** e visível no histórico |
 | Cada paciente tem um valor de sessão próprio, ou é um valor único? | Fase 3 | Valor padrão da conta, sobrescrito por paciente |
 | A maioria dos pacientes tem horário fixo semanal? | Fase 1 | Repetição semanal disponível |
 | Alguém além do psicólogo (secretária) precisa entrar no beta? | Fase 0 | Não |

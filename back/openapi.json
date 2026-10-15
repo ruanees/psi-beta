@@ -471,6 +471,758 @@
           "contas"
         ]
       }
+    },
+    "/contas/{conta}/pacientes/buscar": {
+      "post": {
+        "operationId": "Pacientes_buscar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuscaPacientesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PacienteResumoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes": {
+      "post": {
+        "operationId": "Pacientes_criar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovoPacienteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}": {
+      "get": {
+        "operationId": "Pacientes_ler",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PacienteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      },
+      "patch": {
+        "operationId": "Pacientes_gravar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PacienteParcialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/situacao": {
+      "post": {
+        "operationId": "Pacientes_situacao",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SituacaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/responsaveis": {
+      "post": {
+        "operationId": "Pacientes_novoResponsavel",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovoResponsavelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/responsaveis/{responsavel}": {
+      "patch": {
+        "operationId": "Pacientes_gravarResponsavel",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "responsavel",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsavelParcialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      },
+      "delete": {
+        "operationId": "Pacientes_removerResponsavel",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "responsavel",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
+    "/contas/{conta}/agenda": {
+      "get": {
+        "operationId": "Agenda_listar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "de",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SessaoAgendaDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/painel": {
+      "get": {
+        "operationId": "Agenda_painel",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PainelDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/sessoes": {
+      "get": {
+        "operationId": "Agenda_doPaciente",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SessaoDoPacienteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes": {
+      "post": {
+        "operationId": "Agenda_criar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovaSessaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}": {
+      "patch": {
+        "operationId": "Agenda_alterar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterarSessaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Com escopo `proximas`, o id da nova primeira sessão.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}/status": {
+      "post": {
+        "operationId": "Agenda_status",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusSessaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}/desmarcar": {
+      "post": {
+        "operationId": "Agenda_desmarcar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesmarcarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesmarcarRespostaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}/encerrar-repeticao": {
+      "post": {
+        "operationId": "Agenda_encerrarRepeticao",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemovidasDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
+      }
     }
   },
   "info": {
@@ -829,6 +1581,749 @@
             "maximum": 240
           }
         }
+      },
+      "SituacaoPaciente": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "alta",
+          "arquivado"
+        ]
+      },
+      "BuscaPacientesDto": {
+        "type": "object",
+        "properties": {
+          "busca": {
+            "type": "string"
+          },
+          "situacao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoPaciente"
+              }
+            ]
+          }
+        }
+      },
+      "PacienteResumoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "nascimento": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "situacao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoPaciente"
+              }
+            ]
+          },
+          "responsavel": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nome do responsável principal."
+          },
+          "proximaSessao": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "ultimaSessao": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "telefone",
+          "nascimento",
+          "situacao",
+          "responsavel",
+          "proximaSessao",
+          "ultimaSessao"
+        ]
+      },
+      "NovoResponsavelDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "parentesco": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string",
+            "description": "11 dígitos, sem pontuação."
+          },
+          "financeiro": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "NovoPacienteDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "nascimento": {
+            "type": "string",
+            "format": "date"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "queixaPrincipal": {
+            "type": "string"
+          },
+          "valorSessao": {
+            "type": "number"
+          },
+          "consentimento": {
+            "type": "boolean",
+            "description": "O paciente (ou responsável) consentiu com o uso dos dados (LGPD). Precisa ser true."
+          },
+          "responsaveis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NovoResponsavelDto"
+            }
+          }
+        },
+        "required": [
+          "nome",
+          "consentimento"
+        ]
+      },
+      "IdDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "ResponsavelDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "parentesco": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true,
+            "description": "11 dígitos, sem pontuação."
+          },
+          "financeiro": {
+            "type": "boolean",
+            "description": "Paga as sessões: é o pagador do recibo."
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "parentesco",
+          "telefone",
+          "cpf",
+          "financeiro"
+        ]
+      },
+      "Modalidade": {
+        "type": "string",
+        "enum": [
+          "presencial",
+          "online"
+        ]
+      },
+      "StatusSessao": {
+        "type": "string",
+        "enum": [
+          "agendada",
+          "confirmada",
+          "realizada",
+          "falta",
+          "cancelada"
+        ]
+      },
+      "SessaoResumoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status"
+        ]
+      },
+      "RepeticaoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "diaSemana": {
+            "type": "number",
+            "description": "0 = domingo."
+          },
+          "hora": {
+            "type": "string",
+            "example": "14:00"
+          },
+          "duracaoMin": {
+            "type": "number"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "diaSemana",
+          "hora",
+          "duracaoMin",
+          "modalidade"
+        ]
+      },
+      "ContagemDto": {
+        "type": "object",
+        "properties": {
+          "realizadas": {
+            "type": "number"
+          },
+          "faltas": {
+            "type": "number"
+          },
+          "canceladas": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "realizadas",
+          "faltas",
+          "canceladas"
+        ]
+      },
+      "PacienteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "nascimento": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "queixaPrincipal": {
+            "type": "string",
+            "nullable": true,
+            "description": "Só vem para o psicólogo do paciente."
+          },
+          "podeClinico": {
+            "type": "boolean",
+            "description": "Quem lê é o psicólogo do paciente (vê e edita dado clínico)."
+          },
+          "valorSessao": {
+            "type": "number",
+            "nullable": true
+          },
+          "situacao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoPaciente"
+              }
+            ]
+          },
+          "consentimentoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responsaveis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponsavelDto"
+            }
+          },
+          "proximaSessao": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessaoResumoDto"
+              }
+            ]
+          },
+          "repeticao": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RepeticaoDto"
+              }
+            ]
+          },
+          "contagem": {
+            "$ref": "#/components/schemas/ContagemDto"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "nascimento",
+          "cpf",
+          "telefone",
+          "queixaPrincipal",
+          "podeClinico",
+          "valorSessao",
+          "situacao",
+          "consentimentoEm",
+          "criadoEm",
+          "responsaveis",
+          "proximaSessao",
+          "repeticao",
+          "contagem"
+        ]
+      },
+      "PacienteParcialDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "nascimento": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "queixaPrincipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorSessao": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "SituacaoDto": {
+        "type": "object",
+        "properties": {
+          "situacao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoPaciente"
+              }
+            ]
+          }
+        },
+        "required": [
+          "situacao"
+        ]
+      },
+      "ResponsavelParcialDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "parentesco": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "financeiro": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SessaoAgendaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "recorrenciaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Preenchido quando a sessão se repete toda semana."
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pacienteNome",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "recorrenciaId"
+        ]
+      },
+      "PacienteSemProximaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "ultimaSessao": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "ultimaSessao"
+        ]
+      },
+      "PainelDto": {
+        "type": "object",
+        "properties": {
+          "hoje": {
+            "description": "Sessões de hoje, menos as desmarcadas.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessaoAgendaDto"
+            }
+          },
+          "sessoesSemana": {
+            "type": "number"
+          },
+          "pacientesAtivos": {
+            "type": "number"
+          },
+          "semProxima": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PacienteSemProximaDto"
+            }
+          }
+        },
+        "required": [
+          "hoje",
+          "sessoesSemana",
+          "pacientesAtivos",
+          "semProxima"
+        ]
+      },
+      "SessaoDoPacienteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "recorrenciaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "recorrenciaId"
+        ]
+      },
+      "NovaSessaoDto": {
+        "type": "object",
+        "properties": {
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Com fuso: 2026-10-20T14:00:00-03:00."
+          },
+          "duracaoMin": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 480,
+            "example": 50
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "repetirSemanal": {
+            "type": "boolean",
+            "description": "Repete toda semana, no mesmo dia e hora."
+          }
+        },
+        "required": [
+          "pacienteId",
+          "inicio",
+          "duracaoMin",
+          "modalidade"
+        ]
+      },
+      "AlterarSessaoDto": {
+        "type": "object",
+        "properties": {
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "duracaoMin": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 480
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "escopo": {
+            "type": "string",
+            "enum": [
+              "esta",
+              "proximas"
+            ],
+            "description": "`proximas`: esta e as próximas da repetição."
+          }
+        }
+      },
+      "StatusSessaoDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "agendada",
+              "confirmada",
+              "realizada",
+              "falta"
+            ],
+            "description": "Desmarcar é a rota /desmarcar."
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "DesmarcarDto": {
+        "type": "object",
+        "properties": {
+          "avisoEm": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Quando o paciente avisou. Padrão: agora."
+          },
+          "simular": {
+            "type": "boolean",
+            "description": "Só responde o que aconteceria, sem desmarcar."
+          }
+        }
+      },
+      "DesmarcarRespostaDto": {
+        "type": "object",
+        "properties": {
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "cancelada",
+              "falta"
+            ]
+          },
+          "horasAviso": {
+            "type": "number",
+            "description": "Antecedência do aviso, em horas."
+          },
+          "prazoHoras": {
+            "type": "number",
+            "description": "Prazo da conta, em horas."
+          }
+        },
+        "required": [
+          "resultado",
+          "horasAviso",
+          "prazoHoras"
+        ]
+      },
+      "RemovidasDto": {
+        "type": "object",
+        "properties": {
+          "removidas": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "removidas"
+        ]
       }
     }
   }

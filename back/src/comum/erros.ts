@@ -39,12 +39,23 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   so_titular: [403, 'Só o titular da conta pode mudar isto.'],
   segundo_fator: [403, 'Confirme o código do aplicativo autenticador para continuar.'],
   conta_inexistente: [404, 'Conta não encontrada.'],
+  nao_encontrado: [404, 'Registro não encontrado.'],
+  so_clinico: [403, 'Só o psicólogo do paciente lê ou altera dados clínicos.'],
+  consentimento: [422, 'Confirme o consentimento do paciente para o uso dos dados.'],
+  menor_sem_responsavel: [422, 'Paciente menor de idade precisa de ao menos um responsável.'],
+  paciente_inativo: [409, 'Paciente com alta ou arquivado. Reative o cadastro antes de agendar.'],
+  sessao_encerrada: [409, 'Sessão realizada, com falta ou desmarcada não muda mais.'],
+  sessao_futura: [409, 'Presença e falta só podem ser marcadas depois do horário da sessão.'],
+  transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
+  sem_recorrencia: [409, 'Esta sessão não se repete.'],
+  periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
 };
 
 const CODIGOS_BANCO: Record<string, [number, string]> = {
   '42501': [403, 'Você não tem acesso a este dado.'],
   PGRST116: [404, 'Registro não encontrado.'],
   '23505': [409, 'Já existe um registro com estes dados.'],
+  '23P01': [409, 'Já existe uma sessão neste horário.'],
   '23514': [422, 'Algum valor está fora do permitido.'],
   '23502': [422, 'Falta um campo obrigatório.'],
   '22P02': [400, 'Algum valor está em formato inválido.'],
