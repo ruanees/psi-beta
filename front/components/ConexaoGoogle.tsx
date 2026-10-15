@@ -6,8 +6,9 @@ import { fd } from '@/lib/formato.ts';
 import { useApp } from './EstadoApp';
 import { Icone } from './Icone';
 
-// Configurações: conta Google para o Senda criar as salas do Meet. Some
-// inteira enquanto a integração não estiver ligada no servidor.
+// Configurações: conta Google para o Senda criar as salas do Meet. Aparece
+// mesmo antes de a integração estar ligada no servidor (para quem testa já
+// saber que vem aí); nesse caso, conectar só avisa que ainda não está disponível.
 
 export function ConexaoGoogle() {
   const { conta } = useApp();
@@ -16,6 +17,7 @@ export function ConexaoGoogle() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [confirmar, setConfirmar] = useState(false);
+  const [emBreve, setEmBreve] = useState(false);
 
   const carregar = useCallback(() => {
     api('get', '/contas/{conta}/google', { params: { conta: conta.id } })
@@ -31,10 +33,15 @@ export function ConexaoGoogle() {
     }
   }, [carregar]);
 
-  if (!s?.disponivel) return null;
+  if (!s) return null;
 
   const conectar = async () => {
     setErro(null);
+    if (!s.disponivel) {
+      setAviso(null);
+      setEmBreve(true);
+      return;
+    }
     setOcupado(true);
     try {
       const { url } = await api('post', '/contas/{conta}/google/conectar', { params: { conta: conta.id } });
@@ -70,6 +77,12 @@ export function ConexaoGoogle() {
       {aviso && (
         <div className="aviso" data-t="ok" role="status">
           {aviso}
+        </div>
+      )}
+      {emBreve && (
+        <div className="aviso" data-t="atencao" role="status">
+          A conexão com o Google ainda não está disponível: estamos concluindo a liberação com o Google. Por enquanto, cole o
+          link do Meet na sessão ou guarde um link fixo da sala no Perfil profissional, acima.
         </div>
       )}
       {erro && (
