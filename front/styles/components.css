@@ -708,8 +708,8 @@ p {
   gap: var(--e3);
   padding: 0 var(--e2);
   color: inherit;
-  font: 700 19px/1 var(--fonte-titulo);
-  letter-spacing: 0.02em;
+  font: 600 24px/1 var(--fonte-titulo);
+  letter-spacing: -0.01em;
   text-decoration: none;
 }
 .lateral .marca {
@@ -748,7 +748,7 @@ a.lateral-item:hover {
 }
 .lateral-item[aria-current='page'],
 a.lateral-item[aria-current='page']:hover {
-  background: var(--ac);
+  background: var(--nav-ativo);
   color: var(--nav-tx-ativo);
 }
 .lateral-item[aria-disabled='true'] {

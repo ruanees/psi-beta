@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { api, ErroApi, type Dto } from '@/lib/api.ts';
 import { gravarSessao, lerSessao } from '@/lib/sessao.ts';
 import { Padrao } from './Padrao';
+import { Simbolo } from './Simbolo';
 
 // Login, recuperação e nova senha na mesma tela, como no DIME, mais o passo
 // do código do autenticador para quem ativou o segundo fator.
@@ -118,11 +119,11 @@ export function Entrada() {
     <main className="entrada">
       <section className="entrada-arte" aria-hidden="true">
         <span className="marca">
-          <span className="marca-sinal">Ψ</span>
-          PSI
+          <Simbolo tamanho={36} solido="#f8f7f2" />
+          senda
         </span>
         <div className="entrada-arte-texto">
-          <h2>O consultório em ordem, da agenda ao recibo.</h2>
+          <h2>Mais tempo para cuidar.</h2>
           <p>Sessões, pacotes e pagamentos num lugar só, com o sigilo que o atendimento psicológico exige.</p>
         </div>
         <Padrao className="entrada-padrao" lado={64} />
@@ -131,8 +132,8 @@ export function Entrada() {
       <section className="entrada-form">
       <div className="entrada-caixa">
         <span className="marca">
-          <span className="marca-sinal">Ψ</span>
-          PSI
+          <Simbolo tamanho={36} />
+          senda
         </span>
         <div className="cartao">
           {aviso && AVISOS[aviso] && (
@@ -169,7 +170,7 @@ export function Entrada() {
           {etapa.nome === 'codigo' && (
             <form className="pilha" onSubmit={(e) => confirmarCodigo(e, etapa.sessao)}>
               <h1>Código do autenticador</h1>
-              <p className="mudo">Abra o aplicativo autenticador e digite o código de 6 números do PSI.</p>
+              <p className="mudo">Abra o aplicativo autenticador e digite o código de 6 números do Senda.</p>
               <input
                 className="ent"
                 data-codigo
@@ -212,7 +213,7 @@ export function Entrada() {
             <div className="pilha">
               <h1>Confira seu e-mail</h1>
               <p className="mudo">
-                Se o e-mail tiver acesso ao PSI, o link chega em alguns minutos. Confira também a caixa de spam.
+                Se o e-mail tiver acesso ao Senda, o link chega em alguns minutos. Confira também a caixa de spam.
               </p>
               <button className="btn" data-v="sec" onClick={() => setEtapa({ nome: 'entrar' })}>
                 Voltar para entrar

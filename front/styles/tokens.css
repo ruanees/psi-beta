@@ -1,25 +1,26 @@
 /*
- * Tokens do PSI — a partir das referências em docs/referencias/.
+ * Tokens do Senda — a partir do brandbook (docs/marca/senda-brandbook.pdf).
  *
- * Direção: sidebar azul-marinho, ação em violeta-lavanda, fundo levemente
- * lavanda, cartões brancos sem borda com sombra suave, etiquetas em tom
- * pastel com texto saturado. Títulos e números em Poppins; texto em DM Sans.
+ * Paleta: Floresta #173F36 (marca e ação), Musgo #386254 (hover, links,
+ * ícones), Sálvia #7AA588 (degradê e detalhe no escuro), Linho #F8F7F2
+ * (fundo), Areia #E8DFD0 (superfícies e divisórias), Terra #6E4B33 (acento
+ * quente e rótulos), Chumbo #2F3133 (texto). Cartões brancos, sem borda,
+ * sombra em Floresta a 6%. Títulos e números em Fraunces; texto em DM Sans.
  *
  * Regras que valem para todo componente:
- *  - --ac é o fundo de ação (botão primário, item ativo). Texto na cor de
- *    ação usa --act, que tem contraste garantido sobre --sf e --bg.
- *  - Status nunca usa a cor de ação. Ação é violeta; status tem mapa próprio
- *    (lib/status.ts): âmbar = fechado e parado esperando a data; verde = aconteceu.
+ *  - --ac é o fundo de ação (botão primário). Um botão sólido por tela; o
+ *    resto em contorno ou texto.
+ *  - Status nunca usa Floresta sólido: selos são pastel, com o nome escrito.
  *  - Texto: --tx e --tx2 passam 4,5:1 sobre --bg, --sf e --sf2 nos dois temas.
- *    --tx3 é só para dica e placeholder (passa 4,5:1 sobre --sf).
+ *  - Cor nos gráficos vem de --graf-*, validada (dataviz), não da marca.
  */
 :root {
   --fonte: 'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --fonte-titulo: 'Poppins', 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --fonte-titulo: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
 
   --r1: 8px; /* campos, etiquetas */
   --r2: 12px; /* botões, itens de menu */
-  --r3: 16px; /* cartões */
+  --r3: 20px; /* cartões */
   --r4: 22px; /* janelas */
 
   --e1: 4px;
@@ -38,128 +39,138 @@
   --largura: 1240px;
 
   color-scheme: light;
-  --bg: #f2f4fb;
-  --bg2: #e9ecf8; /* coluna da direita, faixas */
+  --bg: #f8f7f2; /* Linho */
+  --bg2: #f1ede3;
   --sf: #ffffff;
-  --sf2: #f5f6fc; /* blocos dentro de cartão */
-  --bd: #e3e6f2;
-  --bd2: #cfd4e8; /* borda de campo */
-  --tx: #19203a;
-  --tx2: #545c7a;
-  --tx3: #6b7392;
+  --sf2: #f8f7f2;
+  --bd: #e8dfd0; /* Areia */
+  --bd2: #d6cbb7; /* borda de campo */
+  --tx: #2f3133; /* Chumbo */
+  --tx2: #57595a;
+  --tx3: #6c6b66;
+  --rotulo: #6e4b33; /* Terra */
 
-  --nav: #111a3f; /* sidebar */
-  --nav-tx: #c3c9e6;
+  --nav: #173f36; /* Floresta */
+  --nav-tx: #cfe0d8;
   --nav-tx-ativo: #ffffff;
-  --nav-hover: #1c2652;
+  --nav-hover: #22504a;
+  --nav-ativo: #386254; /* Musgo */
 
-  --ac: #6a5ef0;
-  --ac-hover: #5a4ee0;
+  --ac: #173f36;
+  --ac-hover: #386254;
   --ac-tx: #ffffff;
-  --act: #5246d6;
-  --ac-suave: #eeecfe;
-  --ac-suave2: #dedafd;
+  --act: #2b5a4d;
+  --ac-suave: #e6efe9;
+  --ac-suave2: #d3e4da;
 
-  /* decoração (padrão geométrico, nunca status) */
-  --lilas: #b5adf8;
-  --menta: #a6e6dc;
-  --pervinca: #7e8cf4;
+  /* grafismo (folhas), nunca status */
+  --lilas: #e8dfd0;
+  --menta: #7aa588;
+  --pervinca: #386254;
 
-  --ok: #19734a;
-  --ok-sf: #def4e8;
-  --at: #9a5b00;
-  --at-sf: #fdf0d9;
-  --er: #c0353f;
-  --graf-falta: #c0353f; /* gráficos: série "faltas" (validada com --ac, dataviz) */
-  --er-sf: #fde6e7;
-  --ci: #0d6e8c;
-  --ci-sf: #dff2f8;
-  --nt: #545c7a;
-  --nt-sf: #ebedf6;
+  --ok: #2b6248;
+  --ok-sf: #dce9e1;
+  --at: #84561a;
+  --at-sf: #f5e6c8;
+  --er: #a3392c;
+  --er-sf: #f4dcd7;
+  --ci: #1f5f70;
+  --ci-sf: #dfeef1;
+  --nt: #57595a;
+  --nt-sf: #ebe8e1;
 
-  --sombra: 0 1px 2px rgb(25 32 58 / 5%), 0 6px 20px rgb(25 32 58 / 6%);
-  --sombra-alta: 0 4px 12px rgb(25 32 58 / 8%), 0 24px 60px rgb(25 32 58 / 18%);
-  --foco: 0 0 0 3px rgb(106 94 240 / 40%);
+  --graf-1: #1f8060; /* gráficos (validados no claro) */
+  --graf-falta: #d9822b;
+
+  --sombra: 0 1px 2px rgb(23 63 54 / 4%), 0 6px 20px rgb(23 63 54 / 6%);
+  --sombra-alta: 0 4px 12px rgb(23 63 54 / 8%), 0 24px 60px rgb(23 63 54 / 18%);
+  --foco: 0 0 0 3px rgb(56 98 84 / 40%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='claro']) {
     color-scheme: dark;
-    --bg: #0d1124;
-    --bg2: #111630;
-    --sf: #171d38;
-    --sf2: #1e2546;
-    --bd: #283057;
-    --bd2: #39436f;
-    --tx: #e8eaf6;
-    --tx2: #aab1d0;
-    --tx3: #9098bb;
-    --nav: #080c1d;
-    --nav-tx: #a9b0d4;
+    --bg: #0e1a17;
+    --bg2: #112019;
+    --sf: #15241f;
+    --sf2: #1b2e28;
+    --bd: #26403a;
+    --bd2: #33524a;
+    --tx: #edebe3;
+    --tx2: #b9c4be;
+    --tx3: #9aa8a1;
+    --rotulo: #d7b79c;
+    --nav: #0a1512;
+    --nav-tx: #b9c4be;
     --nav-tx-ativo: #ffffff;
-    --nav-hover: #141a38;
-    --ac: #6a5ef0;
-    --ac-hover: #7b70f5;
-    --ac-tx: #ffffff;
-    --act: #ada6ff;
-    --ac-suave: #262a5c;
-    --ac-suave2: #333877;
-    --lilas: #5b52b8;
-    --menta: #2f7d72;
-    --pervinca: #4e5bc4;
-    --ok: #5ccf96;
-    --ok-sf: #133325;
-    --at: #f0b34a;
-    --at-sf: #3a2a10;
-    --er: #f2848b;
-    --graf-falta: #e36670;
-    --er-sf: #3d1a20;
-    --ci: #62c3e0;
-    --ci-sf: #10303b;
-    --nt: #aab1d0;
-    --nt-sf: #232a4d;
+    --nav-hover: #15241f;
+    --nav-ativo: #26403a;
+    --ac: #7aa588;
+    --ac-hover: #8fb79b;
+    --ac-tx: #0e1a17;
+    --act: #9cc2a8;
+    --ac-suave: #1e3a31;
+    --ac-suave2: #264a3f;
+    --lilas: #2a3f38;
+    --menta: #4f7d62;
+    --pervinca: #7aa588;
+    --ok: #8fd0a8;
+    --ok-sf: #173628;
+    --at: #e8b766;
+    --at-sf: #3a2c12;
+    --er: #ef9a8c;
+    --er-sf: #3e1d18;
+    --ci: #7cc6d6;
+    --ci-sf: #12313a;
+    --nt: #b9c4be;
+    --nt-sf: #22332e;
+    --graf-1: #3fa078;
+    --graf-falta: #c9772a;
     --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 20px rgb(0 0 0 / 25%);
     --sombra-alta: 0 4px 12px rgb(0 0 0 / 35%), 0 24px 60px rgb(0 0 0 / 50%);
-    --foco: 0 0 0 3px rgb(173 166 255 / 45%);
+    --foco: 0 0 0 3px rgb(122 165 136 / 45%);
   }
 }
 
 :root[data-theme='escuro'] {
   color-scheme: dark;
-  --bg: #0d1124;
-  --bg2: #111630;
-  --sf: #171d38;
-  --sf2: #1e2546;
-  --bd: #283057;
-  --bd2: #39436f;
-  --tx: #e8eaf6;
-  --tx2: #aab1d0;
-  --tx3: #9098bb;
-  --nav: #080c1d;
-  --nav-tx: #a9b0d4;
+  --bg: #0e1a17;
+  --bg2: #112019;
+  --sf: #15241f;
+  --sf2: #1b2e28;
+  --bd: #26403a;
+  --bd2: #33524a;
+  --tx: #edebe3;
+  --tx2: #b9c4be;
+  --tx3: #9aa8a1;
+  --rotulo: #d7b79c;
+  --nav: #0a1512;
+  --nav-tx: #b9c4be;
   --nav-tx-ativo: #ffffff;
-  --nav-hover: #141a38;
-  --ac: #6a5ef0;
-  --ac-hover: #7b70f5;
-  --ac-tx: #ffffff;
-  --act: #ada6ff;
-  --ac-suave: #262a5c;
-  --ac-suave2: #333877;
-  --lilas: #5b52b8;
-  --menta: #2f7d72;
-  --pervinca: #4e5bc4;
-  --ok: #5ccf96;
-  --ok-sf: #133325;
-  --at: #f0b34a;
-  --at-sf: #3a2a10;
-  --er: #f2848b;
-  --graf-falta: #e36670;
-  --er-sf: #3d1a20;
-  --ci: #62c3e0;
-  --ci-sf: #10303b;
-  --nt: #aab1d0;
-  --nt-sf: #232a4d;
+  --nav-hover: #15241f;
+  --nav-ativo: #26403a;
+  --ac: #7aa588;
+  --ac-hover: #8fb79b;
+  --ac-tx: #0e1a17;
+  --act: #9cc2a8;
+  --ac-suave: #1e3a31;
+  --ac-suave2: #264a3f;
+  --lilas: #2a3f38;
+  --menta: #4f7d62;
+  --pervinca: #7aa588;
+  --ok: #8fd0a8;
+  --ok-sf: #173628;
+  --at: #e8b766;
+  --at-sf: #3a2c12;
+  --er: #ef9a8c;
+  --er-sf: #3e1d18;
+  --ci: #7cc6d6;
+  --ci-sf: #12313a;
+  --nt: #b9c4be;
+  --nt-sf: #22332e;
+  --graf-1: #3fa078;
+  --graf-falta: #c9772a;
   --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 20px rgb(0 0 0 / 25%);
   --sombra-alta: 0 4px 12px rgb(0 0 0 / 35%), 0 24px 60px rgb(0 0 0 / 50%);
-  --foco: 0 0 0 3px rgb(173 166 255 / 45%);
+  --foco: 0 0 0 3px rgb(122 165 136 / 45%);
 }

@@ -6,10 +6,11 @@ type Forma = 'q1' | 'q2' | 'q3' | 'q4' | 'folha' | 'folha2' | 'disco' | 'vazio';
 type Cor = 'lilas' | 'menta' | 'pervinca' | 'ac';
 
 // Uma composição fixa: mudar aqui muda a marca inteira, então muda com calma.
+// Senda: só folhas (dois cantos opostos arredondados), em Areia, Sálvia e Musgo.
 const MOSAICO: [Forma, Cor][][] = [
-  [['folha', 'pervinca'], ['q2', 'menta'], ['q1', 'lilas'], ['folha2', 'ac']],
-  [['q4', 'lilas'], ['folha2', 'pervinca'], ['disco', 'menta'], ['q3', 'pervinca']],
-  [['vazio', 'lilas'], ['q3', 'ac'], ['folha', 'lilas'], ['q2', 'menta']],
+  [['folha', 'lilas'], ['folha2', 'menta'], ['vazio', 'lilas'], ['folha', 'ac']],
+  [['folha2', 'pervinca'], ['vazio', 'lilas'], ['folha', 'menta'], ['folha2', 'lilas']],
+  [['vazio', 'lilas'], ['folha', 'lilas'], ['folha2', 'pervinca'], ['vazio', 'menta']],
 ];
 
 function caminho(forma: Forma, x: number, y: number, s: number): string | null {
@@ -23,10 +24,14 @@ function caminho(forma: Forma, x: number, y: number, s: number): string | null {
       return `M${x + s} ${y + s}H${x}A${r} ${r} 0 0 1 ${x + s} ${y}Z`;
     case 'q4': // canto embaixo à esquerda
       return `M${x} ${y + s}V${y}A${r} ${r} 0 0 1 ${x + s} ${y + s}Z`;
-    case 'folha':
-      return `M${x} ${y + s}A${r} ${r} 0 0 1 ${x + s} ${y}A${r} ${r} 0 0 1 ${x} ${y + s}Z`;
-    case 'folha2':
-      return `M${x} ${y}A${r} ${r} 0 0 0 ${x + s} ${y + s}A${r} ${r} 0 0 0 ${x} ${y}Z`;
+    case 'folha': { // dois cantos opostos arredondados (grafismo do Senda)
+      const k = s * 0.92;
+      return `M${x + k} ${y}H${x + s}V${y + s - k}A${k} ${k} 0 0 1 ${x + s - k} ${y + s}H${x}V${y + k}A${k} ${k} 0 0 1 ${x + k} ${y}Z`;
+    }
+    case 'folha2': {
+      const k = s * 0.92;
+      return `M${x} ${y}H${x + s - k}A${k} ${k} 0 0 1 ${x + s} ${y + k}V${y + s}H${x + k}A${k} ${k} 0 0 1 ${x} ${y + s - k}Z`;
+    }
     case 'disco': {
       const c = s / 2;
       return `M${x} ${y + c}A${c} ${c} 0 1 0 ${x + s} ${y + c}A${c} ${c} 0 1 0 ${x} ${y + c}Z`;
