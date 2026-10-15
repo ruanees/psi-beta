@@ -43,6 +43,10 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   so_clinico: [403, 'Só o psicólogo do paciente lê ou altera dados clínicos.'],
   consentimento: [422, 'Confirme o consentimento do paciente para o uso dos dados.'],
   menor_sem_responsavel: [422, 'Paciente menor de idade precisa de ao menos um responsável.'],
+  paciente_com_atendimento: [
+    409,
+    'Paciente com atendimento registrado não pode ser excluído: o prontuário tem guarda mínima de 5 anos. Use Arquivar.',
+  ],
   paciente_inativo: [409, 'Paciente com alta ou arquivado. Reative o cadastro antes de agendar.'],
   sessao_encerrada: [409, 'Sessão realizada, com falta ou desmarcada não muda mais.'],
   sessao_futura: [409, 'Presença e falta só podem ser marcadas depois do horário da sessão.'],
@@ -54,6 +58,8 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
 const CODIGOS_BANCO: Record<string, [number, string]> = {
   '42501': [403, 'Você não tem acesso a este dado.'],
   PGRST116: [404, 'Registro não encontrado.'],
+  // Função que o código chama e o banco não tem: faltou rodar uma migration no Supabase.
+  PGRST202: [503, 'O banco está desatualizado: falta rodar a migration nova no Supabase.'],
   '23505': [409, 'Já existe um registro com estes dados.'],
   '23P01': [409, 'Já existe uma sessão neste horário.'],
   '23514': [422, 'Algum valor está fora do permitido.'],

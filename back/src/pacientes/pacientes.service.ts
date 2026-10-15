@@ -114,6 +114,11 @@ export class PacientesService {
     });
   }
 
+  /** Só sem atendimento registrado; quem decide é o banco (guarda mínima do prontuário). */
+  excluir(jwt: string, conta: string, paciente: string): Promise<void> {
+    return this.supabase.rpc<void>(jwt, 'paciente_excluir', { c: conta, p: paciente });
+  }
+
   situacao(jwt: string, conta: string, paciente: string, situacao: SituacaoPaciente): Promise<void> {
     return this.supabase.rpc<void>(jwt, 'paciente_situacao', { c: conta, p: paciente, nova: situacao });
   }

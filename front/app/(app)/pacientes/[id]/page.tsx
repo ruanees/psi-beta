@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { CampoGravavel } from '@/components/CampoGravavel';
 import { useApp } from '@/components/EstadoApp';
@@ -246,9 +246,23 @@ function Dados({
   recarregar: () => Promise<void>;
 }) {
   const { conta } = useApp();
+  const router = useRouter();
   const params = { conta: conta.id, paciente: p.id };
   const [erro, setErro] = useState<string | null>(null);
-  const [confirmar, setConfirmar] = useState<Dto<'SituacaoPaciente'> | null>(null);
+  const [confirmar, setConfirmar] = useState<Dto<'SituacaoPaciente'> | 'excluir' | null>(null);
+  // Sem sessão realizada nem falta, não há prontuário a guardar: o cadastro pode sair.
+  // A regra é do banco; a tela só não oferece o que ele vai recusar.
+  const podeExcluir = p.contagem.realizadas + p.contagem.faltas === 0;
+
+  const excluir = async () => {
+    try {
+      await api('delete', '/contas/{conta}/pacientes/{paciente}', { params });
+      router.replace('/pacientes');
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível excluir.');
+      setConfirmar(null);
+    }
+  };
 
   const mudarSituacao = async (situacao: Dto<'SituacaoPaciente'>) => {
     try {
@@ -370,7 +384,22 @@ function Dados({
 
       <section className="cartao">
         <h2>Situação do paciente</h2>
-        {confirmar ? (
+        {confirmar === 'excluir' ? (
+          <div className="pilha" data-g="p">
+            <div className="aviso" data-t="erro">
+              O cadastro de <strong>{p.nome}</strong>, os responsáveis e as sessões marcadas saem de vez. Não dá para
+              desfazer.
+            </div>
+            <div className="linha">
+              <button className="btn" data-v="perigo" onClick={() => void excluir()}>
+                Excluir de vez
+              </button>
+              <button className="btn" data-v="sec" onClick={() => setConfirmar(null)}>
+                Voltar
+              </button>
+            </div>
+          </div>
+        ) : confirmar ? (
           <div className="pilha" data-g="p">
             <div className="aviso" data-t="atencao">
               {confirmar === 'ativo'
@@ -403,11 +432,17 @@ function Dados({
                 Arquivar
               </button>
             )}
+            {podeExcluir && (
+              <button className="btn" data-v="perigo" onClick={() => setConfirmar('excluir')}>
+                <Icone nome="lixo" tamanho={18} /> Excluir paciente
+              </button>
+            )}
           </div>
         )}
         <p className="mudo pequeno">
-          Prontuário não se apaga: a guarda mínima é de 5 anos (Resolução CFP 001/2009). Arquivar tira o paciente das
-          listas sem perder nada.
+          {podeExcluir
+            ? 'Excluir serve para cadastro feito por engano, sem atendimento registrado. Depois da primeira sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos (Resolução CFP 001/2009) e o caminho é arquivar.'
+            : 'Paciente com atendimento registrado não se exclui: o prontuário tem guarda mínima de 5 anos (Resolução CFP 001/2009). Arquivar tira o paciente das listas sem perder nada.'}
         </p>
       </section>
     </div>

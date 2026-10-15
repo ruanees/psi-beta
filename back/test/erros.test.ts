@@ -40,6 +40,12 @@ describe('erro do banco x erro de transporte', () => {
     assert.doesNotMatch(r.mensagem, /relation/);
   });
 
+  it('função ausente no banco aponta para a migration, não para erro genérico', () => {
+    const r = traduzir(new ErroBanco('PGRST202', 'Could not find the function public.x'));
+    assert.equal(r.status, 503);
+    assert.match(r.mensagem, /migration/);
+  });
+
   it('credencial errada é 401 com frase pronta', () => {
     const r = traduzir(new ErroAuth(400, 'invalid_credentials'));
     assert.equal(r.status, 401);

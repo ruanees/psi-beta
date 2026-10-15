@@ -650,6 +650,40 @@
         "tags": [
           "pacientes"
         ]
+      },
+      "delete": {
+        "operationId": "Pacientes_excluir",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Só para paciente sem sessão realizada ou falta; com atendimento, 409."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
       }
     },
     "/contas/{conta}/pacientes/{paciente}/situacao": {

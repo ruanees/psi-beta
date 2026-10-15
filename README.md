@@ -44,7 +44,7 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 1. Criar o projeto **`psi-homolog`**, região **South America (São Paulo)**. Guardar a senha do banco.
 2. **Authentication → Sign In / Providers → Email**: desligar **Allow new users to sign up**. O beta é fechado; conta nasce pelo passo 5.
 3. **Authentication → Multi-Factor**: ligar **TOTP** (enroll e verify).
-4. **SQL Editor**: colar e rodar, em ordem, cada arquivo de `back/supabase/migrations/` (hoje `20261014000001_fundacoes.sql` e `20261015000001_pacientes_agenda.sql`). Cada migration nova entra do mesmo jeito, **antes** do merge que a usa.
+4. **SQL Editor**: colar e rodar, em ordem, cada arquivo de `back/supabase/migrations/` (hoje `20261014000001_fundacoes.sql`, `20261015000001_pacientes_agenda.sql` e `20261015000002_excluir_paciente.sql`). Cada migration nova entra do mesmo jeito, **antes** do merge que a usa.
 5. Criar sua conta:
    - **Authentication → Users → Add user → Create new user**: seu e-mail e uma senha (10+ caracteres, letras e números), marcando **Auto Confirm User**.
    - **SQL Editor**:
@@ -83,6 +83,7 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 | Tela de login sem reação, erro de CORS no console | Endereço do front fora de `ORIGENS` |
 | Build do front para com "NEXT_PUBLIC_API_URL é obrigatória" | A variável foi posta em runtime, não em build |
 | "Acesso sem consultório" depois do login | Faltou o `conta_criar` do passo 1.5 |
+| "O banco está desatualizado: falta rodar a migration nova" | Uma migration de `back/supabase/migrations/` não foi rodada no SQL Editor |
 
 O `/saude` diz **de onde** veio cada configuração (`process`, `worker`, `faltando`), nunca o valor.
 

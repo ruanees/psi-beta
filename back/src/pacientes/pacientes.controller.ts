@@ -53,6 +53,13 @@ export class PacientesController {
     return this.pacientes.gravar(jwt, conta, paciente, dto);
   }
 
+  @Delete(':paciente')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Só para paciente sem sessão realizada ou falta; com atendimento, 409.' })
+  excluir(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Param('paciente', UUID) paciente: string) {
+    return this.pacientes.excluir(jwt, conta, paciente);
+  }
+
   @Post(':paciente/situacao')
   @HttpCode(204)
   @ApiNoContentResponse()
