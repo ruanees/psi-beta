@@ -2,11 +2,11 @@
 # a geração dos tipos a partir de back/openapi.json.
 name: front
 
+# Sem filtro de pasta: os checks são obrigatórios para o merge e precisam
+# reportar em todo PR, senão o auto-merge espera para sempre.
 on:
   push:
-    paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']
   pull_request:
-    paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']
 
 concurrency:
   group: front-${{ github.ref }}

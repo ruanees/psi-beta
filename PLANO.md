@@ -349,7 +349,7 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 08 — Fase 1 — Pacientes, busca e agenda (pedidos 1, 8, 9)
 
-**Código pronto em 14/10/2026.** Antes de publicar, a migration `20261015000001_pacientes_agenda.sql` roda no SQL Editor do Supabase.
+**Código pronto em 14/10/2026.** Publicação automática: no merge, o workflow `publicar` aplica as migrations novas e sobe back e front.
 
 **Banco**
 - [x] `pacientes`, `responsaveis`, `recorrencias`, `sessoes`; RLS ligada sem política: toda leitura e escrita por RPC
