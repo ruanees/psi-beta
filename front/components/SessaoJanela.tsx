@@ -199,6 +199,10 @@ function nomeDoDiaSemana(dia: string): string {
 
 type Etapa = 'ver' | 'remarcar' | 'desmarcar' | 'encerrar';
 
+// Situações que se escolhem direto na janela. Falta tem botão próprio
+// ("Marcar falta" / "Corrigir para falta"); desmarcar passa pela conta do aviso.
+const SITUACOES_JANELA = ['agendada', 'confirmada', 'realizada', 'cancelada'] as const;
+
 function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFechar: () => void; aoMudar: () => void }) {
   const { conta } = useApp();
   const [etapa, setEtapa] = useState<Etapa>('ver');
@@ -229,7 +233,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
   const mudarStatus = async (novo: Dto<'StatusSessaoDto'>['status']) => {
     const gravar = () =>
       api('post', '/contas/{conta}/sessoes/{sessao}/status', { params: { conta: conta.id, sessao: sessao.id }, corpo: { status: novo } });
-    if (novo !== 'realizada' && novo !== 'falta') return executar(gravar);
+    // A janela fica aberta: dá para ver a nova situação e seguir (observação, cobrança).
     setErro(null);
     setOcupado(true);
     try {
@@ -329,6 +333,41 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
             </span>
           )}
         </div>
+
+        {etapa !== 'encerrar' && (
+          <div className="campo">
+            <span>Situação</span>
+            <div className="segmento" role="group" aria-label="Situação da sessão">
+              {SITUACOES_JANELA.map((op) => {
+                const bloqueio =
+                  op === 'realizada' && !jaComecou
+                    ? 'Só depois do horário da sessão.'
+                    : op === 'cancelada' && (status === 'realizada' || status === 'falta')
+                      ? 'Sessão realizada ou com falta não vira desmarcada. Volte para agendada antes.'
+                      : null;
+                return (
+                  <button
+                    key={op}
+                    type="button"
+                    aria-pressed={status === op}
+                    disabled={ocupado || !!bloqueio}
+                    title={bloqueio ?? undefined}
+                    onClick={() => {
+                      if (status === op) return;
+                      if (op === 'cancelada') setEtapa('desmarcar');
+                      else void mudarStatus(op);
+                    }}
+                  >
+                    {STATUS_SESSAO[op].rotulo}
+                  </button>
+                );
+              })}
+            </div>
+            {(status === 'realizada' || status === 'falta') && (
+              <small>Voltar para agendada desfaz a cobrança ainda não paga e devolve a sessão ao pacote.</small>
+            )}
+          </div>
+        )}
 
         {etapa === 'encerrar' ? (
           <div className="aviso" data-t="atencao">

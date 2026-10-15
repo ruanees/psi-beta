@@ -54,8 +54,8 @@ select ok(
   'falta avulsa também é cobrada'
 );
 select throws_ok(
-  format($$select public.sessao_status(%L, %L, 'agendada')$$, (select conta from ids), (select s1 from ids)),
-  'P0001', 'sessao_encerrada', 'sessão com falta não volta a ser agendada'
+  format($$select public.sessao_desmarcar(%L, %L)$$, (select conta from ids), (select s1 from ids)),
+  'P0001', 'sessao_encerrada', 'sessão com falta não vira desmarcada'
 );
 
 -- desmarcada com antecedência não cobra; em cima da hora vira falta e cobra
