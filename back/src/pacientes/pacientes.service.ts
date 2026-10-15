@@ -32,7 +32,7 @@ export const CAMPOS_RESPONSAVEL = {
   financeiro: 'financeiro',
 } as const satisfies Record<keyof ResponsavelParcialDto, string>;
 
-interface PacienteBanco {
+export interface PacienteBanco {
   id: string;
   nome: string;
   nascimento: string | null;
@@ -49,6 +49,34 @@ interface PacienteBanco {
   proxima_sessao: SessaoResumoDto | null;
   repeticao: { id: string; dia_semana: number; hora: string; duracao_min: number; modalidade: 'presencial' | 'online' } | null;
   contagem: { realizadas: number; faltas: number; canceladas: number };
+}
+
+/** A ficha como o banco devolve (`paciente_ler`) → como a API responde. */
+export function pacienteDoBanco(b: PacienteBanco): PacienteDto {
+  return {
+    id: b.id,
+    nome: b.nome,
+    nascimento: b.nascimento,
+    cpf: b.cpf,
+    telefone: b.telefone,
+    queixaPrincipal: b.queixa_principal,
+    podeClinico: b.pode_clinico,
+    valorSessao: b.valor_sessao,
+    plano: b.plano,
+    situacao: b.situacao,
+    consentimentoEm: b.consentimento_em,
+    criadoEm: b.criado_em,
+    responsaveis: b.responsaveis,
+    proximaSessao: b.proxima_sessao,
+    repeticao: b.repeticao && {
+      id: b.repeticao.id,
+      diaSemana: b.repeticao.dia_semana,
+      hora: b.repeticao.hora,
+      duracaoMin: b.repeticao.duracao_min,
+      modalidade: b.repeticao.modalidade,
+    },
+    contagem: b.contagem,
+  };
 }
 
 @Injectable()
@@ -86,31 +114,7 @@ export class PacientesService {
   }
 
   async ler(jwt: string, conta: string, paciente: string): Promise<PacienteDto> {
-    const b = await this.supabase.rpc<PacienteBanco>(jwt, 'paciente_ler', { c: conta, p: paciente });
-    return {
-      id: b.id,
-      nome: b.nome,
-      nascimento: b.nascimento,
-      cpf: b.cpf,
-      telefone: b.telefone,
-      queixaPrincipal: b.queixa_principal,
-      podeClinico: b.pode_clinico,
-      valorSessao: b.valor_sessao,
-      plano: b.plano,
-      situacao: b.situacao,
-      consentimentoEm: b.consentimento_em,
-      criadoEm: b.criado_em,
-      responsaveis: b.responsaveis,
-      proximaSessao: b.proxima_sessao,
-      repeticao: b.repeticao && {
-        id: b.repeticao.id,
-        diaSemana: b.repeticao.dia_semana,
-        hora: b.repeticao.hora,
-        duracaoMin: b.repeticao.duracao_min,
-        modalidade: b.repeticao.modalidade,
-      },
-      contagem: b.contagem,
-    };
+    return pacienteDoBanco(await this.supabase.rpc<PacienteBanco>(jwt, 'paciente_ler', { c: conta, p: paciente }));
   }
 
   gravar(jwt: string, conta: string, paciente: string, dto: PacienteParcialDto): Promise<void> {

@@ -382,21 +382,17 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 09 — Fase 2 — Registro dos atendimentos e histórico (pedidos 2, 5)
 
-**Banco:** `observacoes`, `observacoes_versoes` (trigger grava a versão anterior a cada alteração); RPCs `historico_paciente` e `ficha_clinica`, com `registrar_leitura` dentro; pgTAP de que a versão é gravada e de que outra conta não lê.
+**Banco** (migration `20261015000006_observacoes.sql`): `observacoes`, `observacoes_versoes` (o trigger grava a versão anterior a cada mudança de texto) e `adendos`, sem permissão nenhuma para o cliente; RPCs `observacao_ler`, `observacao_gravar`, `adendo_criar`, `historico_paciente`, `pendencias_observacao`, `ficha_clinica` e `paciente_acessos`, com a leitura e a exportação registradas na auditoria de dentro da função.
 
-**Back**
-- [ ] `PATCH /sessoes/:id/status` — Realizada / Falta / Cancelada, com hora do registro
-- [ ] `ObservacaoService`: grava no blur; a versão anterior vai para o histórico pelo trigger, nunca pelo Nest
-- [ ] `HistoricoService`: linha do tempo do paciente (sessões, status, observações) — pagamento entra na Fase 3 pela mesma rota
-- [ ] `PendenciaService`: sessão Realizada sem observação há mais de 2 dias
-- [ ] Exportar a ficha completa do paciente (janela de impressão) — atende o pedido de acesso do paciente pela LGPD
-
-**Front**
-- [ ] `<SessaoCartao>`: na agenda, um toque marca presença ou falta; abrir mostra a observação
-- [ ] `<ObservacaoEditor>` com "ver versões anteriores"
-- [ ] Aba **Histórico** com `<LinhaDoTempo>`, da mais recente para a mais antiga, com filtro por período
-- [ ] `<Pendencias>` no Início
-- [ ] Em **Dados**, quem acessou a ficha e quando
+- [x] Observação por sessão realizada ou com falta, só para o psicólogo do paciente; grava ao sair do campo
+- [x] Corrigível por 30 dias depois da sessão (resposta dos psicólogos: "um mês"); cada correção guarda a versão anterior, com "ver versões anteriores"
+- [x] Depois da trava, o que faltou entra como **adendo**, que não muda
+- [x] Na janela da sessão, marcar presença ou falta não fecha a janela: a observação aparece logo abaixo
+- [x] Aba **Histórico**: tudo o que já aconteceu, da mais recente para a mais antiga, filtro de 3 meses, 12 meses ou tudo, com a observação de cada sessão e aviso das realizadas sem observação
+- [x] **Observações pendentes** no Início: sessões realizadas sem observação, com a data até quando ainda pode ser escrita
+- [x] **Exportar ficha**: página para imprimir ou salvar em PDF (cadastro, queixa, plano, sessões, observações e adendos), registrada como exportação — atende o pedido de acesso do paciente pela LGPD
+- [x] Em **Dados**, quem acessou a ficha e quando (psicólogo do paciente e titular da conta)
+- [x] 26 provas pgTAP: versão gravada, mesmo texto não gera versão, trava, adendo só depois da trava, recepção da mesma conta não lê o texto, outra conta recusada, auditoria de leitura e exportação, tabela não se lê direto
 
 > **Armadilha:** campo portado se confere contra o que está gravado, não contra o que parece certo. Toda coluna nova ganha prova que prende o nome, conferida quebrando de propósito.
 

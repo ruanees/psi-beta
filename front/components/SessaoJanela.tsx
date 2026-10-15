@@ -9,6 +9,7 @@ import { MODALIDADE, STATUS_SESSAO } from '@/lib/status.ts';
 import { useApp } from './EstadoApp';
 import { Icone } from './Icone';
 import { Janela } from './Janela';
+import { ObservacaoEditor } from './ObservacaoEditor';
 
 // Uma janela só para a sessão: agendar, ver, remarcar e desmarcar. Um
 // formulário para criar e corrigir — dois se desencontram no dia em que um
@@ -202,12 +203,14 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
   const [etapa, setEtapa] = useState<Etapa>('ver');
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  // Presença e falta não fecham a janela: o próximo passo é escrever a observação.
+  const [status, setStatus] = useState(sessao.status);
   const ini = partes(sessao.inicio);
   const fim = partes(sessao.fim);
   const durMin = Math.round((new Date(sessao.fim).getTime() - new Date(sessao.inicio).getTime()) / 60000);
   const jaComecou = new Date(sessao.inicio).getTime() <= Date.now();
-  const aberta = sessao.status === 'agendada' || sessao.status === 'confirmada';
-  const st = STATUS_SESSAO[sessao.status];
+  const aberta = status === 'agendada' || status === 'confirmada';
+  const st = STATUS_SESSAO[status];
 
   const executar = async (f: () => Promise<unknown>) => {
     setErro(null);
@@ -222,10 +225,22 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
       setOcupado(false);
     }
   };
-  const mudarStatus = (status: Dto<'StatusSessaoDto'>['status']) =>
-    executar(() =>
-      api('post', '/contas/{conta}/sessoes/{sessao}/status', { params: { conta: conta.id, sessao: sessao.id }, corpo: { status } }),
-    );
+  const mudarStatus = async (novo: Dto<'StatusSessaoDto'>['status']) => {
+    const gravar = () =>
+      api('post', '/contas/{conta}/sessoes/{sessao}/status', { params: { conta: conta.id, sessao: sessao.id }, corpo: { status: novo } });
+    if (novo !== 'realizada' && novo !== 'falta') return executar(gravar);
+    setErro(null);
+    setOcupado(true);
+    try {
+      await gravar();
+      setStatus(novo);
+      aoMudar();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível concluir.');
+    } finally {
+      setOcupado(false);
+    }
+  };
 
   const subtitulo = `${diaPorExtenso(ini.dia)}, ${ini.hora} – ${fim.hora}`;
 
@@ -281,7 +296,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                 Remarcar
               </button>
             )}
-            {aberta && !jaComecou && sessao.status === 'agendada' && (
+            {aberta && !jaComecou && status === 'agendada' && (
               <button className="btn" disabled={ocupado} onClick={() => mudarStatus('confirmada')}>
                 Confirmar
               </button>
@@ -329,14 +344,14 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                   Marcar falta
                 </button>
               )}
-              {sessao.status === 'confirmada' && !jaComecou && (
+              {status === 'confirmada' && !jaComecou && (
                 <button className="btn" data-v="sec" disabled={ocupado} onClick={() => mudarStatus('agendada')}>
                   Tirar confirmação
                 </button>
               )}
-              {(sessao.status === 'realizada' || sessao.status === 'falta') && (
-                <button className="btn" data-v="sec" disabled={ocupado} onClick={() => mudarStatus(sessao.status === 'realizada' ? 'falta' : 'realizada')}>
-                  {sessao.status === 'realizada' ? 'Corrigir para falta' : 'Corrigir para realizada'}
+              {(status === 'realizada' || status === 'falta') && (
+                <button className="btn" data-v="sec" disabled={ocupado} onClick={() => mudarStatus(status === 'realizada' ? 'falta' : 'realizada')}>
+                  {status === 'realizada' ? 'Corrigir para falta' : 'Corrigir para realizada'}
                 </button>
               )}
               {aberta && (
@@ -350,6 +365,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                 </button>
               )}
             </div>
+            {(status === 'realizada' || status === 'falta') && <ObservacaoEditor sessao={sessao.id} aoGravar={aoMudar} />}
           </div>
         )}
       </div>

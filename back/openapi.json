@@ -1303,6 +1303,319 @@
           "agenda"
         ]
       }
+    },
+    "/contas/{conta}/sessoes/{sessao}/observacao": {
+      "get": {
+        "operationId": "Prontuario_observacao",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObservacaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      },
+      "put": {
+        "operationId": "Prontuario_gravar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextoObservacaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Cria ou corrige. A versão anterior fica guardada."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}/adendos": {
+      "post": {
+        "operationId": "Prontuario_adendo",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextoObservacaoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Só depois de a observação travar (30 dias da sessão).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/historico": {
+      "get": {
+        "operationId": "Prontuario_historico",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemHistoricoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/ficha-clinica": {
+      "get": {
+        "operationId": "Prontuario_ficha",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A ficha inteira para impressão. Fica na auditoria como exportação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FichaClinicaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/acessos": {
+      "get": {
+        "operationId": "Prontuario_acessos",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcessoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
+    "/contas/{conta}/pendencias": {
+      "get": {
+        "operationId": "Prontuario_pendencias",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessões realizadas ainda sem observação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendenciaDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
     }
   },
   "info": {
@@ -2451,6 +2764,411 @@
         },
         "required": [
           "removidas"
+        ]
+      },
+      "VersaoObservacaoDto": {
+        "type": "object",
+        "properties": {
+          "versao": {
+            "type": "number"
+          },
+          "texto": {
+            "type": "string"
+          },
+          "gravadaEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "versao",
+          "texto",
+          "gravadaEm"
+        ]
+      },
+      "AdendoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "texto": {
+            "type": "string"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "texto",
+          "criadoEm"
+        ]
+      },
+      "ObservacaoDto": {
+        "type": "object",
+        "properties": {
+          "podeClinico": {
+            "type": "boolean",
+            "description": "Quem lê é o psicólogo do paciente. Se não for, os outros campos vêm vazios."
+          },
+          "registravel": {
+            "type": "boolean",
+            "description": "Sessão realizada ou com falta: aceita observação."
+          },
+          "editavel": {
+            "type": "boolean",
+            "description": "Ainda dá para corrigir (30 dias depois da sessão). Depois, só adendo."
+          },
+          "editavelAte": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "texto": {
+            "type": "string",
+            "nullable": true
+          },
+          "versao": {
+            "type": "number",
+            "nullable": true
+          },
+          "alteradaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "versoes": {
+            "description": "Versões anteriores, da mais nova para a mais antiga.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VersaoObservacaoDto"
+            }
+          },
+          "adendos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdendoDto"
+            }
+          }
+        },
+        "required": [
+          "podeClinico",
+          "registravel",
+          "editavel",
+          "editavelAte",
+          "texto",
+          "versao",
+          "alteradaEm",
+          "versoes",
+          "adendos"
+        ]
+      },
+      "TextoObservacaoDto": {
+        "type": "object",
+        "properties": {
+          "texto": {
+            "type": "string",
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "texto"
+        ]
+      },
+      "ItemHistoricoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "recorrenciaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Só para o psicólogo do paciente."
+          },
+          "alteradaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "versao": {
+            "type": "number",
+            "nullable": true
+          },
+          "adendos": {
+            "type": "number"
+          },
+          "editavelAte": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "recorrenciaId",
+          "observacao",
+          "alteradaEm",
+          "versao",
+          "adendos",
+          "editavelAte"
+        ]
+      },
+      "ProfissionalFichaDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "crp": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "nome",
+          "crp"
+        ]
+      },
+      "AdendoFichaDto": {
+        "type": "object",
+        "properties": {
+          "texto": {
+            "type": "string"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "texto",
+          "criadoEm"
+        ]
+      },
+      "SessaoFichaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "alteradaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "adendos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdendoFichaDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "observacao",
+          "alteradaEm",
+          "adendos"
+        ]
+      },
+      "FichaClinicaDto": {
+        "type": "object",
+        "properties": {
+          "paciente": {
+            "$ref": "#/components/schemas/PacienteDto"
+          },
+          "profissional": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProfissionalFichaDto"
+              }
+            ]
+          },
+          "emitidaEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sessoes": {
+            "description": "Da mais antiga para a mais recente.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessaoFichaDto"
+            }
+          }
+        },
+        "required": [
+          "paciente",
+          "profissional",
+          "emitidaEm",
+          "sessoes"
+        ]
+      },
+      "AcaoAuditoria": {
+        "type": "string",
+        "enum": [
+          "ler",
+          "criar",
+          "editar",
+          "arquivar",
+          "exportar",
+          "excluir"
+        ]
+      },
+      "AcessoDto": {
+        "type": "object",
+        "properties": {
+          "em": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AcaoAuditoria"
+              }
+            ]
+          },
+          "tabela": {
+            "type": "string",
+            "description": "O que foi acessado: pacientes, observacoes, sessoes…"
+          },
+          "quem": {
+            "type": "string",
+            "description": "Nome do profissional, ou \"Membro da conta\"."
+          }
+        },
+        "required": [
+          "em",
+          "acao",
+          "tabela",
+          "quem"
+        ]
+      },
+      "PendenciaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "recorrenciaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Preenchido quando a sessão se repete toda semana."
+          },
+          "editavelAte": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Depois disso, a observação só entra como adendo."
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pacienteNome",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "recorrenciaId",
+          "editavelAte"
         ]
       }
     }

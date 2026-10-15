@@ -52,6 +52,13 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   sessao_futura: [409, 'Presença e falta só podem ser marcadas depois do horário da sessão.'],
   plano_invalido: [400, 'Plano: avulsa, pacote ou mensal.'],
   plano_incompleto: [422, 'Pacote precisa de pelo menos 2 sessões e do valor; mensal, do valor do mês.'],
+  sessao_sem_registro: [409, 'Observação só em sessão realizada ou com falta.'],
+  observacao_vazia: [422, 'A observação não pode ficar vazia. As versões anteriores continuam guardadas.'],
+  observacao_travada: [
+    409,
+    'Passou um mês da sessão: a observação não muda mais. O que faltou dizer entra como adendo.',
+  ],
+  observacao_editavel: [409, 'A observação ainda pode ser corrigida: o adendo é só depois de um mês da sessão.'],
   transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
