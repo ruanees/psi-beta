@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { CamposDoPlano } from '@/components/CamposDoPlano';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
 import { api, type Dto } from '@/lib/api.ts';
 import { hoje, idade } from '@/lib/datas.ts';
-import { moeda } from '@/lib/formato.ts';
 import { soDigitos, valorEmReais } from '@/lib/campos.ts';
 
 type Responsavel = Dto<'NovoResponsavelDto'> & { chave: number };
@@ -19,6 +19,9 @@ export default function NovoPaciente() {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([]);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [tipo, setTipo] = useState<Dto<'Plano'>>('avulsa');
+  const [sessoes, setSessoes] = useState('');
+  const [valor, setValor] = useState('');
   const menor = (idade(nascimento) ?? 99) < 18;
 
   const mudarResp = (chave: number, p: Partial<Responsavel>) =>
@@ -41,7 +44,10 @@ export default function NovoPaciente() {
           telefone: texto('telefone'),
           nascimento: nascimento || undefined,
           cpf: soDigitos(texto('cpf')),
-          valorSessao: valorEmReais(texto('valor')),
+          // Avulsa é o padrão do banco: basta o valor da sessão. Pacote e mensal vão como plano.
+          ...(tipo === 'avulsa'
+            ? { valorSessao: valorEmReais(valor) }
+            : { plano: { tipo, sessoes: sessoes ? Number(sessoes) : null, valor: valorEmReais(valor) ?? null } }),
           queixaPrincipal: texto('queixa'),
           consentimento: f.get('consentimento') === 'on',
           responsaveis: responsaveis
@@ -59,6 +65,8 @@ export default function NovoPaciente() {
     } catch (er) {
       setErro(er instanceof Error ? er.message : 'Não foi possível cadastrar.');
       setOcupado(false);
+      // O botão fica no fim do formulário e o aviso no começo: sem rolar, o erro passa batido.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -101,16 +109,23 @@ export default function NovoPaciente() {
             <small>Necessário para o recibo do Receita Saúde.</small>
           </label>
         </div>
-        <label className="campo">
-          <span>Valor da sessão (R$)</span>
-          <input
-            className="ent"
-            name="valor"
-            inputMode="decimal"
-            placeholder={conta.perfil?.valorSessaoPadrao != null ? `Padrão: ${moeda(conta.perfil.valorSessaoPadrao)}` : 'Opcional'}
-          />
-          <small>Deixe vazio para usar o valor padrão do consultório.</small>
-        </label>
+      </section>
+
+      <section className="cartao">
+        <h2>Plano</h2>
+        <CamposDoPlano
+          tipo={tipo}
+          sessoes={sessoes}
+          valor={valor}
+          valorPadrao={conta.perfil?.valorSessaoPadrao}
+          aoEscolher={(t) => {
+            setTipo(t);
+            setSessoes('');
+            setValor('');
+          }}
+          aoMudarSessoes={setSessoes}
+          aoMudarValor={setValor}
+        />
       </section>
 
       <section className="cartao">

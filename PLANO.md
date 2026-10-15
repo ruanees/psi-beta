@@ -363,7 +363,8 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] Excluir paciente só sem atendimento registrado (cadastro por engano); com sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos e o caminho é arquivar (migration `20261015000002_excluir_paciente.sql`)
 - [x] Alta e arquivo com repetição semanal que ainda não começou (migration `20261015000003_arquivar_repeticao_futura.sql`)
 - [x] Plano do paciente na aba Dados: avulsa, pacote (sessões + valor, mostra o valor por sessão) ou mensal (valor do mês); o Resumo mostra o plano numa linha
-- [x] 54 provas pgTAP
+- [x] Plano escolhido já no cadastro do paciente, gravado na mesma transação (migration `20261015000005_plano_no_cadastro.sql`)
+- [x] 57 provas pgTAP
 
 **Back**
 - [x] Pacientes: buscar (POST, para nome de paciente não ir em URL), criar com responsáveis e consentimento LGPD obrigatório, ler, gravar campo a campo, situação, responsáveis

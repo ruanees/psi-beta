@@ -74,7 +74,12 @@ export class PacientesService {
 
   async criar(jwt: string, conta: string, dto: NovoPacienteDto): Promise<{ id: string }> {
     naoNoFuturo(dto.nascimento);
-    const p = { ...paraBanco(dto, CAMPOS_PACIENTE), consentimento: dto.consentimento };
+    if (dto.plano) conferirPlano(dto.plano);
+    const p = {
+      ...paraBanco(dto, CAMPOS_PACIENTE),
+      consentimento: dto.consentimento,
+      ...(dto.plano && { plano: planoParaBanco(dto.plano) }),
+    };
     const resps = (dto.responsaveis ?? []).map((r: NovoResponsavelDto) => paraBanco(r, CAMPOS_RESPONSAVEL));
     const id = await this.supabase.rpc<string>(jwt, 'paciente_criar', { c: conta, p, resps });
     return { id };
@@ -123,14 +128,8 @@ export class PacientesService {
   }
 
   plano(jwt: string, conta: string, paciente: string, dto: PlanoDto): Promise<void> {
-    if (dto.tipo === 'pacote' && (dto.sessoes ?? 0) < 2) {
-      throw new BadRequestException({ mensagem: 'Pacote com pelo menos 2 sessões.', codigo: 'validacao' });
-    }
-    return this.supabase.rpc<void>(jwt, 'paciente_plano', {
-      c: conta,
-      p: paciente,
-      d: { plano: dto.tipo, sessoes: dto.tipo === 'avulsa' ? null : (dto.sessoes ?? null), valor: dto.valor ?? null },
-    });
+    conferirPlano(dto);
+    return this.supabase.rpc<void>(jwt, 'paciente_plano', { c: conta, p: paciente, d: planoParaBanco(dto) });
   }
 
   situacao(jwt: string, conta: string, paciente: string, situacao: SituacaoPaciente): Promise<void> {
@@ -156,6 +155,17 @@ export class PacientesService {
   removerResponsavel(jwt: string, conta: string, paciente: string, responsavel: string): Promise<void> {
     return this.supabase.rpc<void>(jwt, 'responsavel_remover', { c: conta, p: paciente, r: responsavel });
   }
+}
+
+function conferirPlano(dto: PlanoDto): void {
+  if (dto.tipo === 'pacote' && (dto.sessoes ?? 0) < 2) {
+    throw new BadRequestException({ mensagem: 'Pacote com pelo menos 2 sessões.', codigo: 'validacao' });
+  }
+}
+
+/** O mesmo formato em paciente_plano e na chave `plano` de paciente_criar. */
+function planoParaBanco(dto: PlanoDto) {
+  return { plano: dto.tipo, sessoes: dto.tipo === 'avulsa' ? null : (dto.sessoes ?? null), valor: dto.valor ?? null };
 }
 
 function naoNoFuturo(data: string | undefined): void {

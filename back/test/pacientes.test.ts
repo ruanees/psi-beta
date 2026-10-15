@@ -14,10 +14,11 @@ const sql = readdirSync(PASTA)
   .map((f) => readFileSync(join(PASTA, f), 'utf8'))
   .join('\n');
 
+/** A definição em vigor: a última, contando as que uma migration posterior troca (`create or replace`). */
 function corpo(funcao: string): string {
-  const m = new RegExp(`create function public\\.${funcao}\\([\\s\\S]*?\\n\\$\\$;`).exec(sql);
-  assert.ok(m, `função ${funcao} não encontrada`);
-  return m[0];
+  const todas = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${funcao}\\([\\s\\S]*?\\n\\$\\$;`, 'g'))];
+  assert.ok(todas.length, `função ${funcao} não encontrada`);
+  return todas[todas.length - 1][0];
 }
 
 function chaves(texto: string, variavel: string, operador: '?' | '->>'): string[] {
@@ -42,6 +43,10 @@ describe('pacientes: API x banco', () => {
 
   it('sessao_criar lê o que o serviço da agenda manda', () => {
     assert.deepEqual(chaves(corpo('sessao_criar'), 'd', '->>'), ['duracao_min', 'inicio', 'modalidade', 'paciente_id', 'repetir_semanal']);
+  });
+
+  it('paciente_criar repassa o plano para paciente_plano', () => {
+    assert.match(corpo('paciente_criar'), /paciente_plano\(c, v_id, p -> 'plano'\)/);
   });
 
   it('paciente_plano lê o que o serviço manda', () => {
