@@ -1,38 +1,43 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { hoje as hojeSP, inicioDaSemana, somarDias } from '@/lib/datas.ts';
 import { Icone } from './Icone';
 
 // Mini calendário do mês, semana começando no domingo, hoje marcado.
-// Na Fase 1 ele passa a marcar os dias com sessão e a abrir a agenda do dia.
+// Com `aoEscolher`, cada dia vira botão (Agenda); sem, é só leitura (Início).
+// Dias são strings AAAA-MM-DD no fuso do consultório (lib/datas.ts).
 
 const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-// Sem timeZone: as datas daqui já são dias de calendário locais, e formatá-las
-// em outro fuso empurra o dia 1 para o mês anterior.
-const MES = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
+const MES = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-/** Hoje no fuso do consultório, como data local de calendário. */
-function hojeSaoPaulo(): Date {
-  const [a, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date()).split('-');
-  return new Date(Number(a), Number(m) - 1, Number(d));
+interface Props {
+  selecionado?: string;
+  aoEscolher?: (dia: string) => void;
+  /** Dias com sessão, para o ponto embaixo do número. */
+  marcados?: Set<string>;
 }
 
-export function MiniCalendario() {
+export function MiniCalendario({ selecionado, aoEscolher, marcados }: Props) {
   // Começa vazio no servidor e preenche no navegador: a data do build não é a de hoje.
-  const [hoje, setHoje] = useState<Date | null>(null);
-  const [mes, setMes] = useState<Date | null>(null);
+  const [hoje, setHoje] = useState<string | null>(null);
+  const [mes, setMes] = useState<string | null>(null); // primeiro dia do mês mostrado
   useEffect(() => {
-    const h = hojeSaoPaulo();
+    const h = hojeSP();
     setHoje(h);
-    setMes(new Date(h.getFullYear(), h.getMonth(), 1));
-  }, []);
+    setMes(`${(selecionado ?? h).slice(0, 7)}-01`);
+  }, [selecionado]);
 
   if (!hoje || !mes) return <div className="minical" style={{ minHeight: 280 }} />;
 
-  const inicio = new Date(mes.getFullYear(), mes.getMonth(), 1 - mes.getDay());
-  const dias = Array.from({ length: 42 }, (_, i) => new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + i));
-  const titulo = MES.format(mes);
-  const mudar = (delta: number) => setMes(new Date(mes.getFullYear(), mes.getMonth() + delta, 1));
+  const inicio = inicioDaSemana(mes);
+  const dias = Array.from({ length: 42 }, (_, i) => somarDias(inicio, i));
+  const titulo = MES.format(new Date(`${mes}T12:00:00Z`));
+  const mudar = (delta: number) => {
+    const d = new Date(`${mes}T12:00:00Z`);
+    d.setUTCMonth(d.getUTCMonth() + delta, 1);
+    setMes(d.toISOString().slice(0, 10));
+  };
 
   return (
     <div className="minical">
@@ -54,14 +59,19 @@ export function MiniCalendario() {
           </abbr>
         ))}
         {dias.map((d) => {
-          const eHoje = d.getTime() === hoje.getTime();
-          return (
-            <span
-              key={d.getTime()}
-              data-fora={d.getMonth() !== mes.getMonth() ? '' : undefined}
-              aria-current={eHoje ? 'date' : undefined}
-            >
-              {d.getDate()}
+          const props = {
+            'data-fora': d.slice(0, 7) !== mes.slice(0, 7) ? '' : undefined,
+            'data-marcado': marcados?.has(d) ? '' : undefined,
+            'data-escolhido': aoEscolher && d === selecionado ? '' : undefined,
+            'aria-current': d === hoje ? ('date' as const) : undefined,
+          };
+          return aoEscolher ? (
+            <button key={d} type="button" {...props} onClick={() => aoEscolher(d)} aria-label={d}>
+              {Number(d.slice(8))}
+            </button>
+          ) : (
+            <span key={d} {...props}>
+              {Number(d.slice(8))}
             </span>
           );
         })}

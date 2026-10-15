@@ -3,7 +3,26 @@ import type { Icone as NomeIcone } from '@/lib/menu.ts';
 // Ícones em SVG embutido, traço de 1,8px: sem fonte de ícone externa, que
 // quando falha deixa botão só de ícone com 8px de largura (lição do DIME).
 
-const TRACOS: Record<NomeIcone | 'sair' | 'tema' | 'escudo' | 'esquerda' | 'direita' | 'alerta' | 'calendario', string[]> = {
+const TRACOS: Record<
+  | NomeIcone
+  | 'sair'
+  | 'tema'
+  | 'escudo'
+  | 'esquerda'
+  | 'direita'
+  | 'alerta'
+  | 'calendario'
+  | 'fechar'
+  | 'mais'
+  | 'busca'
+  | 'relogio'
+  | 'video'
+  | 'repetir'
+  | 'telefone'
+  | 'usuario'
+  | 'lixo',
+  string[]
+> = {
   inicio: ['M4 5h6v6H4z', 'M14 5h6v6h-6z', 'M4 15h6v4H4z', 'M14 15h6v4h-6z'],
   agenda: ['M5 6h14v14H5z', 'M5 10h14', 'M9 4v4', 'M15 4v4', 'M9 14h2', 'M13 14h2', 'M9 17h2'],
   pacientes: [
@@ -25,6 +44,15 @@ const TRACOS: Record<NomeIcone | 'sair' | 'tema' | 'escudo' | 'esquerda' | 'dire
   direita: ['M10 6l6 6-6 6'],
   alerta: ['M12 8v5', 'M12 16.5v.5', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'],
   calendario: ['M5 6h14v14H5z', 'M5 10h14', 'M9 4v4', 'M15 4v4'],
+  fechar: ['M6 6l12 12', 'M18 6L6 18'],
+  mais: ['M12 5v14', 'M5 12h14'],
+  busca: ['M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z', 'M20 20l-4-4'],
+  relogio: ['M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z', 'M12 7v5l3 2'],
+  video: ['M4 7h11v10H4z', 'M15 10.5 20 8v8l-5-2.5'],
+  repetir: ['M17 3l3 3-3 3', 'M4 11V9a3 3 0 0 1 3-3h13', 'M7 21l-3-3 3-3', 'M20 13v2a3 3 0 0 1-3 3H4'],
+  telefone: ['M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2'],
+  usuario: ['M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', 'M4 20c1-3.5 4.2-5.5 8-5.5s7 2 8 5.5'],
+  lixo: ['M4 7h16', 'M10 11v6', 'M14 11v6', 'M6 7l1 13h10l1-13', 'M9 7V4h6v3'],
 };
 
 export type NomeDoIcone = keyof typeof TRACOS;

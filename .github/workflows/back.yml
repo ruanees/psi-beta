@@ -2,11 +2,11 @@
 # que a Cloudflare vai empacotar (lição do DIME: CI verde com deploy quebrado).
 name: back
 
+# Sem filtro de pasta: os checks são obrigatórios para o merge e precisam
+# reportar em todo PR, senão o auto-merge espera para sempre.
 on:
   push:
-    paths: ['back/**', '.github/workflows/back.yml']
   pull_request:
-    paths: ['back/**', '.github/workflows/back.yml']
 
 concurrency:
   group: back-${{ github.ref }}

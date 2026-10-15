@@ -1,33 +1,52 @@
 'use client';
 
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
+import { LinhaSessao } from '@/components/LinhaSessao';
 import { MiniCalendario } from '@/components/MiniCalendario';
 import { iniciais } from '@/components/Moldura';
 import { Padrao } from '@/components/Padrao';
+import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
+import { api, type Dto } from '@/lib/api.ts';
+import { diaPorExtenso, hoje, partes } from '@/lib/datas.ts';
+import { fd } from '@/lib/formato.ts';
 import { MENU } from '@/lib/menu.ts';
 
-// Início da Fase 0: só o que a conta já sabe sobre si. Sessões do dia,
-// métricas e próximos atendimentos entram com a agenda (Fase 1).
+// Início: o dia de hoje, a semana e quem está sem próxima sessão.
 // Referência: docs/referencias/01-dashboard.jpg.
 
 export default function Inicio() {
   const { conta } = useApp();
+  const [painel, setPainel] = useState<Dto<'PainelDto'> | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [janela, setJanela] = useState<ModoSessao | null>(null);
+  const [dia, setDia] = useState<string | null>(null);
+
+  const carregar = useCallback(async () => {
+    try {
+      setPainel(await api('get', '/contas/{conta}/painel', { params: { conta: conta.id } }));
+      setErro(null);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao carregar o início.');
+    }
+  }, [conta.id]);
+
+  useEffect(() => {
+    setDia(hoje());
+    void carregar();
+  }, [carregar]);
+
   const nome = conta.perfil?.nome ?? conta.nome;
   const primeiroNome = nome.split(' ')[0];
-
   const pendencias = [
-    !conta.perfil?.crp && { titulo: 'CRP', texto: 'Ele sai nos recibos.' },
-    !conta.perfil?.epsiNumero && { titulo: 'Cadastro e-Psi', texto: 'Exigido pelo CFP para atender online.' },
-    conta.perfil?.valorSessaoPadrao == null && {
-      titulo: 'Valor padrão da sessão',
-      texto: 'Usado nas cobranças.',
-    },
-  ].filter(Boolean) as { titulo: string; texto: string }[];
-
-  const total = 3;
-  const feitas = total - pendencias.length;
+    !conta.perfil?.crp && 'CRP',
+    !conta.perfil?.epsiNumero && 'cadastro e-Psi',
+    conta.perfil?.valorSessaoPadrao == null && 'valor padrão da sessão',
+  ].filter(Boolean) as string[];
+  const nHoje = painel?.hoje.length ?? 0;
+  const restantes = painel?.hoje.filter((s) => new Date(s.fim).getTime() > Date.now() && s.status !== 'falta').length ?? 0;
   const proximas = MENU.filter((i) => !i.pronta);
 
   return (
@@ -42,12 +61,13 @@ export default function Inicio() {
               Olá, <strong>{primeiroNome}</strong>
             </h1>
             <p>
-              {pendencias.length === 0 ? (
-                'Seu cadastro está completo.'
+              {painel === null ? (
+                ' '
+              ) : nHoje === 0 ? (
+                'Nenhuma sessão marcada para hoje.'
               ) : (
                 <>
-                  Faltam <strong>{pendencias.length === 1 ? '1 item' : `${pendencias.length} itens`}</strong> no seu
-                  cadastro
+                  Você tem <strong>{restantes === 1 ? '1 sessão' : `${restantes} sessões`}</strong> pela frente hoje
                 </>
               )}
             </p>
@@ -55,89 +75,136 @@ export default function Inicio() {
           <Padrao className="saudacao-padrao" />
         </section>
 
+        {erro && (
+          <div className="aviso" data-t="erro" role="alert">
+            {erro}
+          </div>
+        )}
+
         <div className="grade" data-n="3">
           <section className="cartao">
             <div className="metrica">
-              <span className="metrica-valor">
-                {feitas}/{total}
-              </span>
-              <span className="metrica-rotulo">Cadastro profissional</span>
-              <div className="progresso" aria-hidden="true">
-                <span style={{ width: `${(feitas / total) * 100}%` }} />
-              </div>
+              <span className="metrica-valor">{painel ? nHoje : '–'}</span>
+              <span className="metrica-rotulo">Sessões hoje</span>
+              <span className="metrica-nota">{dia ? diaPorExtenso(dia) : ''}</span>
+            </div>
+          </section>
+          <section className="cartao">
+            <div className="metrica">
+              <span className="metrica-valor">{painel?.sessoesSemana ?? '–'}</span>
+              <span className="metrica-rotulo">Nesta semana</span>
+              <span className="metrica-nota">De domingo a sábado, sem as desmarcadas</span>
+            </div>
+          </section>
+          <section className="cartao">
+            <div className="metrica">
+              <span className="metrica-valor">{painel?.pacientesAtivos ?? '–'}</span>
+              <span className="metrica-rotulo">Pacientes ativos</span>
               <span className="metrica-nota">
-                {pendencias.length ? (
+                {painel && painel.semProxima.length > 0 ? (
                   <>
-                    <Icone nome="alerta" tamanho={14} /> {pendencias.length} pendente{pendencias.length > 1 ? 's' : ''}
+                    <Icone nome="alerta" tamanho={14} /> {painel.semProxima.length} sem próxima sessão
                   </>
                 ) : (
-                  'Tudo preenchido'
+                  'Todos com sessão marcada'
                 )}
               </span>
             </div>
           </section>
-          <section className="cartao">
-            <div className="metrica">
-              <span className="metrica-valor">{conta.configuracoes.avisoMinimoHoras} h</span>
-              <span className="metrica-rotulo">Aviso mínimo de falta</span>
-              <span className="metrica-nota">Desmarcar com menos tempo conta como falta</span>
-            </div>
-          </section>
-          <section className="cartao">
-            <div className="metrica">
-              <span className="metrica-valor">{conta.configuracoes.inatividadeMinutos} min</span>
-              <span className="metrica-rotulo">Saída automática</span>
-              <span className="metrica-nota">Sem uso por esse tempo, o PSI fecha a sessão</span>
-            </div>
-          </section>
         </div>
 
-        {pendencias.length > 0 && (
+        <section className="cartao">
+          <div className="cartao-topo">
+            <h2>Hoje</h2>
+            <div className="linha">
+              <Link className="btn" data-v="leve" href="/agenda">
+                Abrir agenda
+              </Link>
+              <button className="btn" data-v="suave" onClick={() => dia && setJanela({ tipo: 'nova', dia })}>
+                <Icone nome="mais" tamanho={18} /> Nova sessão
+              </button>
+            </div>
+          </div>
+          {painel === null ? (
+            <p className="mudo">Carregando…</p>
+          ) : nHoje === 0 ? (
+            <div className="vazio">Nenhuma sessão hoje.</div>
+          ) : (
+            <ul className="lista-sessoes">
+              {painel.hoje.map((s) => (
+                <li key={s.id}>
+                  <LinhaSessao sessao={s} aoAbrir={() => setJanela({ tipo: 'ver', sessao: s })} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {painel && painel.semProxima.length > 0 && (
           <section className="cartao">
             <div className="cartao-topo">
-              <h2>Para completar o cadastro</h2>
-              <Link className="btn" data-v="suave" href="/configuracoes">
-                Abrir configurações
-              </Link>
+              <h2>Sem próxima sessão</h2>
+              <span className="mudo pequeno">Pacientes ativos sem nada marcado</span>
             </div>
             <ul className="lista">
-              {pendencias.map((p) => (
-                <li key={p.titulo}>
-                  <div>
-                    <strong>{p.titulo}</strong>
-                    <div className="mudo pequeno">{p.texto}</div>
-                  </div>
-                  <span className="selo" data-c="at">
-                    Pendente
-                  </span>
+              {painel.semProxima.map((p) => (
+                <li key={p.id}>
+                  <Link className="paciente-linha" href={`/pacientes/${p.id}`}>
+                    <span className="avatar">{iniciais(p.nome)}</span>
+                    <span className="paciente-linha-texto">
+                      <strong>{p.nome}</strong>
+                      <small className="mudo">
+                        {p.ultimaSessao ? `Última sessão em ${fd(p.ultimaSessao)}` : 'Ainda sem sessão'}
+                      </small>
+                    </span>
+                  </Link>
+                  <button className="btn" data-v="sec" onClick={() => setJanela({ tipo: 'nova', paciente: { id: p.id, nome: p.nome } })}>
+                    Agendar
+                  </button>
                 </li>
               ))}
             </ul>
           </section>
         )}
+
+        {pendencias.length > 0 && (
+          <div className="aviso" data-t="atencao">
+            <Icone nome="alerta" tamanho={18} />
+            <span>
+              Falta no seu cadastro: {pendencias.join(', ')}.{' '}
+              <Link className="lk" href="/configuracoes">
+                Completar em Configurações
+              </Link>
+            </span>
+          </div>
+        )}
       </div>
 
       <aside className="trilho">
         <section className="cartao">
-          <MiniCalendario />
+          <MiniCalendario marcados={new Set((painel?.hoje ?? []).map((s) => partes(s.inicio).dia))} />
         </section>
-        <section className="cartao">
-          <h2>Próximas versões</h2>
-          <ul className="lista">
-            {proximas.map((i) => (
-              <li key={i.id}>
-                <span className="linha" style={{ gap: 10 }}>
-                  <span className="ladrilho" aria-hidden="true">
-                    <Icone nome={i.icone} />
+        {proximas.length > 0 && (
+          <section className="cartao">
+            <h2>Próximas versões</h2>
+            <ul className="lista">
+              {proximas.map((i) => (
+                <li key={i.id}>
+                  <span className="linha" style={{ gap: 10 }}>
+                    <span className="ladrilho" aria-hidden="true">
+                      <Icone nome={i.icone} />
+                    </span>
+                    <strong>{i.rotulo}</strong>
                   </span>
-                  <strong>{i.rotulo}</strong>
-                </span>
-                <span className="etiqueta">Fase {i.fase}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+                  <span className="etiqueta">Fase {i.fase}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </aside>
+
+      {janela && <SessaoJanela modo={janela} aoFechar={() => setJanela(null)} aoMudar={() => void carregar()} />}
     </div>
   );
 }

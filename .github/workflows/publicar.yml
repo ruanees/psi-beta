@@ -1,0 +1,131 @@
+# Publicação de homologação. Todo merge na main publica, sempre nesta ordem:
+#   1. banco  — migrations novas de back/supabase/migrations (supabase db push)
+#   2. back   — Worker psi-back-homolog
+#   3. front  — Worker psi-front-homolog
+# Se um passo falha, os seguintes não rodam: back novo nunca sobe com banco velho.
+# Sem os segredos configurados o workflow só avisa e não publica nada.
+name: publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Nunca duas publicações ao mesmo tempo; a segunda espera a primeira terminar.
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  configurado:
+    name: Segredos configurados
+    runs-on: ubuntu-latest
+    outputs:
+      pronto: ${{ steps.conferir.outputs.pronto }}
+    steps:
+      - id: conferir
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          faltando=""
+          for nome in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD CLOUDFLARE_API_TOKEN SUPABASE_PROJECT_REF CLOUDFLARE_ACCOUNT_ID; do
+            [ -n "${!nome}" ] || faltando="$faltando $nome"
+          done
+          if [ -n "$faltando" ]; then
+            echo "::warning::Publicação desligada. Falta em Settings → Secrets and variables → Actions:$faltando"
+            echo "pronto=nao" >> "$GITHUB_OUTPUT"
+          else
+            echo "pronto=sim" >> "$GITHUB_OUTPUT"
+          fi
+
+  banco:
+    name: Banco (migrations)
+    needs: configurado
+    if: needs.configurado.outputs.pronto == 'sim'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: back
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: back/package-lock.json
+      - run: npm ci
+      - name: Ligar ao projeto
+        run: npx supabase link --project-ref "$SUPABASE_PROJECT_REF" -p "$SUPABASE_DB_PASSWORD"
+      - name: Antes
+        run: npx supabase migration list -p "$SUPABASE_DB_PASSWORD"
+      # Só aplica o que falta. Migration que já está no histórico do projeto não roda de novo.
+      - name: Aplicar migrations novas
+        run: npx supabase db push -p "$SUPABASE_DB_PASSWORD" --skip-vault --yes
+      - name: Depois
+        run: npx supabase migration list -p "$SUPABASE_DB_PASSWORD"
+
+  back:
+    name: Back (Worker)
+    needs: banco
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: back
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: back/package-lock.json
+      - run: npm ci
+      # O [build] do wrangler.toml compila antes de subir; as [vars] vêm do arquivo.
+      - run: npm run deploy
+      - name: Conferir /saude
+        run: |
+          for tentativa in 1 2 3 4 5; do
+            corpo=$(curl -fsS https://psi-back-homolog.balbuquerc.workers.dev/saude || true)
+            echo "$corpo"
+            echo "$corpo" | grep -q '"supabase":true' && exit 0
+            sleep 5
+          done
+          echo "::error::/saude não respondeu supabase true depois da publicação."
+          exit 1
+
+  front:
+    name: Front (Worker)
+    needs: back
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: front
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_TELEMETRY_DISABLED: 1
+      # Variável de build: é colada no bundle. Endereço público do back, não é segredo.
+      NEXT_PUBLIC_API_URL: https://psi-back-homolog.balbuquerc.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run deploy

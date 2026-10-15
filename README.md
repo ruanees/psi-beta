@@ -32,19 +32,37 @@ navegador ──> psi-front (Next) ──REST + JWT──> psi-back (Nest) ─�
 
 - O front **nunca** fala com o Supabase. Não há chave nenhuma no bundle.
 - O back repassa o JWT de quem chamou e usa só a chave pública. **Quem decide o que cada um vê é o banco** (RLS e funções `security definer`), não o Nest.
-- Toda escrita passa por RPC; nenhuma tabela aceita insert, update ou delete direto.
+- Toda escrita passa por RPC; nenhuma tabela aceita insert, update ou delete direto. As tabelas de paciente e agenda também não aceitam leitura direta: o dado clínico sai só pela RPC, que registra quem leu.
 - Quem ativou o código do autenticador só lê dado depois de confirmá-lo — a trava também é do banco.
 
 ## Publicação (homologação)
 
 Homologação usa só dado de teste. O ambiente de produção nasce na véspera do beta, repetindo estes passos com os nomes de produção.
 
+**Depois da configuração inicial abaixo, ninguém publica à mão.** O fluxo é:
+
+1. PR aberto → CI (`back` e `front`) roda.
+2. CI verde → o auto-merge junta o PR na `main`.
+3. Merge na `main` → o workflow `publicar` roda, nesta ordem: migrations novas no Supabase (`supabase db push`), Worker do back, Worker do front. Se um passo falha, os seguintes não rodam.
+
+Os segredos ficam só em **GitHub → Settings → Secrets and variables → Actions**:
+
+| Nome | Tipo | Onde pegar |
+|---|---|---|
+| `SUPABASE_ACCESS_TOKEN` | secret | Supabase → avatar → **Account preferences → Access Tokens** |
+| `SUPABASE_DB_PASSWORD` | secret | a senha do banco do projeto (**Database → Settings → Reset database password** se perdeu) |
+| `CLOUDFLARE_API_TOKEN` | secret | Cloudflare → **My Profile → API Tokens → Create Token → Edit Cloudflare Workers** |
+| `SUPABASE_PROJECT_REF` | variable | o `xxxx` de `https://xxxx.supabase.co` |
+| `CLOUDFLARE_ACCOUNT_ID` | variable | Cloudflare → **Workers & Pages**, coluna da direita, **Account ID** |
+
+Sem eles o `publicar` só avisa e não publica nada. Migration que foi rodada à mão no SQL Editor precisa ser marcada uma vez pelo workflow **marcar migrations** (Actions → marcar migrations → Run workflow), senão o `db push` tenta rodá-la de novo.
+
 ### 1. Supabase
 
 1. Criar o projeto **`psi-homolog`**, região **South America (São Paulo)**. Guardar a senha do banco.
 2. **Authentication → Sign In / Providers → Email**: desligar **Allow new users to sign up**. O beta é fechado; conta nasce pelo passo 5.
 3. **Authentication → Multi-Factor**: ligar **TOTP** (enroll e verify).
-4. **SQL Editor**: colar e rodar o conteúdo de `back/supabase/migrations/20261014000001_fundacoes.sql`. Cada migration nova entra do mesmo jeito, em ordem.
+4. As migrations de `back/supabase/migrations/` sobem sozinhas no merge (workflow `publicar`). Projeto novo: configurar os segredos acima antes do primeiro merge.
 5. Criar sua conta:
    - **Authentication → Users → Add user → Create new user**: seu e-mail e uma senha (10+ caracteres, letras e números), marcando **Auto Confirm User**.
    - **SQL Editor**:
@@ -58,7 +76,7 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 
 1. **Workers & Pages → Create → Import a repository** → `ruanees/psi-beta`.
 2. Nome do Worker: **`psi-back-homolog`** (tem que ser igual ao `name` do `back/wrangler.toml`).
-3. **Root directory**: `back` · **Build command**: `npm run build` · **Deploy command**: `npm run deploy`.
+3. **Root directory**: `back` · **Build command**: `npm run build` · **Deploy command**: `npm run deploy`. Depois do primeiro deploy, desconectar o repositório (**Settings → Build → Git repository → Disconnect**): quem publica é o workflow `publicar`, na ordem certa.
 4. Antes do primeiro deploy, preencher no `back/wrangler.toml`, seção `[vars]`: `SUPABASE_URL`, `SUPABASE_ANON_KEY` e, depois que o front existir, o endereço dele em `ORIGENS` e `FRONT_URL`. **Não use o painel para isso**: o deploy sobrescreve as variáveis do painel com as do arquivo.
 5. Conferir `https://psi-back-homolog.<sua-conta>.workers.dev/saude`: precisa responder `"supabase": true`.
 
@@ -66,8 +84,8 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 
 1. **Import a repository** de novo, mesmo repositório.
 2. Nome do Worker: **`psi-front-homolog`** (igual ao `name` do `front/wrangler.jsonc`).
-3. **Root directory**: `front` · **Build command**: `npm run build` · **Deploy command**: `npm run deploy`.
-4. **Settings → Build → Variables and secrets** (de **build**, não as de runtime): `NEXT_PUBLIC_API_URL` = endereço do back, sem barra no fim. Ela é colada no bundle durante o build; posta como variável de runtime não chega.
+3. **Root directory**: `front` · **Build command**: `npm run build` · **Deploy command**: `npm run deploy`. Também desconectar o repositório depois do primeiro deploy.
+4. `NEXT_PUBLIC_API_URL` = endereço do back, sem barra no fim. É variável de **build** (colada no bundle): no workflow `publicar` ela está no `env` do job `front`; no build da Cloudflare, em **Settings → Build → Variables and secrets**, nunca nas de runtime.
 5. Voltar ao `back/wrangler.toml` e pôr o endereço do front em `ORIGENS` e `FRONT_URL`. Sem isso o navegador bloqueia as chamadas (CORS) e o link de recuperação de senha volta para o lugar errado.
 
 ### 4. Supabase — endereço do front
@@ -83,6 +101,9 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 | Tela de login sem reação, erro de CORS no console | Endereço do front fora de `ORIGENS` |
 | Build do front para com "NEXT_PUBLIC_API_URL é obrigatória" | A variável foi posta em runtime, não em build |
 | "Acesso sem consultório" depois do login | Faltou o `conta_criar` do passo 1.5 |
+| "O banco está desatualizado: falta rodar a migration nova" | O job **Banco** do `publicar` falhou ou não rodou; ver Actions |
+| `publicar` para no **Banco** com "already exists" | Migration rodada à mão e não marcada: rodar **marcar migrations** com a versão dela e depois **Re-run** no `publicar` |
+| `publicar` só mostra o aviso "Publicação desligada" | Falta segredo ou variável em Settings → Secrets and variables → Actions |
 
 O `/saude` diz **de onde** veio cada configuração (`process`, `worker`, `faltando`), nunca o valor.
 

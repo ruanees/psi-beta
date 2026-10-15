@@ -1,10 +1,9 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Patch } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { UUID } from '../comum/pipes';
 import { Jwt } from '../comum/publico';
 import { ConfiguracoesParciaisDto, ContaDto, ContaResumoDto, PerfilParcialDto } from './contas.dto';
 import { ContasService } from './contas.service';
-
-const UUID = new ParseUUIDPipe({ errorHttpStatusCode: 404 });
 
 @ApiTags('contas')
 @ApiBearerAuth()

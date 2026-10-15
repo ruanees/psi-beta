@@ -61,16 +61,21 @@ Levantado com os psicólogos. Nada fora desta lista entra no beta; o que é pedi
 | Recibo pelo Receita Saúde ou NFS-e? | Receita Saúde | NFS-e sai do beta. O recibo do Receita Saúde é o caminho principal (Fase 4) |
 | Atendimento online | Meet integrado à plataforma ou gerado por ela; se não der, o mais otimizado possível | O Meet **não pode ser embutido** numa página de outro site — o Google bloqueia. O que dá, e é o plano: a plataforma **gera o link do Meet sozinha** para cada sessão online, pela conta Google do psicólogo. Vídeo embutido sai do beta (Fase 5) |
 
+### Respondidas (15/10/2026)
+
+| Pergunta | Resposta | O que muda no sistema |
+|---|---|---|
+| Com quantas horas de antecedência o aviso de falta conta? | 24 h ou 6 h | Escolha do psicólogo nas Configurações (24 h ou 6 h, padrão 24 h); o servidor aplica a regra |
+| Falta de sessão avulsa também é cobrada? | Sim | Falta avulsa gera cobrança, pela mesma regra do aviso |
+| Pacote tem validade? | Não | Pacote sem validade |
+| A observação pode ser corrigida depois? Até quando? | Por um mês (*interpretação: a resposta veio como "É pra ser um mês"; confirmar*) | Editável por 30 dias depois da sessão, toda versão guardada; depois disso trava e correção vira adendo |
+
 ### Ainda abertas
 
 Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o padrão da coluna da direita, configurável por conta.
 
 | Pergunta | Bloqueia | Padrão até a resposta |
 |---|---|---|
-| Com **quantas horas** de antecedência o aviso de falta conta? | Fase 1 | 24 h |
-| Falta de sessão avulsa (sem pacote) também é cobrada? | Fase 3 | Sim, pela mesma regra do aviso |
-| Pacote tem validade? | Fase 3 | Sem validade |
-| A observação pode ser corrigida depois? Até quando? | Fase 2 | Editável sempre, **toda versão guardada** e visível no histórico |
 | Cada paciente tem um valor de sessão próprio, ou é um valor único? | Fase 3 | Valor padrão da conta, sobrescrito por paciente |
 | A maioria dos pacientes tem horário fixo semanal? | Fase 1 | Repetição semanal disponível |
 | Alguém além do psicólogo (secretária) precisa entrar no beta? | Fase 0 | Não |
@@ -344,24 +349,33 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 08 — Fase 1 — Pacientes, busca e agenda (pedidos 1, 8, 9)
 
-**Banco:** `pacientes`, `responsaveis`, `recorrencias`, `sessoes`; `pode_clinico`; extensões `unaccent` e `pg_trgm` com índice no nome do paciente e do responsável; constraint de exclusão de horário; pgTAP.
+**Código pronto em 14/10/2026.** Publicação automática: no merge, o workflow `publicar` aplica as migrations novas e sobe back e front.
+
+**Banco**
+- [x] `pacientes`, `responsaveis`, `recorrencias`, `sessoes`; RLS ligada sem política: toda leitura e escrita por RPC
+- [x] `pode_clinico`: a queixa principal só chega ao psicólogo do paciente, e a leitura entra na auditoria
+- [x] Busca sem acento e tolerante a erro de digitação (`unaccent` + `pg_trgm`), também pelo nome do responsável
+- [x] Choque de horário barrado por constraint de exclusão (`EXCLUDE USING gist`); sessão desmarcada libera o horário
+- [x] Repetição semanal: gera as próximas 8 semanas e se estende quando a agenda é aberta mais à frente
+- [x] Desmarcar compara a hora do aviso com `aviso_minimo_horas` (6 h ou 24 h) e decide falta ou desmarcada; `simular` responde antes de gravar
+- [x] Presença e falta só depois do horário da sessão; alta e arquivo encerram a repetição e tiram as sessões futuras
+- [x] Excluir paciente só sem atendimento registrado (cadastro por engano); com sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos e o caminho é arquivar (migration `20261015000002_excluir_paciente.sql`)
+- [x] Alta e arquivo com repetição semanal que ainda não começou (migration `20261015000003_arquivar_repeticao_futura.sql`)
+- [x] 43 provas pgTAP
 
 **Back**
-- [ ] CRUD de paciente, campo a campo; arquivar em vez de apagar
-- [ ] Menor de idade exige ao menos um responsável — regra no servidor
-- [ ] `GET /pacientes?busca=` sem acento, tolerante a erro, buscando também pelo responsável; resposta sem queixa principal (a lista não é dado clínico)
-- [ ] `AgendaService`: sessão avulsa; repetição semanal gerando as próximas ocorrências; editar "só esta" ou "esta e as próximas"
-- [ ] Choque de horário recusado **no banco**, com mensagem pronta ("Já existe sessão das 14:00 às 14:50 neste dia")
-- [ ] Transição de status validada no servidor
+- [x] Pacientes: buscar (POST, para nome de paciente não ir em URL), criar com responsáveis e consentimento LGPD obrigatório, ler, gravar campo a campo, situação, responsáveis
+- [x] Agenda: período até 62 dias, painel do Início, sessões do paciente, criar (avulsa ou semanal), remarcar ("só esta" ou "esta e as próximas"), status, desmarcar, encerrar repetição
+- [x] Prova que prende os nomes de campo da API contra as funções da migration
 
 **Front**
-- [ ] Lista de pacientes com situação e busca
-- [ ] `<BuscaPaciente>` no topo, abre a ficha direto
-- [ ] Formulário de paciente (um só para criar e editar) com responsáveis repetíveis e consentimento LGPD marcado
-- [ ] Ficha do paciente com as abas da seção 05 — nesta fase **Resumo** e **Dados**; as outras com "em breve"
-- [ ] Agenda: dia e semana no desktop, dia no celular — quem esconde é o CSS, não `window.innerWidth`
-- [ ] Sessão nova a partir de um horário vazio da agenda
-- [ ] Início: sessões de hoje e "pacientes ativos sem próxima sessão"
+- [x] Agenda da semana como a referência: grade por hora, blocos coloridos pelo status, linha do "agora", clique num horário vazio abre a sessão nova; no celular, faixa de dias e lista do dia
+- [x] Janela de sessão: agendar, confirmar, presença ou falta, remarcar, desmarcar com o aviso de falta antes de confirmar, encerrar repetição
+- [x] Pacientes: lista com busca e filtro de situação; cadastro com responsáveis, CPF, valor próprio e queixa principal; ficha com Resumo, Sessões e Dados (Histórico, Pacotes, Financeiro e Recibos aparecem como "em breve")
+- [x] Busca de paciente no topo, de qualquer tela (atalho `/`)
+- [x] Início com sessões de hoje, contagens da semana e pacientes sem próxima sessão
+- [x] Configurações: antecedência do aviso de falta em 6 h ou 24 h
+- [ ] `.ics` da sessão — fica para quando houver sessão online (Fase 5), onde ele é útil de verdade
 
 ## 09 — Fase 2 — Registro dos atendimentos e histórico (pedidos 2, 5)
 

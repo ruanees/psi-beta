@@ -31,9 +31,12 @@ type RespostaDe<O> = O extends { responses: infer R }
   : never;
 
 type ParametrosDe<O> = O extends { parameters: { path: infer P } } ? ([P] extends [never] ? never : P) : never;
+type ConsultaDe<O> = O extends { parameters: { query: infer Q } } ? ([Q] extends [never] ? never : Q) : never;
 
 interface Opcoes<O> {
   params?: ParametrosDe<O>;
+  /** Query string. Nunca nome de paciente nem dado clínico: URL fica em log. */
+  consulta?: ConsultaDe<O>;
   corpo?: CorpoDe<O>;
   /** Usa este token em vez do da sessão (link de recuperação, segundo fator). */
   jwt?: string;
@@ -151,7 +154,8 @@ async function chamar(metodo: Metodo, caminho: string, opcoes: Opcoes<unknown>, 
 
   let r: Response;
   try {
-    r = await fetch(`${BASE}${montarCaminho(caminho, opcoes.params as Record<string, string> | undefined)}`, {
+    const consulta = opcoes.consulta ? `?${new URLSearchParams(opcoes.consulta as Record<string, string>)}` : '';
+    r = await fetch(`${BASE}${montarCaminho(caminho, opcoes.params as Record<string, string> | undefined)}${consulta}`, {
       method: metodo.toUpperCase(),
       headers,
       body: opcoes.corpo === undefined ? undefined : JSON.stringify(opcoes.corpo),
