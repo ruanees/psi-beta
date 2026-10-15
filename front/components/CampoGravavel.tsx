@@ -12,7 +12,7 @@ interface Props {
   tipo?: 'text' | 'number' | 'date' | 'tel';
   dica?: string;
   placeholder?: string;
-  inputMode?: 'text' | 'numeric' | 'decimal';
+  inputMode?: 'text' | 'numeric' | 'decimal' | 'url';
   /** Texto longo: vira <textarea>. */
   linhas?: number;
   max?: string;

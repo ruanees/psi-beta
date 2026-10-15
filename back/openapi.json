@@ -2289,6 +2289,166 @@
           "financeiro"
         ]
       }
+    },
+    "/contas/{conta}/sessoes/{sessao}/sala": {
+      "get": {
+        "operationId": "Sala_daSessao",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaSessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sala"
+        ]
+      },
+      "put": {
+        "operationId": "Sala_gravarLink",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkSalaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sala"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/sala/renovar": {
+      "post": {
+        "operationId": "Sala_renovar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "O link anterior do paciente para de funcionar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenSalaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sala"
+        ]
+      }
+    },
+    "/sala/{token}": {
+      "get": {
+        "operationId": "Sala_publica",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaPublicaDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sala"
+        ]
+      }
     }
   },
   "info": {
@@ -2540,13 +2700,19 @@
             "type": "number",
             "nullable": true,
             "description": "Em reais."
+          },
+          "salaLink": {
+            "type": "string",
+            "nullable": true,
+            "description": "Link fixo da sala online, usado quando a sessão não tem link próprio."
           }
         },
         "required": [
           "nome",
           "crp",
           "epsiNumero",
-          "valorSessaoPadrao"
+          "valorSessaoPadrao",
+          "salaLink"
         ]
       },
       "ConfiguracoesDto": {
@@ -2634,6 +2800,11 @@
           "valorSessaoPadrao": {
             "type": "number",
             "nullable": true
+          },
+          "salaLink": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://meet.google.com/abc-defg-hij"
           }
         }
       },
@@ -3243,6 +3414,66 @@
           "ultimaSessao"
         ]
       },
+      "ProximaOnlineDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Modalidade"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusSessao"
+              }
+            ]
+          },
+          "recorrenciaId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Preenchido quando a sessão se repete toda semana."
+          },
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Link da chamada; null quando não há link colado nem fixo."
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pacienteNome",
+          "inicio",
+          "fim",
+          "modalidade",
+          "status",
+          "recorrenciaId",
+          "link"
+        ]
+      },
       "PainelDto": {
         "type": "object",
         "properties": {
@@ -3264,13 +3495,24 @@
             "items": {
               "$ref": "#/components/schemas/PacienteSemProximaDto"
             }
+          },
+          "proximaOnline": {
+            "nullable": true,
+            "description": "A próxima sessão online, de hoje em diante.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProximaOnlineDto"
+              }
+            ]
           }
         },
         "required": [
           "hoje",
           "sessoesSemana",
           "pacientesAtivos",
-          "semProxima"
+          "semProxima",
+          "proximaOnline"
         ]
       },
       "SessaoDoPacienteDto": {
@@ -4532,6 +4774,120 @@
         "required": [
           "pacote",
           "cobranca"
+        ]
+      },
+      "SalaSessaoDto": {
+        "type": "object",
+        "properties": {
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "O link que vale: o da sessão ou, sem ele, o fixo do perfil."
+          },
+          "linkSessao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Colado nesta sessão."
+          },
+          "linkPerfil": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fixo do perfil."
+          },
+          "token": {
+            "type": "string",
+            "description": "Token do link do paciente: o front monta /sala/<token>."
+          },
+          "epsiOk": {
+            "type": "boolean",
+            "description": "Falso quando o perfil não tem o número do e-Psi."
+          }
+        },
+        "required": [
+          "link",
+          "linkSessao",
+          "linkPerfil",
+          "token",
+          "epsiOk"
+        ]
+      },
+      "LinkSalaDto": {
+        "type": "object",
+        "properties": {
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "null ou vazio volta a usar o link fixo do perfil."
+          }
+        },
+        "required": [
+          "link"
+        ]
+      },
+      "TokenSalaDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "SituacaoSala": {
+        "type": "string",
+        "enum": [
+          "sem_sessao",
+          "cedo",
+          "sem_link",
+          "aberta"
+        ],
+        "description": "`cedo`: abre 15 min antes; `aberta`: com o link; `sem_link`: na hora, mas sem link colocado."
+      },
+      "SalaPublicaDto": {
+        "type": "object",
+        "properties": {
+          "profissional": {
+            "type": "string",
+            "nullable": true
+          },
+          "situacao": {
+            "description": "`cedo`: abre 15 min antes; `aberta`: com o link; `sem_link`: na hora, mas sem link colocado.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoSala"
+              }
+            ]
+          },
+          "inicio": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "fim": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "abreEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Só dentro da janela."
+          }
+        },
+        "required": [
+          "profissional",
+          "situacao",
+          "inicio",
+          "fim",
+          "abreEm",
+          "link"
         ]
       }
     }

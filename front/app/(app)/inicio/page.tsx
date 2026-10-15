@@ -13,6 +13,7 @@ import { api, type Dto } from '@/lib/api.ts';
 import { diaPorExtenso, hoje, partes } from '@/lib/datas.ts';
 import { fd, moeda } from '@/lib/formato.ts';
 import { MENU } from '@/lib/menu.ts';
+import { nomeDaChamada } from '@/lib/sala.ts';
 
 // Início: o dia de hoje, a semana e quem está sem próxima sessão.
 // Referência: docs/referencias/01-dashboard.jpg.
@@ -120,6 +121,8 @@ export default function Inicio() {
             </div>
           </section>
         </div>
+
+        {painel?.proximaOnline && <ProximaOnline sessao={painel.proximaOnline} abrir={(s) => setJanela({ tipo: 'ver', sessao: s })} />}
 
         <section className="cartao">
           <div className="cartao-topo">
@@ -278,5 +281,37 @@ export default function Inicio() {
 
       {janela && <SessaoJanela modo={janela} aoFechar={() => setJanela(null)} aoMudar={() => void carregar()} />}
     </div>
+  );
+}
+
+function ProximaOnline({ sessao, abrir }: { sessao: Dto<'ProximaOnlineDto'>; abrir: (s: Dto<'ProximaOnlineDto'>) => void }) {
+  const ini = partes(sessao.inicio);
+  const fim = partes(sessao.fim);
+  const ehHoje = ini.dia === hoje();
+  return (
+    <section className="cartao proxima-online">
+      <span className="proxima-online-icone" aria-hidden="true">
+        <Icone nome="video" tamanho={22} />
+      </span>
+      <div className="proxima-online-texto">
+        <span className="metrica-rotulo">Próxima sessão online</span>
+        <strong>{sessao.pacienteNome}</strong>
+        <span className="mudo">
+          {ehHoje ? 'Hoje' : diaPorExtenso(ini.dia)}, {ini.hora} – {fim.hora}
+        </span>
+      </div>
+      <div className="linha">
+        <button className="btn" data-v="sec" onClick={() => abrir(sessao)}>
+          Abrir sessão
+        </button>
+        {sessao.link ? (
+          <a className="btn" href={sessao.link} target="_blank" rel="noopener noreferrer">
+            <Icone nome="video" tamanho={16} /> {nomeDaChamada(sessao.link)}
+          </a>
+        ) : (
+          <span className="etiqueta">Sem link da chamada</span>
+        )}
+      </div>
+    </section>
   );
 }

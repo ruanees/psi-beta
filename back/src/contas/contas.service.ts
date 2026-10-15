@@ -20,6 +20,7 @@ export const CAMPOS_PERFIL = {
   crp: 'crp',
   epsiNumero: 'epsi_numero',
   valorSessaoPadrao: 'valor_sessao_padrao',
+  salaLink: 'sala_link',
 } as const satisfies Record<keyof PerfilParcialDto, string>;
 
 export const CAMPOS_CONFIGURACOES = {

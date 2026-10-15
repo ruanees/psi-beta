@@ -11,6 +11,7 @@ import { Icone } from './Icone';
 import { FinanceiroDaSessao } from './FinanceiroDaSessao';
 import { Janela } from './Janela';
 import { ObservacaoEditor } from './ObservacaoEditor';
+import { SalaOnline } from './SalaOnline';
 
 // Uma janela só para a sessão: agendar, ver, remarcar e desmarcar. Um
 // formulário para criar e corrigir — dois se desencontram no dia em que um
@@ -405,6 +406,9 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                 </button>
               )}
             </div>
+            {sessao.modalidade === 'online' && (aberta || status === 'realizada') && (
+              <SalaOnline sessao={sessao.id} paciente={sessao.pacienteId} />
+            )}
             {(status === 'realizada' || status === 'falta') && (
               <FinanceiroDaSessao key={status} sessao={sessao.id} paciente={sessao.pacienteNome} />
             )}

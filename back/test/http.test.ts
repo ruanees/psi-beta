@@ -16,7 +16,7 @@ process.env.ORIGENS = 'http://localhost:3000';
 process.env.FRONT_URL = 'http://localhost:3000';
 
 // Abrir uma rota é decisão: entrar nesta lista exige mudar este teste.
-const PUBLICAS = new Set(['/saude', '/openapi.json', '/sessao/entrar', '/sessao/renovar', '/sessao/recuperar']);
+const PUBLICAS = new Set(['/saude', '/openapi.json', '/sessao/entrar', '/sessao/renovar', '/sessao/recuperar', '/sala/{token}']);
 
 let app: INestApplication;
 let base: string;

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { LINK_SALA } from '../sala/sala.dto';
 import {
   IsBoolean,
   IsInt,
@@ -40,6 +41,9 @@ export class PerfilDto {
 
   @ApiProperty({ type: Number, nullable: true, description: 'Em reais.' })
   valorSessaoPadrao: number | null;
+
+  @ApiProperty({ type: String, nullable: true, description: 'Link fixo da sala online, usado quando a sessão não tem link próprio.' })
+  salaLink: string | null;
 }
 
 export class ConfiguracoesDto {
@@ -95,6 +99,13 @@ export class PerfilParcialDto {
   @Min(0)
   @Max(99999.99)
   valorSessaoPadrao?: number | null;
+
+  @ApiPropertyOptional({ type: String, nullable: true, example: 'https://meet.google.com/abc-defg-hij' })
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== '')
+  @Matches(LINK_SALA, { message: 'Cole o link completo da chamada, começando com https://' })
+  @MaxLength(300)
+  salaLink?: string | null;
 }
 
 export class ConfiguracoesParciaisDto {

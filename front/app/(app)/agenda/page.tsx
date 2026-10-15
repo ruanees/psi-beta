@@ -29,6 +29,13 @@ type Sessao = Dto<'SessaoAgendaDto'>;
 
 const ALTURA_HORA = 56;
 
+type FiltroModalidade = 'todas' | Dto<'Modalidade'>;
+const FILTROS_MODALIDADE: [FiltroModalidade, string][] = [
+  ['todas', 'Todas'],
+  ['presencial', 'Presencial'],
+  ['online', 'Online'],
+];
+
 export default function Agenda() {
   const { conta } = useApp();
   const [dia, setDia] = useState<string | null>(null);
@@ -36,6 +43,7 @@ export default function Agenda() {
   const [erro, setErro] = useState<string | null>(null);
   const [janela, setJanela] = useState<ModoSessao | null>(null);
   const [agora, setAgora] = useState<{ dia: string; minutos: number } | null>(null);
+  const [modalidade, setModalidade] = useState<FiltroModalidade>('todas');
 
   useEffect(() => {
     setDia(hojeSP());
@@ -71,11 +79,12 @@ export default function Agenda() {
   const porDia = useMemo(() => {
     const m = new Map<string, Sessao[]>();
     for (const s of sessoes ?? []) {
+      if (modalidade !== 'todas' && s.modalidade !== modalidade) continue;
       const d = partes(s.inicio).dia;
       m.set(d, [...(m.get(d) ?? []), s]);
     }
     return m;
-  }, [sessoes]);
+  }, [sessoes, modalidade]);
 
   // Faixa de horas: 7h às 21h, alargada se houver sessão fora dela.
   const [horaIni, horaFim] = useMemo(() => {
@@ -110,6 +119,13 @@ export default function Agenda() {
           </button>
         </div>
         <h1 className="agenda-titulo">{rotuloDaSemana(domingo)}</h1>
+        <div className="segmento agenda-filtro" role="group" aria-label="Filtrar por modalidade">
+          {FILTROS_MODALIDADE.map(([valor, rotulo]) => (
+            <button key={valor} type="button" aria-pressed={modalidade === valor} onClick={() => setModalidade(valor)}>
+              {rotulo}
+            </button>
+          ))}
+        </div>
         <button className="btn agenda-nova" onClick={() => abrirNova(dia)}>
           <Icone nome="mais" tamanho={18} /> Nova sessão
         </button>

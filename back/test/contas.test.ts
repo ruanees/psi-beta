@@ -68,6 +68,7 @@ describe('gravação campo a campo', () => {
       crp: null,
       epsiNumero: null,
       valorSessaoPadrao: null,
+      salaLink: null,
     });
   });
 });

@@ -29,12 +29,19 @@ export class PacienteSemProximaDto {
   @ApiProperty({ type: String, nullable: true, format: 'date-time' }) ultimaSessao: string | null;
 }
 
+export class ProximaOnlineDto extends SessaoAgendaDto {
+  @ApiProperty({ type: String, nullable: true, description: 'Link da chamada; null quando não há link colado nem fixo.' })
+  link: string | null;
+}
+
 export class PainelDto {
   @ApiProperty({ type: SessaoAgendaDto, isArray: true, description: 'Sessões de hoje, menos as desmarcadas.' })
   hoje: SessaoAgendaDto[];
   @ApiProperty() sessoesSemana: number;
   @ApiProperty() pacientesAtivos: number;
   @ApiProperty({ type: PacienteSemProximaDto, isArray: true }) semProxima: PacienteSemProximaDto[];
+  @ApiProperty({ type: ProximaOnlineDto, nullable: true, description: 'A próxima sessão online, de hoje em diante.' })
+  proximaOnline: ProximaOnlineDto | null;
 }
 
 export class PeriodoDto {
