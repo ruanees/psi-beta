@@ -2104,3 +2104,63 @@ select.ent {
 .lista .num {
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- sala do paciente (pública) */
+
+.sala-paciente {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--e6) var(--e4);
+}
+.sala-caixa {
+  width: 100%;
+  max-width: 440px;
+  display: grid;
+  gap: var(--e5);
+}
+.sala-caixa > .marca {
+  justify-self: start;
+}
+.sala-caixa h1 {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.sala-quando {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e3);
+  margin: 0;
+  font-size: 16px;
+}
+.sala-quando svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--act);
+}
+
+/* Início: a próxima sessão online, com o botão da chamada. */
+.proxima-online {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e4);
+}
+.proxima-online-icone {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r2);
+  background: var(--ac-suave);
+  color: var(--act);
+}
+.proxima-online-texto {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 180px;
+}
+.proxima-online-texto strong {
+  font-size: 16px;
+}

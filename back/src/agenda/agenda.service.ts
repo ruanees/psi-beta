@@ -60,17 +60,21 @@ export class AgendaService {
   }
 
   async painel(jwt: string, conta: string): Promise<PainelDto> {
-    const p = await this.supabase.rpc<{
-      hoje: SessaoBanco[];
-      sessoes_semana: number;
-      pacientes_ativos: number;
-      sem_proxima: { id: string; nome: string; ultima_sessao: string | null }[];
-    }>(jwt, 'painel_inicio', { c: conta });
+    const [p, online] = await Promise.all([
+      this.supabase.rpc<{
+        hoje: SessaoBanco[];
+        sessoes_semana: number;
+        pacientes_ativos: number;
+        sem_proxima: { id: string; nome: string; ultima_sessao: string | null }[];
+      }>(jwt, 'painel_inicio', { c: conta }),
+      this.supabase.rpc<(SessaoBanco & { link: string | null }) | null>(jwt, 'proxima_online', { c: conta }),
+    ]);
     return {
       hoje: p.hoje.map(sessao),
       sessoesSemana: p.sessoes_semana,
       pacientesAtivos: p.pacientes_ativos,
       semProxima: p.sem_proxima.map((x) => ({ id: x.id, nome: x.nome, ultimaSessao: x.ultima_sessao })),
+      proximaOnline: online && { ...sessao(online), link: online.link },
     };
   }
 

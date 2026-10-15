@@ -80,6 +80,8 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
+  link_invalido: [422, 'Cole o link completo da chamada, começando com https://'],
+  sala_nao_encontrada: [404, 'Este link de sala não existe ou foi trocado. Peça o link novo ao seu psicólogo.'],
 };
 
 const CODIGOS_BANCO: Record<string, [number, string]> = {

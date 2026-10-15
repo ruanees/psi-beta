@@ -229,8 +229,9 @@ documentos_fiscais  id, conta_id, paciente_id, tipo (recibo_interno|receita_saud
 documento_cobrancas documento_id, cobranca_id            -- um recibo pode cobrir várias
 
 -- Fase 5  (pedido 11)
-salas_online        sessao_id, origem (google_meet|colado), link, meet_espaco_id?,
-                    token_paciente, abre_em, expira_em
+salas_pacientes     paciente_id, token                    -- um link por paciente, trocável
+salas_sessoes       sessao_id, origem (colado|google_meet), link   -- sem ela, vale profissionais.sala_link
+                    -- a janela (15 min antes até 15 depois) sai do horário da sessão, não é gravada
 integracoes_google  membro_id, email_google, refresh_token_cifrado, conectada_em, revogada_em?
                     -- token cifrado pelo back com chave em segredo do Worker; nunca volta ao front
 ```
@@ -243,7 +244,7 @@ integracoes_google  membro_id, email_google, refresh_token_cifrado, conectada_em
 | `pode_clinico(paciente)` | é o profissional do paciente — base de toda leitura de queixa e observação |
 | `pode_arquivo(balde, caminho)` | confere o caminho contra `documentos_fiscais` e a conta |
 | `registrar_leitura(paciente, tabela, id)` | grava em `auditoria`; chamada **dentro** das RPCs de leitura clínica, não pelo Nest |
-| `sala_por_token(token)` | devolve só data, hora, nome do profissional e o link do paciente, e só dentro da janela `abre_em`–`expira_em` |
+| `sala_publica(token)` | a única RPC aberta ao papel anon: devolve só data, hora e nome do profissional da próxima sessão online, e o link da chamada só dentro da janela |
 | `eh_super()` | super-admin, sem acesso clínico nenhum |
 
 A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `historico_paciente(paciente)`), nunca por `select` direto — é o que garante que a auditoria não dependa de alguém lembrar de chamá-la. Mesmo princípio do DIME: quem protege é a RPC.
@@ -436,13 +437,14 @@ A Receita não oferece API de emissão do Receita Saúde: a emissão é no app o
 
 O Meet não pode ser embutido numa página de outro site — o Google bloqueia por segurança, e não há como contornar. O que dá para fazer, e é o mais próximo de "integrado": **a plataforma cria a sala do Meet sozinha** para cada sessão online e entrega o link ao psicólogo e ao paciente. Em dois passos, para o beta não depender da aprovação do Google.
 
-**5a — Sala da sessão, com link colado**
-- [ ] Sessão com modalidade online ganha uma sala; sem Google conectado, o psicólogo cola o link do Meet (ou guarda um link fixo no perfil)
-- [ ] `token_paciente` aleatório e longo; `/sala/:token` pública mostra só data, hora, nome do profissional e o botão "Entrar no Meet", e só a partir de 15 minutos antes até o fim da sessão — o link do Meet não circula solto
-- [ ] Botão "Copiar link do paciente" na sessão, para mandar pelo canal que o psicólogo já usa
-- [ ] Início: "próxima sessão online" com "Entrar no Meet"
-- [ ] Aviso no perfil se o e-Psi estiver vazio
-- [ ] Filtro de agenda por modalidade e quadro de online x presencial em Relatórios
+**5a — Sala da sessão, com link colado** ✅
+- [x] Sessão online tem sala: o link da chamada é o colado na sessão ou, sem ele, o **link fixo do perfil** (Configurações)
+- [x] **Um link por paciente** (`/sala/<token>`), não um por sessão: quem atende toda semana manda o link uma vez só. Token aleatório de 64 caracteres; "Trocar link do paciente" invalida o anterior na hora
+- [x] `/sala/:token` pública mostra só a próxima sessão online (data, hora, nome do profissional) e libera o botão da chamada de 15 minutos antes até 15 minutos depois do fim — o link do Meet não circula solto. A página se atualiza sozinha a cada 30 s; `no-referrer` impede o token de seguir para o Meet
+- [x] Botão "Copiar link do paciente" na sessão, para mandar pelo canal que o psicólogo já usa
+- [x] Início: "Próxima sessão online" com "Entrar no Meet"
+- [x] Aviso na sala se o e-Psi estiver vazio (o Início já lista o e-Psi nas pendências do perfil)
+- [x] Filtro de agenda por modalidade (Todas, Presencial, Online) e realizadas presenciais × online em Relatórios
 
 **5b — Link do Meet gerado pela plataforma**
 - [ ] Projeto no Google Cloud com a Google Meet API e tela de consentimento OAuth (ver seção 15: aprovação do Google)

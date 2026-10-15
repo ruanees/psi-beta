@@ -48,6 +48,14 @@ export default function Configuracoes() {
               dica="Cada paciente pode ter um valor próprio."
               gravar={(v) => gravarPerfil({ valorSessaoPadrao: v ? Number(v.replace(/\./g, '').replace(',', '.')) : null })}
             />
+            <CampoGravavel
+              rotulo="Link fixo da sala online"
+              valor={p.salaLink ?? ''}
+              inputMode="url"
+              placeholder="https://meet.google.com/…"
+              dica="O link do Meet que você usa sempre. Vale para toda sessão online sem link próprio."
+              gravar={(v) => gravarPerfil({ salaLink: v.trim() || null })}
+            />
           </div>
         </section>
       )}

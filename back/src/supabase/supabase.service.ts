@@ -20,6 +20,14 @@ export class SupabaseService {
   async rpc<T>(jwt: string, nome: string, args: Record<string, unknown> = {}): Promise<T> {
     return executar<T>(this.paraUsuario(jwt).rpc(nome, args));
   }
+
+  /** Sem login, com o papel anon: só as RPCs que o banco abre para ele (a sala do paciente). */
+  async rpcPublica<T>(nome: string, args: Record<string, unknown> = {}): Promise<T> {
+    const cliente = createClient(exigirConfig('SUPABASE_URL'), exigirConfig('SUPABASE_ANON_KEY'), {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    return executar<T>(cliente.rpc(nome, args));
+  }
 }
 
 interface RespostaPostgrest<T> {

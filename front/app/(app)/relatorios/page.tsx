@@ -52,7 +52,7 @@ export default function Relatorios() {
 
   const cartoes = r
     ? [
-        { valor: String(r.realizadas), rotulo: 'Sessões realizadas', nota: `${r.online} online` },
+        { valor: String(r.realizadas), rotulo: 'Sessões realizadas', nota: `${r.realizadas - r.online} presenciais · ${r.online} online` },
         { valor: pct(taxa(r.faltas, r.realizadas)), rotulo: 'Taxa de falta', nota: `${r.faltas} faltas · ${r.desmarcadas} desmarcadas` },
         { valor: String(r.pacientesAtendidos), rotulo: 'Pacientes atendidos', nota: `${r.pacientesNovos} novos no mês` },
         { valor: moeda(r.recebido), rotulo: 'Recebido', nota: 'Pela data do pagamento' },
