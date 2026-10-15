@@ -3,6 +3,7 @@
 import type { Dto } from '@/lib/api.ts';
 import { diaPorExtenso, partes } from '@/lib/datas.ts';
 import { MODALIDADE, STATUS_SESSAO } from '@/lib/status.ts';
+import { Icone } from './Icone';
 
 type Sessao = Pick<Dto<'SessaoAgendaDto'>, 'inicio' | 'fim' | 'modalidade' | 'status' | 'recorrenciaId'> & {
   pacienteNome?: string;
@@ -26,6 +27,11 @@ export function LinhaSessao({ sessao, aoAbrir, comNome = true }: { sessao: Sessa
           {sessao.recorrenciaId ? ' · toda semana' : ''}
         </small>
       </span>
+      {sessao.modalidade === 'online' && (
+        <span className="etiqueta" data-v="ac">
+          <Icone nome="video" tamanho={14} /> Online
+        </span>
+      )}
       <span className="selo" data-c={st.cor}>
         {st.rotulo}
       </span>
