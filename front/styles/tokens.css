@@ -1,116 +1,162 @@
 /*
- * Tokens do PSI. Herdados do kit do DIME na forma, com paleta própria, mais calma.
+ * Tokens do PSI — a partir das referências em docs/referencias/.
  *
- * Regras do kit, que valem aqui:
- *  - --ac é fundo de ação (botão); texto na cor de ação usa --act, que tem
- *    contraste garantido. Os dois só coincidem por acaso, nunca por regra.
- *  - Status nunca usa a cor de ação. Ação é petróleo; status tem mapa próprio.
- *  - Âmbar quer dizer "fechado e parado esperando a data". Verde quer dizer "aconteceu".
+ * Direção: sidebar azul-marinho, ação em violeta-lavanda, fundo levemente
+ * lavanda, cartões brancos sem borda com sombra suave, etiquetas em tom
+ * pastel com texto saturado. Títulos e números em Poppins; texto em DM Sans.
+ *
+ * Regras que valem para todo componente:
+ *  - --ac é o fundo de ação (botão primário, item ativo). Texto na cor de
+ *    ação usa --act, que tem contraste garantido sobre --sf e --bg.
+ *  - Status nunca usa a cor de ação. Ação é violeta; status tem mapa próprio
+ *    (lib/status.ts): âmbar = fechado e parado esperando a data; verde = aconteceu.
+ *  - Texto: --tx e --tx2 passam 4,5:1 sobre --bg, --sf e --sf2 nos dois temas.
+ *    --tx3 é só para dica e placeholder (passa 4,5:1 sobre --sf).
  */
 :root {
-  --fonte: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --fonte-num: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  --fonte: 'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fonte-titulo: 'Poppins', 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --r1: 6px;
-  --r2: 10px;
-  --r3: 16px;
+  --r1: 8px; /* campos, etiquetas */
+  --r2: 12px; /* botões, itens de menu */
+  --r3: 16px; /* cartões */
+  --r4: 22px; /* janelas */
+
   --e1: 4px;
   --e2: 8px;
   --e3: 12px;
   --e4: 16px;
   --e5: 24px;
   --e6: 32px;
+  --e7: 48px;
 
   --alvo: 44px; /* alvo mínimo de toque */
-  --alvo-nav: 56px; /* barra de baixo no celular */
-  --largura: 1120px;
+  --alvo-nav: 60px; /* barra de baixo no celular */
+  --lateral: 248px; /* sidebar aberta */
+  --lateral-curta: 80px; /* sidebar só com ícones */
+  --trilho: 320px; /* coluna da direita no desktop largo */
+  --largura: 1240px;
+
+  color-scheme: light;
+  --bg: #f2f4fb;
+  --bg2: #e9ecf8; /* coluna da direita, faixas */
+  --sf: #ffffff;
+  --sf2: #f5f6fc; /* blocos dentro de cartão */
+  --bd: #e3e6f2;
+  --bd2: #cfd4e8; /* borda de campo */
+  --tx: #19203a;
+  --tx2: #545c7a;
+  --tx3: #6b7392;
+
+  --nav: #111a3f; /* sidebar */
+  --nav-tx: #c3c9e6;
+  --nav-tx-ativo: #ffffff;
+  --nav-hover: #1c2652;
+
+  --ac: #6a5ef0;
+  --ac-hover: #5a4ee0;
+  --ac-tx: #ffffff;
+  --act: #5246d6;
+  --ac-suave: #eeecfe;
+  --ac-suave2: #dedafd;
+
+  /* decoração (padrão geométrico, nunca status) */
+  --lilas: #b5adf8;
+  --menta: #a6e6dc;
+  --pervinca: #7e8cf4;
+
+  --ok: #19734a;
+  --ok-sf: #def4e8;
+  --at: #9a5b00;
+  --at-sf: #fdf0d9;
+  --er: #c0353f;
+  --er-sf: #fde6e7;
+  --ci: #0d6e8c;
+  --ci-sf: #dff2f8;
+  --nt: #545c7a;
+  --nt-sf: #ebedf6;
+
+  --sombra: 0 1px 2px rgb(25 32 58 / 5%), 0 6px 20px rgb(25 32 58 / 6%);
+  --sombra-alta: 0 4px 12px rgb(25 32 58 / 8%), 0 24px 60px rgb(25 32 58 / 18%);
+  --foco: 0 0 0 3px rgb(106 94 240 / 40%);
 }
 
-:root,
-:root[data-theme='claro'] {
-  color-scheme: light;
-  --bg: #f6f7f5;
-  --sf: #ffffff;
-  --sf2: #eef1ee;
-  --bd: #dde3df;
-  --tx: #1d2624;
-  --tx2: #5b6866;
-  --tx3: #85918e;
-
-  --ac: #2f6f73;
-  --ac-tx: #ffffff;
-  --act: #24585b;
-  --ac-suave: #e3efef;
-
-  --ok: #2e7d4f;
-  --ok-sf: #e6f3eb;
-  --at: #a86a07;
-  --at-sf: #fbf1dd;
-  --er: #b3392f;
-  --er-sf: #f9e6e3;
-  --ci: #1f6f8b;
-  --ci-sf: #e2f0f5;
-  --nt: #66706e;
-  --nt-sf: #eceeed;
-
-  --sombra: 0 1px 2px rgb(16 24 22 / 6%), 0 4px 16px rgb(16 24 22 / 6%);
-  --foco: 0 0 0 3px rgb(47 111 115 / 35%);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='claro']) {
+    color-scheme: dark;
+    --bg: #0d1124;
+    --bg2: #111630;
+    --sf: #171d38;
+    --sf2: #1e2546;
+    --bd: #283057;
+    --bd2: #39436f;
+    --tx: #e8eaf6;
+    --tx2: #aab1d0;
+    --tx3: #9098bb;
+    --nav: #080c1d;
+    --nav-tx: #a9b0d4;
+    --nav-tx-ativo: #ffffff;
+    --nav-hover: #141a38;
+    --ac: #6a5ef0;
+    --ac-hover: #7b70f5;
+    --ac-tx: #ffffff;
+    --act: #ada6ff;
+    --ac-suave: #262a5c;
+    --ac-suave2: #333877;
+    --lilas: #5b52b8;
+    --menta: #2f7d72;
+    --pervinca: #4e5bc4;
+    --ok: #5ccf96;
+    --ok-sf: #133325;
+    --at: #f0b34a;
+    --at-sf: #3a2a10;
+    --er: #f2848b;
+    --er-sf: #3d1a20;
+    --ci: #62c3e0;
+    --ci-sf: #10303b;
+    --nt: #aab1d0;
+    --nt-sf: #232a4d;
+    --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 20px rgb(0 0 0 / 25%);
+    --sombra-alta: 0 4px 12px rgb(0 0 0 / 35%), 0 24px 60px rgb(0 0 0 / 50%);
+    --foco: 0 0 0 3px rgb(173 166 255 / 45%);
+  }
 }
 
 :root[data-theme='escuro'] {
   color-scheme: dark;
-  --bg: #121716;
-  --sf: #1a2120;
-  --sf2: #222b2a;
-  --bd: #2f3a38;
-  --tx: #e6ecea;
-  --tx2: #a5b2af;
-  --tx3: #7b8986;
-
-  --ac: #3f8a8f;
+  --bg: #0d1124;
+  --bg2: #111630;
+  --sf: #171d38;
+  --sf2: #1e2546;
+  --bd: #283057;
+  --bd2: #39436f;
+  --tx: #e8eaf6;
+  --tx2: #aab1d0;
+  --tx3: #9098bb;
+  --nav: #080c1d;
+  --nav-tx: #a9b0d4;
+  --nav-tx-ativo: #ffffff;
+  --nav-hover: #141a38;
+  --ac: #6a5ef0;
+  --ac-hover: #7b70f5;
   --ac-tx: #ffffff;
-  --act: #7cc4c8;
-  --ac-suave: #1f3335;
-
-  --ok: #5cc28a;
-  --ok-sf: #183325;
-  --at: #e3a645;
-  --at-sf: #3a2c13;
-  --er: #ee7d72;
-  --er-sf: #3d1e1b;
-  --ci: #63b8d6;
-  --ci-sf: #16303a;
-  --nt: #9aa6a3;
-  --nt-sf: #262e2d;
-
-  --sombra: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 30%);
-  --foco: 0 0 0 3px rgb(124 196 200 / 40%);
-}
-
-/* Sem escolha salva, segue o sistema. O script pré-paint grava data-theme antes da primeira pintura. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-    --bg: #121716;
-    --sf: #1a2120;
-    --sf2: #222b2a;
-    --bd: #2f3a38;
-    --tx: #e6ecea;
-    --tx2: #a5b2af;
-    --tx3: #7b8986;
-    --ac: #3f8a8f;
-    --ac-tx: #ffffff;
-    --act: #7cc4c8;
-    --ac-suave: #1f3335;
-    --ok: #5cc28a;
-    --ok-sf: #183325;
-    --at: #e3a645;
-    --at-sf: #3a2c13;
-    --er: #ee7d72;
-    --er-sf: #3d1e1b;
-    --ci: #63b8d6;
-    --ci-sf: #16303a;
-    --nt: #9aa6a3;
-    --nt-sf: #262e2d;
-  }
+  --act: #ada6ff;
+  --ac-suave: #262a5c;
+  --ac-suave2: #333877;
+  --lilas: #5b52b8;
+  --menta: #2f7d72;
+  --pervinca: #4e5bc4;
+  --ok: #5ccf96;
+  --ok-sf: #133325;
+  --at: #f0b34a;
+  --at-sf: #3a2a10;
+  --er: #f2848b;
+  --er-sf: #3d1a20;
+  --ci: #62c3e0;
+  --ci-sf: #10303b;
+  --nt: #aab1d0;
+  --nt-sf: #232a4d;
+  --sombra: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 20px rgb(0 0 0 / 25%);
+  --sombra-alta: 0 4px 12px rgb(0 0 0 / 35%), 0 24px 60px rgb(0 0 0 / 50%);
+  --foco: 0 0 0 3px rgb(173 166 255 / 45%);
 }
