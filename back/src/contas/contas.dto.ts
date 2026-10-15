@@ -51,6 +51,9 @@ export class ConfiguracoesDto {
 
   @ApiProperty({ minimum: 5, maximum: 240 })
   inatividadeMinutos: number;
+
+  @ApiProperty({ minimum: 1, maximum: 28, description: 'Dia do mês em que vence a mensalidade.' })
+  vencimentoMensalDia: number;
 }
 
 export class ContaDto extends ContaResumoDto {
@@ -113,4 +116,11 @@ export class ConfiguracoesParciaisDto {
   @Min(5, { message: 'No mínimo 5 minutos.' })
   @Max(240, { message: 'No máximo 240 minutos.' })
   inatividadeMinutos?: number;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 28 })
+  @IsOptional()
+  @IsInt()
+  @Min(1, { message: 'Dia de vencimento entre 1 e 28.' })
+  @Max(28, { message: 'Dia de vencimento entre 1 e 28.' })
+  vencimentoMensalDia?: number;
 }

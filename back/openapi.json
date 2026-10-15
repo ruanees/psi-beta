@@ -1616,6 +1616,441 @@
           "prontuario"
         ]
       }
+    },
+    "/contas/{conta}/financeiro/painel": {
+      "get": {
+        "operationId": "Financeiro_painel",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PainelFinanceiroDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/cobrancas": {
+      "get": {
+        "operationId": "Financeiro_cobrancas",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "situacao",
+            "required": false,
+            "in": "query",
+            "description": "Pendente inclui as vencidas.",
+            "schema": {
+              "$ref": "#/components/schemas/SituacaoCobranca"
+            }
+          },
+          {
+            "name": "de",
+            "required": false,
+            "in": "query",
+            "description": "Vencimento a partir de.",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ate",
+            "required": false,
+            "in": "query",
+            "description": "Vencimento até.",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gera antes a mensalidade do mês de quem é do plano mensal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CobrancaDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/cobrancas/{cobranca}/pagar": {
+      "post": {
+        "operationId": "Financeiro_pagar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cobranca",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PagarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/cobrancas/{cobranca}/desfazer": {
+      "post": {
+        "operationId": "Financeiro_desfazer",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cobranca",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MotivoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Volta uma cobrança paga para pendente, com motivo."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/cobrancas/{cobranca}/cancelar": {
+      "post": {
+        "operationId": "Financeiro_cancelar",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cobranca",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MotivoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Dispensa uma cobrança pendente, com motivo. Não apaga."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/cobrancas/{cobranca}": {
+      "patch": {
+        "operationId": "Financeiro_valor",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cobranca",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValorCobrancaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Corrige o valor de uma cobrança pendente."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/pacientes/{paciente}/pacotes": {
+      "get": {
+        "operationId": "Financeiro_pacotes",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PacoteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      },
+      "post": {
+        "operationId": "Financeiro_novoPacote",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovoPacoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vende um pacote; a cobrança do valor inteiro nasce junto.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/sessoes/{sessao}/financeiro": {
+      "get": {
+        "operationId": "Financeiro_daSessao",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoFinanceiroDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
     }
   },
   "info": {
@@ -1891,12 +2326,19 @@
             "type": "number",
             "minimum": 5,
             "maximum": 240
+          },
+          "vencimentoMensalDia": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 28,
+            "description": "Dia do mês em que vence a mensalidade."
           }
         },
         "required": [
           "faltaCobraAvulsa",
           "avisoMinimoHoras",
-          "inatividadeMinutos"
+          "inatividadeMinutos",
+          "vencimentoMensalDia"
         ]
       },
       "ContaDto": {
@@ -1972,6 +2414,11 @@
             "type": "number",
             "minimum": 5,
             "maximum": 240
+          },
+          "vencimentoMensalDia": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 28
           }
         }
       },
@@ -3169,6 +3616,401 @@
           "status",
           "recorrenciaId",
           "editavelAte"
+        ]
+      },
+      "PacienteAcabandoDto": {
+        "type": "object",
+        "properties": {
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "restantes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pacienteId",
+          "pacienteNome",
+          "restantes"
+        ]
+      },
+      "PainelFinanceiroDto": {
+        "type": "object",
+        "properties": {
+          "aReceber": {
+            "type": "number",
+            "description": "Pendentes, inclusive vencidas."
+          },
+          "vencidas": {
+            "type": "number"
+          },
+          "valorVencido": {
+            "type": "number"
+          },
+          "recebidoMes": {
+            "type": "number",
+            "description": "Pagas neste mês."
+          },
+          "pacotesAcabando": {
+            "description": "Pacientes ativos com 1 ou 0 sessão de pacote restante.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PacienteAcabandoDto"
+            }
+          }
+        },
+        "required": [
+          "aReceber",
+          "vencidas",
+          "valorVencido",
+          "recebidoMes",
+          "pacotesAcabando"
+        ]
+      },
+      "SituacaoCobranca": {
+        "type": "string",
+        "enum": [
+          "pendente",
+          "vencida",
+          "paga",
+          "cancelada"
+        ]
+      },
+      "OrigemCobranca": {
+        "type": "string",
+        "enum": [
+          "sessao",
+          "pacote",
+          "mensal"
+        ]
+      },
+      "FormaPagamento": {
+        "type": "string",
+        "enum": [
+          "pix",
+          "dinheiro",
+          "cartao",
+          "transferencia",
+          "boleto"
+        ]
+      },
+      "CobrancaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteNome": {
+            "type": "string"
+          },
+          "origem": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrigemCobranca"
+              }
+            ]
+          },
+          "valor": {
+            "type": "number"
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date"
+          },
+          "situacao": {
+            "description": "Vencida = pendente com vencimento passado.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoCobranca"
+              }
+            ]
+          },
+          "forma": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FormaPagamento"
+              }
+            ]
+          },
+          "pagaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Por que foi cancelada ou teve o pagamento desfeito."
+          },
+          "sessaoId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "sessaoInicio": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "pacoteId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "pacoteQuantidade": {
+            "type": "number",
+            "nullable": true
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "Mensalidade: primeiro dia do mês."
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "pacienteNome",
+          "origem",
+          "valor",
+          "vencimento",
+          "situacao",
+          "forma",
+          "pagaEm",
+          "motivo",
+          "sessaoId",
+          "sessaoInicio",
+          "pacoteId",
+          "pacoteQuantidade",
+          "referencia"
+        ]
+      },
+      "PagarDto": {
+        "type": "object",
+        "properties": {
+          "forma": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FormaPagamento"
+              }
+            ]
+          },
+          "pagaEm": {
+            "type": "string",
+            "format": "date",
+            "description": "Sem data, hoje."
+          }
+        },
+        "required": [
+          "forma"
+        ]
+      },
+      "MotivoDto": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "motivo"
+        ]
+      },
+      "ValorCobrancaDto": {
+        "type": "object",
+        "properties": {
+          "valor": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "valor"
+        ]
+      },
+      "CobrancaDoPacoteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "situacao": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "paga",
+              "cancelada"
+            ]
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "id",
+          "situacao",
+          "vencimento"
+        ]
+      },
+      "PacoteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantidade": {
+            "type": "number"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "usadas": {
+            "type": "number"
+          },
+          "restantes": {
+            "type": "number"
+          },
+          "cobranca": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CobrancaDoPacoteDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "quantidade",
+          "valor",
+          "criadoEm",
+          "usadas",
+          "restantes",
+          "cobranca"
+        ]
+      },
+      "NovoPacoteDto": {
+        "type": "object",
+        "properties": {
+          "quantidade": {
+            "type": "number",
+            "description": "Sem quantidade, a do plano do paciente."
+          },
+          "valor": {
+            "type": "number",
+            "description": "Sem valor, o do plano do paciente."
+          }
+        }
+      },
+      "PacoteDaSessaoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "numero": {
+            "type": "number",
+            "description": "Esta é a sessão número N do pacote."
+          },
+          "quantidade": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "numero",
+          "quantidade"
+        ]
+      },
+      "CobrancaDaSessaoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date"
+          },
+          "situacao": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SituacaoCobranca"
+              }
+            ]
+          },
+          "forma": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FormaPagamento"
+              }
+            ]
+          },
+          "pagaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          }
+        },
+        "required": [
+          "id",
+          "valor",
+          "vencimento",
+          "situacao",
+          "forma",
+          "pagaEm"
+        ]
+      },
+      "SessaoFinanceiroDto": {
+        "type": "object",
+        "properties": {
+          "pacote": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PacoteDaSessaoDto"
+              }
+            ]
+          },
+          "cobranca": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CobrancaDaSessaoDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "pacote",
+          "cobranca"
         ]
       }
     }

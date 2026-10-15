@@ -31,7 +31,12 @@ type RespostaDe<O> = O extends { responses: infer R }
   : never;
 
 type ParametrosDe<O> = O extends { parameters: { path: infer P } } ? ([P] extends [never] ? never : P) : never;
-type ConsultaDe<O> = O extends { parameters: { query: infer Q } } ? ([Q] extends [never] ? never : Q) : never;
+// `query?:` quando todo parâmetro da consulta é opcional: o `?` entra no padrão.
+type ConsultaDe<O> = O extends { parameters: { query?: infer Q } }
+  ? [NonNullable<Q>] extends [never]
+    ? never
+    : NonNullable<Q>
+  : never;
 
 interface Opcoes<O> {
   params?: ParametrosDe<O>;

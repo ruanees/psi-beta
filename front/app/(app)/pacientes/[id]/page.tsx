@@ -6,7 +6,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { CampoGravavel } from '@/components/CampoGravavel';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
+import { FinanceiroPaciente } from '@/components/FinanceiroPaciente';
 import { HistoricoPaciente } from '@/components/HistoricoPaciente';
+import { PacotesPaciente, SaldoPacote } from '@/components/PacotesPaciente';
 import { LinhaSessao } from '@/components/LinhaSessao';
 import { AcessosPaciente } from '@/components/AcessosPaciente';
 import { PlanoPaciente } from '@/components/PlanoPaciente';
@@ -20,18 +22,18 @@ import { resumoPlano } from '@/lib/planos.ts';
 import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
-// Histórico e Dados agora; Pacotes, Financeiro e Recibos chegam nas fases 3 e 4.
+// Recibos chega na fase 4.
 
 type Paciente = Dto<'PacienteDto'>;
-type Aba = 'resumo' | 'sessoes' | 'historico' | 'dados';
+type Aba = 'resumo' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'dados';
 
 const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }[] = [
   { id: 'resumo', rotulo: 'Resumo', pronta: true },
   { id: 'sessoes', rotulo: 'Sessões', pronta: true },
   { id: 'historico', rotulo: 'Histórico', pronta: true },
   { id: 'dados', rotulo: 'Dados', pronta: true },
-  { id: 'pacotes', rotulo: 'Pacotes', pronta: false, fase: 3 },
-  { id: 'financeiro', rotulo: 'Financeiro', pronta: false, fase: 3 },
+  { id: 'pacotes', rotulo: 'Pacotes', pronta: true },
+  { id: 'financeiro', rotulo: 'Financeiro', pronta: true },
   { id: 'recibos', rotulo: 'Recibos', pronta: false, fase: 4 },
 ];
 
@@ -169,6 +171,10 @@ export default function FichaDoPaciente() {
         <HistoricoPaciente paciente={p.id} podeClinico={p.podeClinico} recarga={recarga} aoAbrir={abrirSessao} />
       )}
 
+      {aba === 'pacotes' && <PacotesPaciente paciente={p.id} plano={p.plano} />}
+
+      {aba === 'financeiro' && <FinanceiroPaciente paciente={p.id} recarga={recarga} />}
+
       {aba === 'dados' && <Dados p={p} gravar={gravar} recarregar={carregar} />}
 
       {janela && (
@@ -242,7 +248,10 @@ function Resumo({
           </div>
         </div>
         <p className="mudo pequeno">Em atendimento desde {fd(p.criadoEm)}.</p>
-        <span className="etiqueta">{resumoPlano(p.plano, valorPadrao)}</span>
+        <div className="linha">
+          <span className="etiqueta">{resumoPlano(p.plano, valorPadrao)}</span>
+          <SaldoPacote paciente={p.id} />
+        </div>
       </section>
 
       {p.podeClinico && (

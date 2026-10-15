@@ -18,13 +18,17 @@ const sql = readdirSync(PASTA)
 function colunasDe(tabela: string): string[] {
   const m = new RegExp(`create table public\\.${tabela} \\(([\\s\\S]*?)\\n\\);`).exec(sql);
   assert.ok(m, `tabela ${tabela} não encontrada nas migrations`);
-  return [...m[1].matchAll(/^\s+([a-z_]+)\s/gm)].map((c) => c[1]);
+  const criadas = [...m[1].matchAll(/^\s+([a-z_]+)\s/gm)].map((c) => c[1]);
+  // e as que migrations posteriores acrescentam
+  const somadas = [...sql.matchAll(new RegExp(`alter table public\\.${tabela}\\s+add column ([a-z_]+)`, 'g'))].map((c) => c[1]);
+  return [...criadas, ...somadas];
 }
 
+/** Da definição em vigor: a última, contando as que uma migration posterior troca. */
 function chavesGravadas(funcao: string): string[] {
-  const m = new RegExp(`create function public\\.${funcao}\\([\\s\\S]*?\\n\\$\\$;`).exec(sql);
-  assert.ok(m, `função ${funcao} não encontrada`);
-  return [...m[0].matchAll(/p \? '([a-z_]+)'/g)].map((c) => c[1]);
+  const todas = [...sql.matchAll(new RegExp(`create (?:or replace )?function public\\.${funcao}\\([\\s\\S]*?\\n\\$\\$;`, 'g'))];
+  assert.ok(todas.length, `função ${funcao} não encontrada`);
+  return [...todas[todas.length - 1][0].matchAll(/p \? '([a-z_]+)'/g)].map((c) => c[1]);
 }
 
 describe('nomes de campo: API x banco', () => {

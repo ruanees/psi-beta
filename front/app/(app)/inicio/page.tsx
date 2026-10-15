@@ -11,7 +11,7 @@ import { Padrao } from '@/components/Padrao';
 import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
 import { api, type Dto } from '@/lib/api.ts';
 import { diaPorExtenso, hoje, partes } from '@/lib/datas.ts';
-import { fd } from '@/lib/formato.ts';
+import { fd, moeda } from '@/lib/formato.ts';
 import { MENU } from '@/lib/menu.ts';
 
 // Início: o dia de hoje, a semana e quem está sem próxima sessão.
@@ -24,14 +24,17 @@ export default function Inicio() {
   const [janela, setJanela] = useState<ModoSessao | null>(null);
   const [dia, setDia] = useState<string | null>(null);
   const [semObservacao, setSemObservacao] = useState<Dto<'PendenciaDto'>[]>([]);
+  const [financeiro, setFinanceiro] = useState<Dto<'PainelFinanceiroDto'> | null>(null);
 
   const carregar = useCallback(async () => {
     try {
       const params = { conta: conta.id };
       // Pendência é extra: se falhar, o resto do Início aparece mesmo assim.
       const pend = api('get', '/contas/{conta}/pendencias', { params }).catch(() => []);
+      const fin = api('get', '/contas/{conta}/financeiro/painel', { params }).catch(() => null);
       setPainel(await api('get', '/contas/{conta}/painel', { params }));
       setSemObservacao(await pend);
+      setFinanceiro(await fin);
       setErro(null);
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao carregar o início.');
@@ -144,6 +147,37 @@ export default function Inicio() {
             </ul>
           )}
         </section>
+
+        {financeiro && (financeiro.aReceber > 0 || financeiro.pacotesAcabando.length > 0) && (
+          <section className="cartao">
+            <div className="cartao-topo">
+              <h2>Financeiro</h2>
+              <Link className="btn" data-v="leve" href="/financeiro">
+                Abrir financeiro
+              </Link>
+            </div>
+            <div className="grade" data-n="3">
+              <div className="metrica">
+                <span className="metrica-valor num">{moeda(financeiro.aReceber)}</span>
+                <span className="metrica-rotulo">A receber</span>
+              </div>
+              <div className="metrica">
+                <span className="metrica-valor num">{financeiro.vencidas}</span>
+                <span className="metrica-rotulo">{financeiro.vencidas === 1 ? 'Cobrança vencida' : 'Cobranças vencidas'}</span>
+              </div>
+              <div className="metrica">
+                <span className="metrica-valor num">{moeda(financeiro.recebidoMes)}</span>
+                <span className="metrica-rotulo">Recebido no mês</span>
+              </div>
+            </div>
+            {financeiro.pacotesAcabando.length > 0 && (
+              <p className="mudo pequeno">
+                <Icone nome="alerta" tamanho={14} /> Pacote acabando:{' '}
+                {financeiro.pacotesAcabando.map((p) => `${p.pacienteNome} (${p.restantes === 0 ? 'nenhuma' : '1'})`).join(', ')}
+              </p>
+            )}
+          </section>
+        )}
 
         {semObservacao.length > 0 && (
           <section className="cartao">

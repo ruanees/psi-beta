@@ -28,4 +28,12 @@ export const STATUS_COBRANCA = {
   paga: { rotulo: 'Paga', cor: 'ok' },
   vencida: { rotulo: 'Vencida', cor: 'er' },
   cancelada: { rotulo: 'Cancelada', cor: 'tracejado' },
-} as const satisfies Record<string, { rotulo: string; cor: CorSelo }>;
+} as const satisfies Record<Dto<'SituacaoCobranca'>, { rotulo: string; cor: CorSelo }>;
+
+export const FORMA_PAGAMENTO = {
+  pix: 'Pix',
+  dinheiro: 'Dinheiro',
+  cartao: 'Cartão',
+  transferencia: 'Transferência',
+  boleto: 'Boleto',
+} as const satisfies Record<Dto<'FormaPagamento'>, string>;

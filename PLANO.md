@@ -77,7 +77,7 @@ Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o pad
 
 | Pergunta | Bloqueia | Padrão até a resposta |
 |---|---|---|
-| Mensal vence em que dia, e é pago adiantado ou no fim do mês? | Fase 3 | Adiantado, no dia em que o plano começou |
+| Mensal vence em que dia, e é pago adiantado ou no fim do mês? | Fase 3 | Dia 10 de cada mês, configurável nas Configurações (1 a 28); a primeira mensalidade vence no dia 10 ou, se já passou, no dia em que nasce |
 | A maioria dos pacientes tem horário fixo semanal? | Fase 1 | Repetição semanal disponível |
 | Alguém além do psicólogo (secretária) precisa entrar no beta? | Fase 0 | Não |
 | O psicólogo usa conta Google pessoal (gmail.com) ou do Google Workspace? | Fase 5 | As duas funcionam; Workspace pode exigir liberação do administrador |
@@ -398,21 +398,24 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 10 — Fase 3 — Financeiro e pacotes (pedidos 3, 4, 5)
 
-**Banco:** `pacotes`, view `pacote_saldo`, `cobrancas`; o saldo é contado **só** na view: Realizada e Falta gastam, Cancelada não; pgTAP de saldo com sessão desmarcada dentro e fora do prazo.
+**Banco** (migration `20261015000007_financeiro.sql`): `pacotes`, `cobrancas` e `sessoes.pacote_id`; o saldo do pacote é contado **só** na view `privado.pacote_saldo` (gasta quem tem `pacote_id`). Quem cobra é um trigger da sessão, uma vez só, quando ela vira realizada ou falta:
 
-**Back**
-- [ ] `PacoteService`: criar pacote (quantidade, valor total) já com a cobrança do valor inteiro; sessão marcada como "do pacote" é recusada se o saldo for zero
-- [ ] Cobrança nasce sozinha: sessão avulsa Realizada ou Falta gera cobrança pendente com o valor do paciente ou o padrão; sessão de pacote nunca gera — uma vez só, idempotente
-- [ ] Desmarcar sessão: o servidor compara a hora do aviso com o prazo e devolve Falta ou Cancelada; a tela mostra qual vai ser **antes** de confirmar ("O aviso veio com 6 h. Vai contar como falta e gastar 1 sessão do pacote.")
-- [ ] `POST /cobrancas/:id/pagar` com forma e data; desfazer pagamento com motivo
-- [ ] `PendenciaService` ganha: cobrança vencida, pacote com 1 sessão restante
-- [ ] `HistoricoService` ganha os pagamentos na linha do tempo
+1. Paciente com pacote com saldo → gasta uma sessão do pacote mais antigo, sem cobrança própria.
+2. Senão, pelo plano: **avulsa** cobra a sessão (valor do paciente ou o padrão; falta também, salvo se a conta desligar); **pacote** esgotado cobra a sessão pelo valor por sessão do pacote; **mensal** não cobra por sessão.
 
-**Front**
-- [ ] Financeiro → **Cobranças**: filtros pendente / paga / vencida, por mês e por paciente; total no topo
-- [ ] `<MarcarPago>` com forma de pagamento em lista fechada
-- [ ] Na sessão e na agenda: selo da cobrança e "sessão 3 de 10" quando é de pacote
-- [ ] Aba **Pacotes** e **Financeiro** na ficha; `<SaldoPacote>` no Resumo
+Pacote nasce com a cobrança do valor inteiro (pago adiantado, sem validade). Mensalidade nasce no mês para cada paciente ativo no plano mensal, com vencimento no dia das Configurações (padrão 10; a primeira não nasce vencida). "Vencida" não se grava: é pendente com vencimento passado. Sessão realizada, com falta ou desmarcada não volta a ser agendada (o que ela consumiu já foi lançado); realizada ↔ falta continua se corrigindo.
+
+- [x] Cobrança nasce sozinha, idempotente; pacote gasta saldo; mensalidade do mês
+- [x] Desmarcar com aviso curto vira falta, cobra ou gasta pacote — a tela já avisava antes de confirmar (Fase 1)
+- [x] Marcar paga com forma em lista fechada (Pix, dinheiro, cartão, transferência, boleto) e data; desfazer pagamento e cancelar cobrança com motivo, sem apagar; corrigir valor de cobrança pendente
+- [x] **Financeiro**: a receber, vencido e recebido no mês; filtros a receber / vencidas / pagas / todas, por mês de vencimento e por paciente (o nome filtra na tela, não vai em URL); aviso de pacote acabando
+- [x] Na janela da sessão: "Sessão 3 de 10 do pacote" ou a cobrança dela, com **Marcar paga**
+- [x] Ficha: abas **Pacotes** (vender pacote a partir do plano, usadas e restantes) e **Financeiro**; saldo do pacote no Resumo
+- [x] Início: a receber, vencidas, recebido no mês e pacote acabando
+- [x] Configurações: dia de vencimento da mensalidade
+- [x] Excluir paciente recusa quem já tem pacote ou cobrança (o registro financeiro fica)
+- [x] 34 provas pgTAP
+- [ ] Pagamentos na linha do tempo do Histórico
 
 ## 11 — Fase 4 — Recibos (Receita Saúde) e relatórios (pedidos 6, 7)
 
