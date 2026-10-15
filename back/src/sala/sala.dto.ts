@@ -4,17 +4,29 @@ import { IsOptional, Matches, MaxLength, ValidateIf } from 'class-validator';
 /** O mesmo filtro do banco (privado.link_valido): https, sem espaço nem aspas. */
 export const LINK_SALA = /^https:\/\/[^\s<>"']{4,}$/;
 
+export const GOOGLE_SALA = ['indisponivel', 'desconectada', 'conectada', 'reconectar'] as const;
+
 export class SalaSessaoDto {
   @ApiProperty({ type: String, nullable: true, description: 'O link que vale: o da sessão ou, sem ele, o fixo do perfil.' })
   link: string | null;
   @ApiProperty({ type: String, nullable: true, description: 'Colado nesta sessão.' })
   linkSessao: string | null;
+  @ApiProperty({ type: String, nullable: true, description: 'Sala do Meet do paciente, criada pela conta Google do psicólogo.' })
+  linkMeet: string | null;
   @ApiProperty({ type: String, nullable: true, description: 'Fixo do perfil.' })
   linkPerfil: string | null;
   @ApiProperty({ description: 'Token do link do paciente: o front monta /sala/<token>.' })
   token: string;
   @ApiProperty({ description: 'Falso quando o perfil não tem o número do e-Psi.' })
   epsiOk: boolean;
+  @ApiProperty({
+    enum: GOOGLE_SALA,
+    enumName: 'GoogleSala',
+    description: '`indisponivel`: integração desligada; `reconectar`: o Google recusou o token.',
+  })
+  google: (typeof GOOGLE_SALA)[number];
+  @ApiProperty({ type: String, nullable: true, description: 'Por que o Meet não foi gerado agora, quando tentou e falhou.' })
+  avisoMeet: string | null;
 }
 
 export class LinkSalaDto {

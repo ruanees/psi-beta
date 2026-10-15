@@ -9,6 +9,10 @@ export const NOMES_CONFIG = [
   'SUPABASE_JWT_SECRET',
   'ORIGENS',
   'FRONT_URL',
+  // Fase 5b: sem os três, a conexão com o Google fica desligada (e nada quebra).
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GOOGLE_CHAVE',
 ] as const;
 export type NomeConfig = (typeof NOMES_CONFIG)[number];
 
@@ -44,4 +48,14 @@ export function origensPermitidas(): string[] {
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean);
+}
+
+/**
+ * Quando esta versão do Worker foi publicada, pelo binding `version_metadata`
+ * do wrangler.toml. Fora do Worker (testes, Node), `local`.
+ */
+export function versaoPublicada(): string {
+  const meta = fonteWorker?.VERSAO_CF as { timestamp?: unknown; id?: unknown } | undefined;
+  if (meta && typeof meta.timestamp === 'string' && meta.timestamp) return meta.timestamp;
+  return process.env.PSI_VERSAO ?? 'local';
 }

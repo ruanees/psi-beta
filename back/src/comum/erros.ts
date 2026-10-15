@@ -81,6 +81,12 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
   link_invalido: [422, 'Cole o link completo da chamada, começando com https://'],
+  google_indisponivel: [503, 'A conexão com o Google ainda não foi liberada.'],
+  google_estado_invalido: [400, 'O retorno do Google não confere com o seu pedido. Tente conectar de novo.'],
+  google_recusou: [400, 'O Google não completou a conexão. Tente de novo.'],
+  google_sem_permissao: [422, 'Falta a permissão de criar salas do Meet. Conecte de novo e deixe marcada a opção do Meet.'],
+  google_reconectar: [409, 'O Google não aceita mais a sua conexão. Conecte a conta Google de novo em Configurações.'],
+  google_falhou: [502, 'Não foi possível gerar o link do Meet agora. Cole um link ou tente de novo.'],
   sala_nao_encontrada: [404, 'Este link de sala não existe ou foi trocado. Peça o link novo ao seu psicólogo.'],
 };
 

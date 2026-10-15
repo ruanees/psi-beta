@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { CampoGravavel } from '@/components/CampoGravavel';
+import { ConexaoGoogle } from '@/components/ConexaoGoogle';
 import { useApp } from '@/components/EstadoApp';
 import { api, type Dto } from '@/lib/api.ts';
 import { gravarSessao } from '@/lib/sessao.ts';
@@ -59,6 +60,8 @@ export default function Configuracoes() {
           </div>
         </section>
       )}
+
+      {p && <ConexaoGoogle />}
 
       {titular && (
         <section className="cartao">
