@@ -280,7 +280,7 @@ A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `histori
 
 ## 07 — Fase 0 — Fundações e acesso privado (pedido 10)
 
-Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o login. **Código pronto em 14/10/2026; falta a publicação**, que é feita no painel (passo a passo no `README.md`).
+Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o login. **Fechada em 14/10/2026: no ar em homologação**, com o primeiro login de ponta a ponta — front publicado, back na Cloudflare, Supabase com RLS, conta lida. Passo a passo da publicação no `README.md`.
 
 **Infra**
 - [x] Repositório `psi-beta` com `back/` e `front/` independentes, `.env.example` com placeholder e `.env` no `.gitignore`
@@ -289,8 +289,8 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] CI do front: typecheck (gera os tipos do `openapi.json`) + provas + `npm run build` (o mesmo da publicação)
 - [x] CSP com `connect-src` exato
 - [x] Selo do rodapé carimbado no build
-- [ ] Projeto Supabase `psi-homolog` (São Paulo) — no painel
-- [ ] Workers Builds conectado: `psi-back-homolog` (pasta `back`) e `psi-front-homolog` (pasta `front`) — no painel
+- [x] Projeto Supabase `psi-homolog` (São Paulo), migration aplicada, cadastro aberto desligado, TOTP ligado, primeira conta criada
+- [x] Workers Builds: `psi-back-homolog.balbuquerc.workers.dev` (pasta `back`) e `psi-front-homolog.balbuquerc.workers.dev` (pasta `front`), cada um com token de publicação próprio
 - [x] Primeira execução da CI no GitHub verde, incluindo as 22 provas de RLS num Supabase local de verdade (14/10/2026)
 - [ ] `main` protegida exigindo PR
 - [ ] Projeto `psi-prod` com PITR — na véspera do beta
@@ -327,6 +327,14 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 > **Armadilha herdada:** função com parâmetro opcional no fim não vai direto para `map/filter/forEach`. Tipar como obrigatório com overload.
 
 ### O que a Fase 0 aprendeu
+
+**A publicação, como ela foi de verdade:**
+- **Root directory errado não dá erro claro.** Com `/` no lugar de `back`, o build falha sem dizer que não achou o `package.json`. Em monorepo, é o primeiro campo a conferir.
+- **O token de publicação vem pré-selecionado com o do último projeto.** O painel sugeriu o token do `dime-back`. Funciona, mas mistura os dois produtos; cada Worker ganhou o seu.
+- **O branch de produção mora no topo de Settings → Builds**, acima de "Disable builds", e não numa seção "Branch control".
+- **Projeto novo do Supabase não precisa de `SUPABASE_JWT_SECRET`.** O JWT vem assinado com chave assimétrica e o back valida pelo JWKS público. O `/saude` mostra `faltando` e está certo.
+- **A secret key do Supabase não entra em lugar nenhum.** Ela passa por cima da RLS; o PSI só usa a publishable.
+
 
 **O Next mais novo nem sempre roda na Cloudflare.** O Next 16.4.1 saiu no mesmo dia e o adaptador do OpenNext ainda não o conhecia: o build passava e toda página respondia 500. O front fica fixo na versão que o adaptador declara (`next` 16.3.8) e só sobe quando o adaptador acompanhar — conferindo com `npm run build` e uma página aberta, não só com o build verde.
 
