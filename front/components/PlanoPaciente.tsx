@@ -3,8 +3,7 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { api, type Dto } from '@/lib/api.ts';
 import { reaisParaCampo, valorEmReais } from '@/lib/campos.ts';
-import { moeda } from '@/lib/formato.ts';
-import { PLANO, valorPorSessao } from '@/lib/planos.ts';
+import { CamposDoPlano } from './CamposDoPlano';
 
 // Plano do paciente (avulsa, pacote ou mensal). Diferente do resto da aba Dados,
 // não grava no blur: tipo, sessões e valor mudam juntos, com um botão.
@@ -52,7 +51,6 @@ export function PlanoPaciente({ conta, paciente, plano, valorSessao, valorPadrao
     tipo !== plano.tipo ||
     (tipo !== 'avulsa' && nSessoes !== plano.sessoes) ||
     nValor !== plano.valor;
-  const cada = tipo === 'pacote' ? valorPorSessao(nValor, nSessoes) : null;
 
   async function gravar(e: FormEvent) {
     e.preventDefault();
@@ -79,71 +77,15 @@ export function PlanoPaciente({ conta, paciente, plano, valorSessao, valorPadrao
         {gravado && !mudou && <span className="mudo pequeno">Plano gravado</span>}
       </div>
       <form className="pilha" data-g="p" onSubmit={(e) => void gravar(e)}>
-        <div className="segmento" role="group" aria-label="Plano">
-          {(Object.keys(PLANO) as Plano[]).map((t) => (
-            <button key={t} type="button" aria-pressed={tipo === t} onClick={() => escolher(t)}>
-              {PLANO[t].rotulo}
-            </button>
-          ))}
-        </div>
-        <p className="mudo pequeno">{PLANO[tipo].dica}</p>
-
-        <div className="grade" data-n="2">
-          {tipo === 'avulsa' && (
-            <label className="campo">
-              <span>Valor da sessão (R$)</span>
-              <input
-                className="ent"
-                inputMode="decimal"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-                placeholder={valorPadrao != null ? `Padrão: ${moeda(valorPadrao)}` : ''}
-              />
-              <small>Vazio usa o valor padrão do consultório.</small>
-            </label>
-          )}
-
-          {tipo === 'pacote' && (
-            <>
-              <label className="campo">
-                <span>Sessões no pacote</span>
-                <input
-                  className="ent"
-                  inputMode="numeric"
-                  value={sessoes}
-                  onChange={(e) => setSessoes(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Ex.: 4"
-                  required
-                />
-              </label>
-              <label className="campo">
-                <span>Valor do pacote (R$)</span>
-                <input className="ent" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} required />
-                <small>{cada != null ? `${moeda(cada)} por sessão.` : 'Pago adiantado.'}</small>
-              </label>
-            </>
-          )}
-
-          {tipo === 'mensal' && (
-            <>
-              <label className="campo">
-                <span>Valor do mês (R$)</span>
-                <input className="ent" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} required />
-              </label>
-              <label className="campo">
-                <span>Sessões por mês</span>
-                <input
-                  className="ent"
-                  inputMode="numeric"
-                  value={sessoes}
-                  onChange={(e) => setSessoes(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Opcional"
-                />
-                <small>Só para referência; vazio segue a agenda.</small>
-              </label>
-            </>
-          )}
-        </div>
+        <CamposDoPlano
+          tipo={tipo}
+          sessoes={sessoes}
+          valor={valor}
+          valorPadrao={valorPadrao}
+          aoEscolher={escolher}
+          aoMudarSessoes={setSessoes}
+          aoMudarValor={setValor}
+        />
 
         {erro && (
           <div className="aviso" data-t="erro" role="alert">

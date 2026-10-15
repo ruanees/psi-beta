@@ -187,6 +187,12 @@ export class NovoPacienteDto {
   @Max(99999.99)
   valorSessao?: number;
 
+  @ApiPropertyOptional({ type: PlanoDto, description: 'Sem plano, o paciente nasce avulso com `valorSessao`.' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PlanoDto)
+  plano?: PlanoDto;
+
   @ApiProperty({ description: 'O paciente (ou responsável) consentiu com o uso dos dados (LGPD). Precisa ser true.' })
   @Equals(true, { message: 'Confirme o consentimento do paciente para o uso dos dados.' })
   consentimento: boolean;

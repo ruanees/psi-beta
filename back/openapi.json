@@ -1738,6 +1738,41 @@
           "ultimaSessao"
         ]
       },
+      "Plano": {
+        "type": "string",
+        "enum": [
+          "avulsa",
+          "pacote",
+          "mensal"
+        ]
+      },
+      "PlanoDto": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Plano"
+              }
+            ]
+          },
+          "sessoes": {
+            "type": "number",
+            "nullable": true,
+            "description": "Pacote: sessões no pacote (2 a 100). Mensal: sessões que o mês cobre, opcional. Avulsa: sempre null."
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true,
+            "description": "Avulsa: valor da sessão (null usa o padrão do consultório). Pacote: valor do pacote. Mensal: valor do mês."
+          }
+        },
+        "required": [
+          "tipo",
+          "sessoes",
+          "valor"
+        ]
+      },
       "NovoResponsavelDto": {
         "type": "object",
         "properties": {
@@ -1784,6 +1819,14 @@
           "valorSessao": {
             "type": "number"
           },
+          "plano": {
+            "description": "Sem plano, o paciente nasce avulso com `valorSessao`.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlanoDto"
+              }
+            ]
+          },
           "consentimento": {
             "type": "boolean",
             "description": "O paciente (ou responsável) consentiu com o uso dos dados (LGPD). Precisa ser true."
@@ -1810,41 +1853,6 @@
         },
         "required": [
           "id"
-        ]
-      },
-      "Plano": {
-        "type": "string",
-        "enum": [
-          "avulsa",
-          "pacote",
-          "mensal"
-        ]
-      },
-      "PlanoDto": {
-        "type": "object",
-        "properties": {
-          "tipo": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Plano"
-              }
-            ]
-          },
-          "sessoes": {
-            "type": "number",
-            "nullable": true,
-            "description": "Pacote: sessões no pacote (2 a 100). Mensal: sessões que o mês cobre, opcional. Avulsa: sempre null."
-          },
-          "valor": {
-            "type": "number",
-            "nullable": true,
-            "description": "Avulsa: valor da sessão (null usa o padrão do consultório). Pacote: valor do pacote. Mensal: valor do mês."
-          }
-        },
-        "required": [
-          "tipo",
-          "sessoes",
-          "valor"
         ]
       },
       "ResponsavelDto": {

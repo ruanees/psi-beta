@@ -1,6 +1,6 @@
 -- Plano do paciente: avulsa, pacote ou mensal.
 begin;
-select plan(11);
+select plan(14);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a5', 'ana@plano.teste'),
@@ -57,6 +57,23 @@ select lives_ok(
 select is(
   (select public.paciente_ler((select conta from ids), (select p from ids)) -> 'plano'),
   '{"tipo":"avulsa","sessoes":null,"valor":null}'::jsonb, 'avulsa sem valor próprio'
+);
+
+-- plano já no cadastro
+select is(
+  (select public.paciente_ler((select conta from ids),
+     public.paciente_criar((select conta from ids), '{"nome":"Nasce Pacote","consentimento":true,"plano":{"plano":"pacote","sessoes":10,"valor":1200}}')
+   ) -> 'plano'),
+  '{"tipo":"pacote","sessoes":10,"valor":1200}'::jsonb, 'paciente pode nascer com pacote'
+);
+select throws_ok(
+  format($$select public.paciente_criar(%L, '{"nome":"Pacote Torto","consentimento":true,"plano":{"plano":"pacote","valor":100}}')$$,
+         (select conta from ids)),
+  'P0001', 'plano_incompleto', 'cadastro com plano incompleto é recusado'
+);
+select is(
+  (select count(*)::int from public.pacientes_listar((select conta from ids), 'Pacote Torto') where nome = 'Pacote Torto'),
+  0, 'e o paciente não fica criado pela metade'
 );
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b5","role":"authenticated","aal":"aal1"}', true);
