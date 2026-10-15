@@ -6,6 +6,7 @@ import {
   IsArray,
   IsBoolean,
   IsIn,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -23,6 +24,9 @@ export type SituacaoPaciente = (typeof SITUACOES_PACIENTE)[number];
 
 export const STATUS_SESSAO = ['agendada', 'confirmada', 'realizada', 'falta', 'cancelada'] as const;
 export type StatusSessao = (typeof STATUS_SESSAO)[number];
+
+export const PLANOS = ['avulsa', 'pacote', 'mensal'] as const;
+export type Plano = (typeof PLANOS)[number];
 
 export const MODALIDADES = ['presencial', 'online'] as const;
 export type Modalidade = (typeof MODALIDADES)[number];
@@ -74,6 +78,35 @@ export class ContagemDto {
   @ApiProperty() canceladas: number;
 }
 
+/** Como o paciente paga. Serve para ler e para gravar: o plano muda inteiro, de uma vez. */
+export class PlanoDto {
+  @ApiProperty({ enum: PLANOS, enumName: 'Plano' })
+  @IsIn(PLANOS, { message: 'Plano: avulsa, pacote ou mensal.' })
+  tipo: Plano;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Pacote: sessões no pacote (2 a 100). Mensal: sessões que o mês cobre, opcional. Avulsa: sempre null.',
+  })
+  @ValidateIf((o: PlanoDto) => o.tipo === 'pacote' || (o.tipo === 'mensal' && o.sessoes != null))
+  @IsInt({ message: 'Número de sessões inteiro.' })
+  @Min(1, { message: 'Número de sessões entre 1 e 100.' })
+  @Max(100, { message: 'Número de sessões entre 1 e 100.' })
+  sessoes: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Avulsa: valor da sessão (null usa o padrão do consultório). Pacote: valor do pacote. Mensal: valor do mês.',
+  })
+  @ValidateIf((o: PlanoDto) => o.tipo !== 'avulsa' || o.valor != null)
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Valor em reais, com até dois decimais.' })
+  @Min(0)
+  @Max(99999.99)
+  valor: number | null;
+}
+
 export class PacienteDto {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty() nome: string;
@@ -83,7 +116,9 @@ export class PacienteDto {
   @ApiProperty({ type: String, nullable: true, description: 'Só vem para o psicólogo do paciente.' })
   queixaPrincipal: string | null;
   @ApiProperty({ description: 'Quem lê é o psicólogo do paciente (vê e edita dado clínico).' }) podeClinico: boolean;
-  @ApiProperty({ type: Number, nullable: true }) valorSessao: number | null;
+  @ApiProperty({ type: Number, nullable: true, description: 'Valor da sessão avulsa. Vazio usa o padrão do consultório.' })
+  valorSessao: number | null;
+  @ApiProperty({ type: PlanoDto }) plano: PlanoDto;
   @ApiProperty({ enum: SITUACOES_PACIENTE, enumName: 'SituacaoPaciente' }) situacao: SituacaoPaciente;
   @ApiProperty({ format: 'date-time' }) consentimentoEm: string;
   @ApiProperty({ format: 'date-time' }) criadoEm: string;

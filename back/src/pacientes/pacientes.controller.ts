@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UUID } from '../comum/pipes';
 import { Jwt } from '../comum/publico';
@@ -10,6 +10,7 @@ import {
   PacienteDto,
   PacienteParcialDto,
   PacienteResumoDto,
+  PlanoDto,
   ResponsavelParcialDto,
   SituacaoDto,
 } from './pacientes.dto';
@@ -58,6 +59,18 @@ export class PacientesController {
   @ApiNoContentResponse({ description: 'Só para paciente sem sessão realizada ou falta; com atendimento, 409.' })
   excluir(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Param('paciente', UUID) paciente: string) {
     return this.pacientes.excluir(jwt, conta, paciente);
+  }
+
+  @Put(':paciente/plano')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Grava o plano inteiro: tipo, sessões e valor.' })
+  plano(
+    @Jwt() jwt: string,
+    @Param('conta', UUID) conta: string,
+    @Param('paciente', UUID) paciente: string,
+    @Body() dto: PlanoDto,
+  ) {
+    return this.pacientes.plano(jwt, conta, paciente, dto);
   }
 
   @Post(':paciente/situacao')

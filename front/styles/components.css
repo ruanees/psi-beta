@@ -452,6 +452,8 @@ p {
 /* Etiqueta neutra (tema, filtro): contorno fino, sem significado de status. */
 .etiqueta {
   display: inline-flex;
+  /* Dentro de grade (o cartão é grid) não estica até a borda. */
+  justify-self: start;
   align-items: center;
   gap: 6px;
   padding: 3px 10px;

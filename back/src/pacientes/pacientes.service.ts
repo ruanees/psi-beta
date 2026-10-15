@@ -8,6 +8,7 @@ import type {
   PacienteDto,
   PacienteParcialDto,
   PacienteResumoDto,
+  PlanoDto,
   ResponsavelParcialDto,
   SessaoResumoDto,
   SituacaoPaciente,
@@ -40,6 +41,7 @@ interface PacienteBanco {
   queixa_principal: string | null;
   pode_clinico: boolean;
   valor_sessao: number | null;
+  plano: { tipo: PlanoDto['tipo']; sessoes: number | null; valor: number | null };
   situacao: SituacaoPaciente;
   consentimento_em: string;
   criado_em: string;
@@ -89,6 +91,7 @@ export class PacientesService {
       queixaPrincipal: b.queixa_principal,
       podeClinico: b.pode_clinico,
       valorSessao: b.valor_sessao,
+      plano: b.plano,
       situacao: b.situacao,
       consentimentoEm: b.consentimento_em,
       criadoEm: b.criado_em,
@@ -117,6 +120,17 @@ export class PacientesService {
   /** Só sem atendimento registrado; quem decide é o banco (guarda mínima do prontuário). */
   excluir(jwt: string, conta: string, paciente: string): Promise<void> {
     return this.supabase.rpc<void>(jwt, 'paciente_excluir', { c: conta, p: paciente });
+  }
+
+  plano(jwt: string, conta: string, paciente: string, dto: PlanoDto): Promise<void> {
+    if (dto.tipo === 'pacote' && (dto.sessoes ?? 0) < 2) {
+      throw new BadRequestException({ mensagem: 'Pacote com pelo menos 2 sessões.', codigo: 'validacao' });
+    }
+    return this.supabase.rpc<void>(jwt, 'paciente_plano', {
+      c: conta,
+      p: paciente,
+      d: { plano: dto.tipo, sessoes: dto.tipo === 'avulsa' ? null : (dto.sessoes ?? null), valor: dto.valor ?? null },
+    });
   }
 
   situacao(jwt: string, conta: string, paciente: string, situacao: SituacaoPaciente): Promise<void> {
