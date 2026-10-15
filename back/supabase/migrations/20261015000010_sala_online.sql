@@ -164,7 +164,6 @@ declare
   v_nome text;
   v_link text;
   v_abre timestamptz;
-  v_fecha timestamptz;
   v_situacao text;
 begin
   if t is null or t !~ '^[0-9a-f]{64}$' then
@@ -190,7 +189,6 @@ begin
   end if;
 
   v_abre := ss.inicio - interval '15 minutes';
-  v_fecha := ss.fim + interval '15 minutes';
   if now() < v_abre then
     v_situacao := 'cedo';
   else
