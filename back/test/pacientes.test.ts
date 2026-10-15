@@ -44,6 +44,10 @@ describe('pacientes: API x banco', () => {
     assert.deepEqual(chaves(corpo('sessao_criar'), 'd', '->>'), ['duracao_min', 'inicio', 'modalidade', 'paciente_id', 'repetir_semanal']);
   });
 
+  it('paciente_plano lê o que o serviço manda', () => {
+    assert.deepEqual(chaves(corpo('paciente_plano'), 'd', '->>'), ['plano', 'sessoes', 'valor']);
+  });
+
   it('pacientes_listar não devolve a queixa principal (lista não é dado clínico)', () => {
     assert.doesNotMatch(corpo('pacientes_listar'), /queixa/);
   });

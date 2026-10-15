@@ -686,6 +686,52 @@
         ]
       }
     },
+    "/contas/{conta}/pacientes/{paciente}/plano": {
+      "put": {
+        "operationId": "Pacientes_plano",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Grava o plano inteiro: tipo, sessões e valor."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "pacientes"
+        ]
+      }
+    },
     "/contas/{conta}/pacientes/{paciente}/situacao": {
       "post": {
         "operationId": "Pacientes_situacao",
@@ -1766,6 +1812,41 @@
           "id"
         ]
       },
+      "Plano": {
+        "type": "string",
+        "enum": [
+          "avulsa",
+          "pacote",
+          "mensal"
+        ]
+      },
+      "PlanoDto": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Plano"
+              }
+            ]
+          },
+          "sessoes": {
+            "type": "number",
+            "nullable": true,
+            "description": "Pacote: sessões no pacote (2 a 100). Mensal: sessões que o mês cobre, opcional. Avulsa: sempre null."
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true,
+            "description": "Avulsa: valor da sessão (null usa o padrão do consultório). Pacote: valor do pacote. Mensal: valor do mês."
+          }
+        },
+        "required": [
+          "tipo",
+          "sessoes",
+          "valor"
+        ]
+      },
       "ResponsavelDto": {
         "type": "object",
         "properties": {
@@ -1945,7 +2026,11 @@
           },
           "valorSessao": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "description": "Valor da sessão avulsa. Vazio usa o padrão do consultório."
+          },
+          "plano": {
+            "$ref": "#/components/schemas/PlanoDto"
           },
           "situacao": {
             "allOf": [
@@ -1999,6 +2084,7 @@
           "queixaPrincipal",
           "podeClinico",
           "valorSessao",
+          "plano",
           "situacao",
           "consentimentoEm",
           "criadoEm",

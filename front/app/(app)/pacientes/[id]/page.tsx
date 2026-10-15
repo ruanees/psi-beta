@@ -7,12 +7,14 @@ import { CampoGravavel } from '@/components/CampoGravavel';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
 import { LinhaSessao } from '@/components/LinhaSessao';
+import { PlanoPaciente } from '@/components/PlanoPaciente';
 import { iniciais } from '@/components/Moldura';
 import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
 import { api, type Dto } from '@/lib/api.ts';
-import { cpfFormatado, reaisParaCampo, soDigitos, valorEmReais } from '@/lib/campos.ts';
+import { cpfFormatado, soDigitos } from '@/lib/campos.ts';
 import { DIAS_DA_SEMANA, diaPorExtenso, hoje, idade, partes } from '@/lib/datas.ts';
-import { duracao, fd, moeda } from '@/lib/formato.ts';
+import { duracao, fd } from '@/lib/formato.ts';
+import { resumoPlano } from '@/lib/planos.ts';
 import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
@@ -171,6 +173,8 @@ function Resumo({
   abrirSessao: (s: Dto<'SessaoDoPacienteDto'>) => void;
   sessoes: Dto<'SessaoDoPacienteDto'>[];
 }) {
+  const { conta } = useApp();
+  const valorPadrao = conta.perfil?.valorSessaoPadrao;
   const proxima = p.proximaSessao;
   const proximaCompleta = proxima ? sessoes.find((s) => s.id === proxima.id) : undefined;
   return (
@@ -215,6 +219,7 @@ function Resumo({
           </div>
         </div>
         <p className="mudo pequeno">Em atendimento desde {fd(p.criadoEm)}.</p>
+        <span className="etiqueta">{resumoPlano(p.plano, valorPadrao)}</span>
       </section>
 
       {p.podeClinico && (
@@ -310,17 +315,18 @@ function Dados({
             dica="Necessário para o recibo do Receita Saúde."
             gravar={(v) => gravar({ cpf: soDigitos(v) ?? null })}
           />
-          <CampoGravavel
-            rotulo="Valor da sessão (R$)"
-            inputMode="decimal"
-            valor={reaisParaCampo(p.valorSessao)}
-            placeholder={conta.perfil?.valorSessaoPadrao != null ? `Padrão: ${moeda(conta.perfil.valorSessaoPadrao)}` : ''}
-            dica="Vazio usa o valor padrão do consultório."
-            gravar={(v) => gravar({ valorSessao: valorEmReais(v) ?? null })}
-          />
         </div>
         <p className="mudo pequeno">Consentimento LGPD registrado em {fd(p.consentimentoEm)}.</p>
       </section>
+
+      <PlanoPaciente
+        conta={conta.id}
+        paciente={p.id}
+        plano={p.plano}
+        valorSessao={p.valorSessao}
+        valorPadrao={conta.perfil?.valorSessaoPadrao}
+        aoGravar={recarregar}
+      />
 
       <section className="cartao">
         <div className="cartao-topo">

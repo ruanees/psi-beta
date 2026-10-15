@@ -50,6 +50,8 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   paciente_inativo: [409, 'Paciente com alta ou arquivado. Reative o cadastro antes de agendar.'],
   sessao_encerrada: [409, 'Sessão realizada, com falta ou desmarcada não muda mais.'],
   sessao_futura: [409, 'Presença e falta só podem ser marcadas depois do horário da sessão.'],
+  plano_invalido: [400, 'Plano: avulsa, pacote ou mensal.'],
+  plano_incompleto: [422, 'Pacote precisa de pelo menos 2 sessões e do valor; mensal, do valor do mês.'],
   transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],

@@ -68,7 +68,8 @@ Levantado com os psicólogos. Nada fora desta lista entra no beta; o que é pedi
 | Com quantas horas de antecedência o aviso de falta conta? | 24 h ou 6 h | Escolha do psicólogo nas Configurações (24 h ou 6 h, padrão 24 h); o servidor aplica a regra |
 | Falta de sessão avulsa também é cobrada? | Sim | Falta avulsa gera cobrança, pela mesma regra do aviso |
 | Pacote tem validade? | Não | Pacote sem validade |
-| A observação pode ser corrigida depois? Até quando? | Por um mês (*interpretação: a resposta veio como "É pra ser um mês"; confirmar*) | Editável por 30 dias depois da sessão, toda versão guardada; depois disso trava e correção vira adendo |
+| A observação pode ser corrigida depois? Até quando? | Por um mês depois da sessão (confirmado) | Editável por 30 dias depois da sessão, toda versão guardada; depois disso trava e correção vira adendo |
+| Cada paciente tem um valor de sessão próprio, ou é um valor único? | Próprio, e o paciente tem um plano: avulsa, pacote ou mensal | Plano na aba Dados da ficha (migration `20261015000004_plano_paciente.sql`): avulsa com valor da sessão (vazio usa o padrão da conta), pacote com nº de sessões e valor, mensal com valor do mês e nº de sessões opcional. O Financeiro (Fase 3) cobra a partir dele |
 
 ### Ainda abertas
 
@@ -76,7 +77,7 @@ Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o pad
 
 | Pergunta | Bloqueia | Padrão até a resposta |
 |---|---|---|
-| Cada paciente tem um valor de sessão próprio, ou é um valor único? | Fase 3 | Valor padrão da conta, sobrescrito por paciente |
+| Mensal vence em que dia, e é pago adiantado ou no fim do mês? | Fase 3 | Adiantado, no dia em que o plano começou |
 | A maioria dos pacientes tem horário fixo semanal? | Fase 1 | Repetição semanal disponível |
 | Alguém além do psicólogo (secretária) precisa entrar no beta? | Fase 0 | Não |
 | O psicólogo usa conta Google pessoal (gmail.com) ou do Google Workspace? | Fase 5 | As duas funcionam; Workspace pode exigir liberação do administrador |
@@ -361,7 +362,8 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] Presença e falta só depois do horário da sessão; alta e arquivo encerram a repetição e tiram as sessões futuras
 - [x] Excluir paciente só sem atendimento registrado (cadastro por engano); com sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos e o caminho é arquivar (migration `20261015000002_excluir_paciente.sql`)
 - [x] Alta e arquivo com repetição semanal que ainda não começou (migration `20261015000003_arquivar_repeticao_futura.sql`)
-- [x] 43 provas pgTAP
+- [x] Plano do paciente na aba Dados: avulsa, pacote (sessões + valor, mostra o valor por sessão) ou mensal (valor do mês); o Resumo mostra o plano numa linha
+- [x] 54 provas pgTAP
 
 **Back**
 - [x] Pacientes: buscar (POST, para nome de paciente não ir em URL), criar com responsáveis e consentimento LGPD obrigatório, ler, gravar campo a campo, situação, responsáveis
