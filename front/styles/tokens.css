@@ -5,7 +5,8 @@
  * ícones), Sálvia #7AA588 (degradê e detalhe no escuro), Linho #F8F7F2
  * (fundo), Areia #E8DFD0 (superfícies e divisórias), Terra #6E4B33 (acento
  * quente e rótulos), Chumbo #2F3133 (texto). Cartões brancos, sem borda,
- * sombra em Floresta a 6%. Títulos e números em Fraunces; texto em DM Sans.
+ * sombra em Floresta a 6%. Fontes mantidas: títulos e números em Poppins;
+ * texto em DM Sans.
  *
  * Regras que valem para todo componente:
  *  - --ac é o fundo de ação (botão primário). Um botão sólido por tela; o
@@ -16,7 +17,7 @@
  */
 :root {
   --fonte: 'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --fonte-titulo: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman', serif;
+  --fonte-titulo: 'Poppins', 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
   --r1: 8px; /* campos, etiquetas */
   --r2: 12px; /* botões, itens de menu */

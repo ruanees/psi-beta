@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { SCRIPT_TEMA } from '@/lib/tema.ts';
 // Fontes empacotadas no build: nada de Google Fonts em tempo de execução (CSP font-src 'self').
-import '@fontsource-variable/fraunces/index.css';
+import '@fontsource/poppins/latin-500.css';
+import '@fontsource/poppins/latin-600.css';
+import '@fontsource/poppins/latin-700.css';
 import '@fontsource-variable/dm-sans/wght.css';
 import '@/styles/tokens.css';
 import '@/styles/components.css';
