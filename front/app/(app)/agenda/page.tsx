@@ -154,7 +154,7 @@ export default function Agenda() {
               </button>
             ))}
           </div>
-          <div className="agenda-corpo" style={{ height: (horaFim - horaIni) * ALTURA_HORA }}>
+          <div className="agenda-corpo" style={{ gridTemplateRows: `${(horaFim - horaIni) * ALTURA_HORA}px` }}>
             <div className="agenda-horas">
               {Array.from({ length: horaFim - horaIni }, (_, i) => (
                 <span key={i} style={{ top: i * ALTURA_HORA }}>
