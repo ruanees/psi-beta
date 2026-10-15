@@ -360,7 +360,8 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] Desmarcar compara a hora do aviso com `aviso_minimo_horas` (6 h ou 24 h) e decide falta ou desmarcada; `simular` responde antes de gravar
 - [x] Presença e falta só depois do horário da sessão; alta e arquivo encerram a repetição e tiram as sessões futuras
 - [x] Excluir paciente só sem atendimento registrado (cadastro por engano); com sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos e o caminho é arquivar (migration `20261015000002_excluir_paciente.sql`)
-- [x] 38 provas pgTAP
+- [x] Alta e arquivo com repetição semanal que ainda não começou (migration `20261015000003_arquivar_repeticao_futura.sql`)
+- [x] 43 provas pgTAP
 
 **Back**
 - [x] Pacientes: buscar (POST, para nome de paciente não ir em URL), criar com responsáveis e consentimento LGPD obrigatório, ler, gravar campo a campo, situação, responsáveis
