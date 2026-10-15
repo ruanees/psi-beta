@@ -1,0 +1,835 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/saude": {
+      "get": {
+        "operationId": "Saude_saude",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaudeDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "infra"
+        ]
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "Saude_openapi",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "infra"
+        ]
+      }
+    },
+    "/sessao/entrar": {
+      "post": {
+        "operationId": "Sessao_entrar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntrarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/segundo-fator": {
+      "post": {
+        "operationId": "Sessao_segundoFator",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SegundoFatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/renovar": {
+      "post": {
+        "operationId": "Sessao_renovar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenovarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/recuperar": {
+      "post": {
+        "operationId": "Sessao_recuperar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecuperarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/senha": {
+      "post": {
+        "operationId": "Sessao_senha",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovaSenhaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/sair": {
+      "post": {
+        "operationId": "Sessao_sair",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/fatores": {
+      "get": {
+        "operationId": "Sessao_fatores",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FatorDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      },
+      "post": {
+        "operationId": "Sessao_cadastrarFator",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NovoFatorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/fatores/{fator}/confirmar": {
+      "post": {
+        "operationId": "Sessao_confirmarFator",
+        "parameters": [
+          {
+            "name": "fator",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodigoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/sessao/fatores/{fator}": {
+      "delete": {
+        "operationId": "Sessao_removerFator",
+        "parameters": [
+          {
+            "name": "fator",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "sessao"
+        ]
+      }
+    },
+    "/contas": {
+      "get": {
+        "operationId": "Contas_listar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContaResumoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "contas"
+        ]
+      }
+    },
+    "/contas/{conta}": {
+      "get": {
+        "operationId": "Contas_ler",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "contas"
+        ]
+      }
+    },
+    "/contas/{conta}/perfil": {
+      "patch": {
+        "operationId": "Contas_gravarPerfil",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerfilParcialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "contas"
+        ]
+      }
+    },
+    "/contas/{conta}/configuracoes": {
+      "patch": {
+        "operationId": "Contas_gravarConfiguracoes",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfiguracoesParciaisDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "contas"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "PSI",
+    "description": "BFF do PSI. A regra de acesso é do banco (RLS); esta API repassa o JWT de quem chama.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SaudeDto": {
+        "type": "object",
+        "properties": {
+          "supabase": {
+            "type": "boolean",
+            "description": "URL e chave anon do Supabase presentes."
+          },
+          "config": {
+            "type": "object",
+            "description": "De onde veio cada configuração — nunca o valor.",
+            "example": {
+              "SUPABASE_URL": "process",
+              "SUPABASE_JWT_SECRET": "faltando"
+            }
+          },
+          "versao": {
+            "type": "string",
+            "description": "Data e hora da geração do bundle."
+          }
+        },
+        "required": [
+          "supabase",
+          "config",
+          "versao"
+        ]
+      },
+      "EntrarDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "psicologa@exemplo.com.br"
+          },
+          "senha": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "senha"
+        ]
+      },
+      "SessaoDto": {
+        "type": "object",
+        "properties": {
+          "etapa": {
+            "type": "string",
+            "enum": [
+              "pronta",
+              "segundo_fator"
+            ],
+            "description": "`segundo_fator`: a senha passou, falta o código do autenticador. O acesso ainda não lê dado nenhum."
+          },
+          "acesso": {
+            "type": "string"
+          },
+          "renovacao": {
+            "type": "string"
+          },
+          "expiraEm": {
+            "type": "number",
+            "description": "Epoch em segundos."
+          },
+          "fatorId": {
+            "type": "string",
+            "description": "Presente quando etapa = segundo_fator."
+          }
+        },
+        "required": [
+          "etapa",
+          "acesso",
+          "renovacao",
+          "expiraEm"
+        ]
+      },
+      "SegundoFatorDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "example": "123456"
+          },
+          "fatorId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "fatorId"
+        ]
+      },
+      "RenovarDto": {
+        "type": "object",
+        "properties": {
+          "renovacao": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "renovacao"
+        ]
+      },
+      "RecuperarDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "NovaSenhaDto": {
+        "type": "object",
+        "properties": {
+          "senha": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 72
+          }
+        },
+        "required": [
+          "senha"
+        ]
+      },
+      "FatorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "pendente"
+            ]
+          },
+          "nome": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "situacao"
+        ]
+      },
+      "NovoFatorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "qr": {
+            "type": "string",
+            "description": "QR em SVG (data URI) para o aplicativo autenticador ler."
+          },
+          "segredo": {
+            "type": "string",
+            "description": "O mesmo segredo do QR, para digitar à mão."
+          }
+        },
+        "required": [
+          "id",
+          "qr",
+          "segredo"
+        ]
+      },
+      "CodigoDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "codigo"
+        ]
+      },
+      "Papel": {
+        "type": "string",
+        "enum": [
+          "titular",
+          "psicologo",
+          "recepcao",
+          "financeiro"
+        ]
+      },
+      "ContaResumoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "papeis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Papel"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "papeis"
+        ]
+      },
+      "PerfilDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "crp": {
+            "type": "string",
+            "nullable": true,
+            "example": "06/123456"
+          },
+          "epsiNumero": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorSessaoPadrao": {
+            "type": "number",
+            "nullable": true,
+            "description": "Em reais."
+          }
+        },
+        "required": [
+          "nome",
+          "crp",
+          "epsiNumero",
+          "valorSessaoPadrao"
+        ]
+      },
+      "ConfiguracoesDto": {
+        "type": "object",
+        "properties": {
+          "faltaCobraAvulsa": {
+            "type": "boolean"
+          },
+          "avisoMinimoHoras": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 168
+          },
+          "inatividadeMinutos": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 240
+          }
+        },
+        "required": [
+          "faltaCobraAvulsa",
+          "avisoMinimoHoras",
+          "inatividadeMinutos"
+        ]
+      },
+      "ContaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "papeis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Papel"
+            }
+          },
+          "perfil": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PerfilDto"
+              }
+            ]
+          },
+          "configuracoes": {
+            "$ref": "#/components/schemas/ConfiguracoesDto"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "papeis",
+          "perfil",
+          "configuracoes"
+        ]
+      },
+      "PerfilParcialDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "crp": {
+            "type": "string",
+            "nullable": true,
+            "example": "06/123456"
+          },
+          "epsiNumero": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorSessaoPadrao": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "ConfiguracoesParciaisDto": {
+        "type": "object",
+        "properties": {
+          "faltaCobraAvulsa": {
+            "type": "boolean"
+          },
+          "avisoMinimoHoras": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 168
+          },
+          "inatividadeMinutos": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 240
+          }
+        }
+      }
+    }
+  }
+}

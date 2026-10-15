@@ -1,0 +1,64 @@
+# CI do back. Roda os mesmos comandos da publicação: o que passa aqui é o
+# que a Cloudflare vai empacotar (lição do DIME: CI verde com deploy quebrado).
+name: back
+
+on:
+  push:
+    paths: ['back/**', '.github/workflows/back.yml']
+  pull_request:
+    paths: ['back/**', '.github/workflows/back.yml']
+
+concurrency:
+  group: back-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: back
+
+jobs:
+  api:
+    name: API (tipos, testes, contrato, bundle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: back/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: openapi.json confere com o código
+        run: |
+          npm run openapi
+          git diff --exit-code -- openapi.json || {
+            echo "::error::back/openapi.json desatualizado. Rode 'npm run openapi' em back/ e faça commit."
+            exit 1
+          }
+      - name: Bundle do Worker (o mesmo da publicação)
+        run: npm run bundle
+
+  banco:
+    name: Banco (migrations + regras de acesso)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: back/package-lock.json
+      - run: npm ci
+      # Só o banco e o serviço de login (que cria o schema auth). O resto não entra na prova.
+      - name: Supabase local
+        run: >
+          npx supabase start
+          -x realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - name: Migrations do zero
+        run: npx supabase db reset
+      - name: Provas de RLS (pgTAP)
+        run: npx supabase test db

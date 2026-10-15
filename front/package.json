@@ -1,0 +1,30 @@
+{
+  "name": "psi-front",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Front do PSI: Next.js no Cloudflare Workers, fala só com o psi-back",
+  "dependencies": {
+    "next": "16.3.8",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@opennextjs/cloudflare": "1.20.11",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "wrangler": "4.151.0"
+  },
+  "scripts": {
+    "tipos": "openapi-typescript ../back/openapi.json -o lib/api-tipos.ts",
+    "dev": "npm run tipos && next dev",
+    "build": "npm run tipos && opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare deploy",
+    "deploy:producao": "opennextjs-cloudflare deploy --env producao",
+    "typecheck": "npm run tipos && tsc --noEmit",
+    "prova": "node --test \"lib/**/*.test.ts\" && node scripts/prova-menu.ts"
+  }
+}

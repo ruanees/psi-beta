@@ -1,0 +1,39 @@
+# CI do front. `npm run build` é exatamente o que a Cloudflare roda — inclusive
+# a geração dos tipos a partir de back/openapi.json.
+name: front
+
+on:
+  push:
+    paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']
+  pull_request:
+    paths: ['front/**', 'back/openapi.json', '.github/workflows/front.yml']
+
+concurrency:
+  group: front-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: front
+
+jobs:
+  front:
+    name: Front (tipos, provas, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      # Endereço qualquer só para o build: a trava exige a variável, o valor real mora na Cloudflare.
+      NEXT_PUBLIC_API_URL: https://psi-back-homolog.exemplo.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run prova
+      - name: Build (o mesmo da publicação)
+        run: npm run build

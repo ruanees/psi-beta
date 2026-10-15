@@ -1,0 +1,116 @@
+/*
+ * Tokens do PSI. Herdados do kit do DIME na forma, com paleta própria, mais calma.
+ *
+ * Regras do kit, que valem aqui:
+ *  - --ac é fundo de ação (botão); texto na cor de ação usa --act, que tem
+ *    contraste garantido. Os dois só coincidem por acaso, nunca por regra.
+ *  - Status nunca usa a cor de ação. Ação é petróleo; status tem mapa próprio.
+ *  - Âmbar quer dizer "fechado e parado esperando a data". Verde quer dizer "aconteceu".
+ */
+:root {
+  --fonte: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fonte-num: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+
+  --r1: 6px;
+  --r2: 10px;
+  --r3: 16px;
+  --e1: 4px;
+  --e2: 8px;
+  --e3: 12px;
+  --e4: 16px;
+  --e5: 24px;
+  --e6: 32px;
+
+  --alvo: 44px; /* alvo mínimo de toque */
+  --alvo-nav: 56px; /* barra de baixo no celular */
+  --largura: 1120px;
+}
+
+:root,
+:root[data-theme='claro'] {
+  color-scheme: light;
+  --bg: #f6f7f5;
+  --sf: #ffffff;
+  --sf2: #eef1ee;
+  --bd: #dde3df;
+  --tx: #1d2624;
+  --tx2: #5b6866;
+  --tx3: #85918e;
+
+  --ac: #2f6f73;
+  --ac-tx: #ffffff;
+  --act: #24585b;
+  --ac-suave: #e3efef;
+
+  --ok: #2e7d4f;
+  --ok-sf: #e6f3eb;
+  --at: #a86a07;
+  --at-sf: #fbf1dd;
+  --er: #b3392f;
+  --er-sf: #f9e6e3;
+  --ci: #1f6f8b;
+  --ci-sf: #e2f0f5;
+  --nt: #66706e;
+  --nt-sf: #eceeed;
+
+  --sombra: 0 1px 2px rgb(16 24 22 / 6%), 0 4px 16px rgb(16 24 22 / 6%);
+  --foco: 0 0 0 3px rgb(47 111 115 / 35%);
+}
+
+:root[data-theme='escuro'] {
+  color-scheme: dark;
+  --bg: #121716;
+  --sf: #1a2120;
+  --sf2: #222b2a;
+  --bd: #2f3a38;
+  --tx: #e6ecea;
+  --tx2: #a5b2af;
+  --tx3: #7b8986;
+
+  --ac: #3f8a8f;
+  --ac-tx: #ffffff;
+  --act: #7cc4c8;
+  --ac-suave: #1f3335;
+
+  --ok: #5cc28a;
+  --ok-sf: #183325;
+  --at: #e3a645;
+  --at-sf: #3a2c13;
+  --er: #ee7d72;
+  --er-sf: #3d1e1b;
+  --ci: #63b8d6;
+  --ci-sf: #16303a;
+  --nt: #9aa6a3;
+  --nt-sf: #262e2d;
+
+  --sombra: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 30%);
+  --foco: 0 0 0 3px rgb(124 196 200 / 40%);
+}
+
+/* Sem escolha salva, segue o sistema. O script pré-paint grava data-theme antes da primeira pintura. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #121716;
+    --sf: #1a2120;
+    --sf2: #222b2a;
+    --bd: #2f3a38;
+    --tx: #e6ecea;
+    --tx2: #a5b2af;
+    --tx3: #7b8986;
+    --ac: #3f8a8f;
+    --ac-tx: #ffffff;
+    --act: #7cc4c8;
+    --ac-suave: #1f3335;
+    --ok: #5cc28a;
+    --ok-sf: #183325;
+    --at: #e3a645;
+    --at-sf: #3a2c13;
+    --er: #ee7d72;
+    --er-sf: #3d1e1b;
+    --ci: #63b8d6;
+    --ci-sf: #16303a;
+    --nt: #9aa6a3;
+    --nt-sf: #262e2d;
+  }
+}
