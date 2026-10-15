@@ -49,7 +49,9 @@ export default function FichaDoPaciente() {
         api('get', '/contas/{conta}/pacientes/{paciente}', { params }),
         api('get', '/contas/{conta}/pacientes/{paciente}/sessoes', { params }),
       ]);
-      setP(ficha);
+      // A Cloudflare pode publicar o front antes do back: sem o plano na resposta,
+      // a ficha abre como avulsa em vez de quebrar a página inteira.
+      setP({ ...ficha, plano: ficha.plano ?? { tipo: 'avulsa', sessoes: null, valor: ficha.valorSessao } });
       setSessoes(lista);
       setErro(null);
     } catch (e) {
