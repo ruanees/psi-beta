@@ -23,10 +23,6 @@ export default function Configuracoes() {
 
   return (
     <div className="pilha">
-      <div className="cabecalho">
-        <h1>Configurações</h1>
-      </div>
-
       {p && (
         <section className="cartao">
           <h2>Perfil profissional</h2>

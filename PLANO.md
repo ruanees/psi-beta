@@ -322,7 +322,7 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] `fd`, `fdDe`, `fdh`, `moeda`, `duracao` em `lib/formato.ts`, com prova
 - [x] Tema claro/escuro pré-paint
 - [x] Testado no navegador com o build da Cloudflare: login, senha errada, gravação no blur, recarregar mantém o dado, celular, sair limpa a sessão
-- [ ] **Design system** — o CSS atual é provisório. Entra a partir das referências em `docs/referencias/`, antes da Fase 1
+- [x] **Visual a partir das referências** (`docs/referencias/`): sidebar azul-marinho (só ícones no tablet, barra de baixo no celular), ação em violeta, fundo lavanda, cartões sem borda com sombra suave, selos em tom pastel, Poppins nos títulos e números e DM Sans no texto (empacotadas no build), padrão geométrico de quartos de círculo como marca, login em duas colunas, Início com saudação, métricas e mini calendário. Tokens em `front/styles/tokens.css`, componentes em `front/styles/components.css`; contraste de texto conferido nos dois temas
 
 > **Armadilha herdada:** função com parâmetro opcional no fim não vai direto para `map/filter/forEach`. Tipar como obrigatório com overload.
 

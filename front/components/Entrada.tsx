@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, ErroApi, type Dto } from '@/lib/api.ts';
 import { gravarSessao, lerSessao } from '@/lib/sessao.ts';
+import { Padrao } from './Padrao';
 
 // Login, recuperação e nova senha na mesma tela, como no DIME, mais o passo
 // do código do autenticador para quem ativou o segundo fator.
@@ -115,11 +116,24 @@ export function Entrada() {
 
   return (
     <main className="entrada">
-      <div className="entrada-caixa">
-        <div className="marca">
-          <span className="marca-sinal">P</span>
+      <section className="entrada-arte" aria-hidden="true">
+        <span className="marca">
+          <span className="marca-sinal">Ψ</span>
           PSI
+        </span>
+        <div className="entrada-arte-texto">
+          <h2>O consultório em ordem, da agenda ao recibo.</h2>
+          <p>Sessões, pacotes e pagamentos num lugar só, com o sigilo que o atendimento psicológico exige.</p>
         </div>
+        <Padrao className="entrada-padrao" lado={64} />
+        <span className="pequeno">Acesso restrito a profissionais cadastrados.</span>
+      </section>
+      <section className="entrada-form">
+      <div className="entrada-caixa">
+        <span className="marca">
+          <span className="marca-sinal">Ψ</span>
+          PSI
+        </span>
         <div className="cartao">
           {aviso && AVISOS[aviso] && (
             <div className="aviso" data-t={AVISOS[aviso].t}>
@@ -225,6 +239,7 @@ export function Entrada() {
           )}
         </div>
       </div>
+      </section>
     </main>
   );
 }

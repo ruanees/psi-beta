@@ -51,7 +51,7 @@ export function CampoGravavel({ rotulo, valor, gravar, tipo = 'text', dica, plac
         onChange={(e) => setTexto(e.target.value)}
         onBlur={() => void aoSair()}
       />
-      {erro ? <small style={{ color: 'var(--er)' }}>{erro}</small> : dica && <small>{dica}</small>}
+      {erro ? <small data-t="erro">{erro}</small> : dica && <small>{dica}</small>}
     </label>
   );
 }
