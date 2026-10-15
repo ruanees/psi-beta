@@ -32,7 +32,7 @@ navegador ──> psi-front (Next) ──REST + JWT──> psi-back (Nest) ─�
 
 - O front **nunca** fala com o Supabase. Não há chave nenhuma no bundle.
 - O back repassa o JWT de quem chamou e usa só a chave pública. **Quem decide o que cada um vê é o banco** (RLS e funções `security definer`), não o Nest.
-- Toda escrita passa por RPC; nenhuma tabela aceita insert, update ou delete direto.
+- Toda escrita passa por RPC; nenhuma tabela aceita insert, update ou delete direto. As tabelas de paciente e agenda também não aceitam leitura direta: o dado clínico sai só pela RPC, que registra quem leu.
 - Quem ativou o código do autenticador só lê dado depois de confirmá-lo — a trava também é do banco.
 
 ## Publicação (homologação)
@@ -44,7 +44,7 @@ Homologação usa só dado de teste. O ambiente de produção nasce na véspera 
 1. Criar o projeto **`psi-homolog`**, região **South America (São Paulo)**. Guardar a senha do banco.
 2. **Authentication → Sign In / Providers → Email**: desligar **Allow new users to sign up**. O beta é fechado; conta nasce pelo passo 5.
 3. **Authentication → Multi-Factor**: ligar **TOTP** (enroll e verify).
-4. **SQL Editor**: colar e rodar o conteúdo de `back/supabase/migrations/20261014000001_fundacoes.sql`. Cada migration nova entra do mesmo jeito, em ordem.
+4. **SQL Editor**: colar e rodar, em ordem, cada arquivo de `back/supabase/migrations/` (hoje `20261014000001_fundacoes.sql` e `20261015000001_pacientes_agenda.sql`). Cada migration nova entra do mesmo jeito, **antes** do merge que a usa.
 5. Criar sua conta:
    - **Authentication → Users → Add user → Create new user**: seu e-mail e uma senha (10+ caracteres, letras e números), marcando **Auto Confirm User**.
    - **SQL Editor**:

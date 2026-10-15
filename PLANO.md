@@ -349,24 +349,31 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 
 ## 08 — Fase 1 — Pacientes, busca e agenda (pedidos 1, 8, 9)
 
-**Banco:** `pacientes`, `responsaveis`, `recorrencias`, `sessoes`; `pode_clinico`; extensões `unaccent` e `pg_trgm` com índice no nome do paciente e do responsável; constraint de exclusão de horário; pgTAP.
+**Código pronto em 14/10/2026.** Antes de publicar, a migration `20261015000001_pacientes_agenda.sql` roda no SQL Editor do Supabase.
+
+**Banco**
+- [x] `pacientes`, `responsaveis`, `recorrencias`, `sessoes`; RLS ligada sem política: toda leitura e escrita por RPC
+- [x] `pode_clinico`: a queixa principal só chega ao psicólogo do paciente, e a leitura entra na auditoria
+- [x] Busca sem acento e tolerante a erro de digitação (`unaccent` + `pg_trgm`), também pelo nome do responsável
+- [x] Choque de horário barrado por constraint de exclusão (`EXCLUDE USING gist`); sessão desmarcada libera o horário
+- [x] Repetição semanal: gera as próximas 8 semanas e se estende quando a agenda é aberta mais à frente
+- [x] Desmarcar compara a hora do aviso com `aviso_minimo_horas` (6 h ou 24 h) e decide falta ou desmarcada; `simular` responde antes de gravar
+- [x] Presença e falta só depois do horário da sessão; alta e arquivo encerram a repetição e tiram as sessões futuras
+- [x] 31 provas pgTAP
 
 **Back**
-- [ ] CRUD de paciente, campo a campo; arquivar em vez de apagar
-- [ ] Menor de idade exige ao menos um responsável — regra no servidor
-- [ ] `GET /pacientes?busca=` sem acento, tolerante a erro, buscando também pelo responsável; resposta sem queixa principal (a lista não é dado clínico)
-- [ ] `AgendaService`: sessão avulsa; repetição semanal gerando as próximas ocorrências; editar "só esta" ou "esta e as próximas"
-- [ ] Choque de horário recusado **no banco**, com mensagem pronta ("Já existe sessão das 14:00 às 14:50 neste dia")
-- [ ] Transição de status validada no servidor
+- [x] Pacientes: buscar (POST, para nome de paciente não ir em URL), criar com responsáveis e consentimento LGPD obrigatório, ler, gravar campo a campo, situação, responsáveis
+- [x] Agenda: período até 62 dias, painel do Início, sessões do paciente, criar (avulsa ou semanal), remarcar ("só esta" ou "esta e as próximas"), status, desmarcar, encerrar repetição
+- [x] Prova que prende os nomes de campo da API contra as funções da migration
 
 **Front**
-- [ ] Lista de pacientes com situação e busca
-- [ ] `<BuscaPaciente>` no topo, abre a ficha direto
-- [ ] Formulário de paciente (um só para criar e editar) com responsáveis repetíveis e consentimento LGPD marcado
-- [ ] Ficha do paciente com as abas da seção 05 — nesta fase **Resumo** e **Dados**; as outras com "em breve"
-- [ ] Agenda: dia e semana no desktop, dia no celular — quem esconde é o CSS, não `window.innerWidth`
-- [ ] Sessão nova a partir de um horário vazio da agenda
-- [ ] Início: sessões de hoje e "pacientes ativos sem próxima sessão"
+- [x] Agenda da semana como a referência: grade por hora, blocos coloridos pelo status, linha do "agora", clique num horário vazio abre a sessão nova; no celular, faixa de dias e lista do dia
+- [x] Janela de sessão: agendar, confirmar, presença ou falta, remarcar, desmarcar com o aviso de falta antes de confirmar, encerrar repetição
+- [x] Pacientes: lista com busca e filtro de situação; cadastro com responsáveis, CPF, valor próprio e queixa principal; ficha com Resumo, Sessões e Dados (Histórico, Pacotes, Financeiro e Recibos aparecem como "em breve")
+- [x] Busca de paciente no topo, de qualquer tela (atalho `/`)
+- [x] Início com sessões de hoje, contagens da semana e pacientes sem próxima sessão
+- [x] Configurações: antecedência do aviso de falta em 6 h ou 24 h
+- [ ] `.ics` da sessão — fica para quando houver sessão online (Fase 5), onde ele é útil de verdade
 
 ## 09 — Fase 2 — Registro dos atendimentos e histórico (pedidos 2, 5)
 

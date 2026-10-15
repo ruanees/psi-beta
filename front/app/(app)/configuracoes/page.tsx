@@ -56,13 +56,21 @@ export default function Configuracoes() {
         <section className="cartao">
           <h2>Regras do consultório</h2>
           <div className="grade" data-n="2">
-            <CampoGravavel
-              rotulo="Antecedência mínima do aviso de falta (horas)"
-              valor={String(c.avisoMinimoHoras)}
-              tipo="number"
-              dica="Desmarcar com menos tempo conta como falta e gasta sessão do pacote."
-              gravar={(v) => gravarConfig({ avisoMinimoHoras: Number(v) })}
-            />
+            <label className="campo">
+              <span>Antecedência mínima do aviso de falta</span>
+              <select
+                className="ent"
+                value={c.avisoMinimoHoras}
+                onChange={(e) => void gravarConfig({ avisoMinimoHoras: Number(e.target.value) }).catch(() => undefined)}
+              >
+                {[...new Set([6, 24, c.avisoMinimoHoras])].sort((a, b) => a - b).map((h) => (
+                  <option key={h} value={h}>
+                    {h} horas
+                  </option>
+                ))}
+              </select>
+              <small>Desmarcar com menos tempo conta como falta: é cobrada e gasta sessão do pacote.</small>
+            </label>
             <CampoGravavel
               rotulo="Sair sozinho após quantos minutos sem uso"
               valor={String(c.inatividadeMinutos)}

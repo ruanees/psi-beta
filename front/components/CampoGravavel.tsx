@@ -9,13 +9,16 @@ interface Props {
   rotulo: string;
   valor: string;
   gravar: (novo: string) => Promise<void>;
-  tipo?: 'text' | 'number';
+  tipo?: 'text' | 'number' | 'date' | 'tel';
   dica?: string;
   placeholder?: string;
   inputMode?: 'text' | 'numeric' | 'decimal';
+  /** Texto longo: vira <textarea>. */
+  linhas?: number;
+  max?: string;
 }
 
-export function CampoGravavel({ rotulo, valor, gravar, tipo = 'text', dica, placeholder, inputMode }: Props) {
+export function CampoGravavel({ rotulo, valor, gravar, tipo = 'text', dica, placeholder, inputMode, linhas, max }: Props) {
   const [texto, setTexto] = useState(valor);
   const [erro, setErro] = useState<string | null>(null);
   const [gravando, setGravando] = useState(false);
@@ -35,22 +38,25 @@ export function CampoGravavel({ rotulo, valor, gravar, tipo = 'text', dica, plac
     }
   }
 
+  const comum = {
+    className: 'ent',
+    value: texto,
+    placeholder,
+    'aria-invalid': erro ? ('true' as const) : undefined,
+    onBlur: () => void aoSair(),
+  };
+
   return (
     <label className="campo">
       <span>
         {rotulo}
         {gravando && <span className="mudo"> · gravando</span>}
       </span>
-      <input
-        className="ent"
-        type={tipo}
-        inputMode={inputMode}
-        value={texto}
-        placeholder={placeholder}
-        aria-invalid={erro ? 'true' : undefined}
-        onChange={(e) => setTexto(e.target.value)}
-        onBlur={() => void aoSair()}
-      />
+      {linhas ? (
+        <textarea {...comum} rows={linhas} onChange={(e) => setTexto(e.target.value)} />
+      ) : (
+        <input {...comum} type={tipo} inputMode={inputMode} max={max} onChange={(e) => setTexto(e.target.value)} />
+      )}
       {erro ? <small data-t="erro">{erro}</small> : dica && <small>{dica}</small>}
     </label>
   );

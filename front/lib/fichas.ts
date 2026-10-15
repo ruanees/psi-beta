@@ -3,7 +3,7 @@
 // era show para o Audiovisual, sem erro e sem nada na tela.
 
 export const FICHAS = {
-  paciente: { rota: (id: string) => `/pacientes/${id}`, pronta: false, fase: 1 },
+  paciente: { rota: (id: string) => `/pacientes/${id}`, pronta: true, fase: 1 },
   sessao: { rota: (id: string) => `/agenda/sessoes/${id}`, pronta: false, fase: 1 },
 } as const satisfies Record<string, { rota: (id: string) => string; pronta: boolean; fase: number }>;
 

@@ -9,6 +9,7 @@ import { itemAtivo, MENU, MENU_CONTA, type ItemMenu } from '@/lib/menu.ts';
 import { caminhoDeSaida, gravarSessao, lerSessao, type MotivoSaida } from '@/lib/sessao.ts';
 import { aplicarTema, lerTema, temaEfetivo } from '@/lib/tema.ts';
 import { useInatividade } from '@/lib/use-inatividade.ts';
+import { BuscaPaciente } from './BuscaPaciente';
 import { ContextoApp, type EstadoApp } from './EstadoApp';
 import { Icone } from './Icone';
 import { SeloGravacao } from './SeloGravacao';
@@ -152,6 +153,7 @@ export function Moldura({ children }: { children: React.ReactNode }) {
             <div className="topo-dentro">
               <Marca />
               <span className="topo-titulo">{titulo}</span>
+              <BuscaPaciente />
               <div className="topo-direita">
                 <MenuConta conta={estado.conta} caminho={caminho} aoSair={() => void sair()} />
               </div>

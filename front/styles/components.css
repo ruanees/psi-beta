@@ -372,13 +372,20 @@ p {
 }
 
 .aviso {
-  display: flex;
-  gap: var(--e2);
-  align-items: flex-start;
+  display: block;
   padding: var(--e3) var(--e4);
   border-radius: var(--r2);
   background: var(--ci-sf);
   color: var(--tx);
+}
+.aviso:has(> svg) {
+  display: flex;
+  gap: var(--e2);
+  align-items: flex-start;
+}
+.aviso > svg {
+  flex: none;
+  margin-top: 2px;
 }
 .aviso[data-t='erro'] {
   background: var(--er-sf);
@@ -728,7 +735,8 @@ a.lateral-item:hover {
   background: var(--nav-hover);
   color: var(--nav-tx-ativo);
 }
-.lateral-item[aria-current='page'] {
+.lateral-item[aria-current='page'],
+a.lateral-item[aria-current='page']:hover {
   background: var(--ac);
   color: var(--nav-tx-ativo);
 }
@@ -1142,4 +1150,617 @@ a.lateral-item:hover {
   padding: var(--e2) var(--e3);
   border-radius: var(--r1);
   background: var(--sf2);
+}
+
+/* ================================================================ Fase 1 */
+
+textarea.ent {
+  min-height: 96px;
+  padding: var(--e3);
+  line-height: 1.5;
+  resize: vertical;
+}
+select.ent {
+  padding-right: var(--e6);
+}
+
+/* Controle segmentado: escolhas lado a lado (modalidade, filtro). */
+.segmento {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r2);
+  background: var(--sf2);
+  border: 1px solid var(--bd);
+}
+.segmento button {
+  appearance: none;
+  flex: 1;
+  min-height: 38px;
+  padding: 0 var(--e4);
+  border: 0;
+  border-radius: calc(var(--r2) - 3px);
+  background: transparent;
+  color: var(--tx2);
+  font: 600 13px/1 var(--fonte);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.segmento button[aria-pressed='true'] {
+  background: var(--sf);
+  color: var(--act);
+  box-shadow: var(--sombra);
+}
+
+/* Campo de busca com lupa. */
+.busca {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+.busca > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--tx3);
+  pointer-events: none;
+}
+.busca .ent {
+  padding-left: 40px;
+  border-radius: 999px;
+}
+.busca-topo {
+  position: relative;
+  flex: 0 1 340px;
+  margin-left: var(--e5);
+}
+.busca-topo .ent {
+  background: var(--sf);
+  border-color: var(--bd);
+}
+.busca-resultados {
+  left: 0;
+  right: auto;
+  width: 100%;
+  list-style: none;
+  margin: 0;
+}
+.busca-resultados li[aria-selected='true'] .folha-item {
+  background: var(--sf2);
+}
+.busca-resultados .folha-item {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  padding: var(--e2) var(--e3);
+}
+@media (max-width: 760px) {
+  .busca-topo {
+    display: none;
+  }
+}
+
+/* Mini calendário clicável (Agenda). */
+.minical-grade > button {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  max-width: 36px;
+  width: 100%;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--tx);
+  font: 600 13px/1 var(--fonte);
+  cursor: pointer;
+}
+.minical-grade > button:hover {
+  background: var(--sf2);
+}
+.minical-grade > button[data-fora] {
+  color: var(--tx3);
+  font-weight: 400;
+}
+.minical-grade > button[aria-current='date'] {
+  color: var(--act);
+  box-shadow: inset 0 0 0 2px var(--ac);
+}
+.minical-grade > button[data-escolhido] {
+  background: var(--ac);
+  color: var(--ac-tx);
+}
+.minical-grade > [data-marcado]::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.minical-grade > span[data-marcado] {
+  position: relative;
+}
+
+/* ---------------------------------------------------------------- agenda */
+
+.agenda-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e3);
+}
+.agenda-titulo {
+  font-size: 18px;
+  font-weight: 600;
+}
+.agenda-nova {
+  margin-left: auto;
+}
+
+.agenda-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--e5);
+  align-items: start;
+}
+.agenda-lado {
+  display: grid;
+  gap: var(--e5);
+}
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+.legenda h3 {
+  width: 100%;
+}
+@media (max-width: 1240px) {
+  .agenda-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .agenda-lado {
+    display: none;
+  }
+}
+
+.agenda {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+.agenda-cabeca {
+  display: grid;
+  grid-template-columns: 56px repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--bd);
+}
+.agenda-dia {
+  appearance: none;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--e3) 0;
+  border: 0;
+  background: transparent;
+  color: var(--tx2);
+  font: inherit;
+  cursor: pointer;
+}
+.agenda-dia span {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.agenda-dia strong {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font: 600 20px/1 var(--fonte-titulo);
+  color: var(--tx);
+}
+.agenda-dia[aria-current='date'] strong {
+  background: var(--ac);
+  color: var(--ac-tx);
+}
+.agenda-dia[data-escolhido]:not([aria-current='date']) strong {
+  box-shadow: inset 0 0 0 2px var(--ac-suave2);
+}
+
+.agenda-corpo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px repeat(7, minmax(0, 1fr));
+  overflow-y: auto;
+  max-height: calc(100dvh - 260px);
+  min-height: 420px;
+}
+.agenda-horas {
+  position: relative;
+}
+.agenda-horas span {
+  position: absolute;
+  right: var(--e2);
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--tx3);
+  font-variant-numeric: tabular-nums;
+}
+.agenda-horas span:first-child {
+  transform: none;
+}
+.agenda-coluna {
+  position: relative;
+  border-left: 1px solid var(--bd);
+  background-image: linear-gradient(to bottom, var(--bd) 1px, transparent 1px);
+  background-size: 100% 56px;
+  cursor: copy;
+}
+.agenda-coluna[data-hoje] {
+  background-color: color-mix(in srgb, var(--ac-suave) 45%, transparent);
+}
+.agenda-agora {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--er);
+  pointer-events: none;
+}
+.agenda-agora::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--er);
+}
+
+/* Bloco de sessão: tom pastel do status, texto saturado. */
+.evento {
+  appearance: none;
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 5px 8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--r1);
+  background: var(--nt-sf);
+  color: var(--nt);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 3px 0 0 currentColor;
+}
+.evento strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--tx);
+}
+.evento span {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.evento[data-curto] {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+}
+.evento:hover {
+  filter: brightness(0.97);
+}
+.evento[data-c='ok'] {
+  background: var(--ok-sf);
+  color: var(--ok);
+}
+.evento[data-c='at'] {
+  background: var(--at-sf);
+  color: var(--at);
+}
+.evento[data-c='er'] {
+  background: var(--er-sf);
+  color: var(--er);
+}
+.evento[data-c='tracejado'] {
+  background: var(--sf);
+  color: var(--tx3);
+  box-shadow: inset 0 0 0 1px var(--bd2);
+  opacity: 0.85;
+}
+.evento[data-c='tracejado'] strong {
+  color: var(--tx3);
+  text-decoration: line-through;
+}
+
+/* Celular: faixa de dias e lista. */
+.agenda-celular {
+  display: none;
+}
+@media (max-width: 760px) {
+  .agenda {
+    display: none;
+  }
+  .agenda-celular {
+    display: grid;
+    gap: var(--e4);
+  }
+  .agenda-titulo {
+    width: 100%;
+    order: -1;
+    font-size: 16px;
+  }
+  .agenda-nova {
+    margin-left: 0;
+  }
+}
+.faixa-dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--e1);
+}
+.faixa-dias button {
+  appearance: none;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--e2) 0 var(--e3);
+  border: 0;
+  border-radius: var(--r2);
+  background: var(--sf);
+  color: var(--tx2);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.faixa-dias button strong {
+  font: 600 17px/1 var(--fonte-titulo);
+  color: var(--tx);
+}
+.faixa-dias button[data-hoje] strong {
+  color: var(--act);
+}
+.faixa-dias button[aria-pressed='true'] {
+  background: var(--ac);
+  color: var(--ac-tx);
+}
+.faixa-dias button[aria-pressed='true'] strong {
+  color: var(--ac-tx);
+}
+.faixa-dias button[data-marcado]::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Sessão em linha (Início, ficha, agenda do celular). */
+.lista-sessoes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e2);
+}
+.linha-sessao {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+  padding: var(--e3) var(--e4);
+  border: 0;
+  border-radius: var(--r2);
+  background: var(--sf2);
+  color: var(--tx);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 3px 0 0 var(--nt);
+}
+.linha-sessao:hover {
+  background: var(--ac-suave);
+}
+.linha-sessao[data-c='ok'] {
+  box-shadow: inset 3px 0 0 var(--ok);
+}
+.linha-sessao[data-c='at'] {
+  box-shadow: inset 3px 0 0 var(--at);
+}
+.linha-sessao[data-c='er'] {
+  box-shadow: inset 3px 0 0 var(--er);
+}
+.linha-sessao[data-c='tracejado'] {
+  box-shadow: inset 3px 0 0 var(--bd2);
+  opacity: 0.75;
+}
+.linha-sessao-hora {
+  display: grid;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+  min-width: 48px;
+}
+.linha-sessao-hora small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tx3);
+}
+.linha-sessao-texto {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.linha-sessao-texto strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- pacientes */
+
+.barra-lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e3);
+}
+.barra-lista .busca {
+  flex: 1 1 280px;
+}
+
+.paciente-linha {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.lista-pacientes > li {
+  padding: 0;
+}
+.lista-pacientes .paciente-linha {
+  padding: var(--e3) var(--e2);
+  margin: 0 calc(var(--e2) * -1);
+  border-radius: var(--r2);
+}
+.lista-pacientes .paciente-linha:hover {
+  background: var(--sf2);
+}
+.paciente-linha-texto {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.paciente-linha-texto strong,
+.paciente-linha-texto small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.paciente-linha-proxima {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+}
+@media (max-width: 760px) {
+  .paciente-linha-proxima {
+    display: none;
+  }
+}
+
+.ficha-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e5);
+}
+.ficha-topo-texto {
+  flex: 1;
+  min-width: 200px;
+  display: grid;
+  gap: var(--e1);
+}
+.ficha-topo-acoes {
+  display: flex;
+  gap: var(--e2);
+}
+
+/* Abas da ficha. Aba que ainda não existe aparece apagada, sem link. */
+.abas {
+  display: flex;
+  gap: var(--e1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--bd);
+}
+.abas > * {
+  appearance: none;
+  flex: none;
+  padding: var(--e3) var(--e4);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--tx2);
+  font: 600 14px/1 var(--fonte);
+  cursor: pointer;
+}
+.abas > [aria-current='page'] {
+  color: var(--act);
+  border-bottom-color: var(--ac);
+}
+.abas > [aria-disabled='true'] {
+  color: var(--tx3);
+  opacity: 0.7;
+  cursor: default;
+}
+
+.proxima {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+  padding: var(--e3) var(--e4);
+  border: 0;
+  border-radius: var(--r2);
+  background: var(--sf2);
+  color: var(--tx);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.proxima > span:last-child {
+  display: grid;
+}
+
+.bloco-responsavel {
+  display: grid;
+  gap: var(--e3);
+  padding: var(--e4);
+  border-radius: var(--r2);
+  background: var(--sf2);
+}
+
+.formulario {
+  max-width: 860px;
+}
+.consentimento {
+  align-items: flex-start;
+}
+.consentimento input {
+  margin-top: 2px;
 }
