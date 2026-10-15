@@ -104,7 +104,7 @@ export default function Relatorios() {
             <section className="cartao">
               <BarrasMensais
                 titulo="Recebido por mês"
-                series={[{ nome: 'Recebido', cor: 'var(--ac)' }]}
+                series={[{ nome: 'Recebido', cor: 'var(--graf-1)' }]}
                 meses={r.porMes.map((m) => ({ rotulo: curto(m.mes), detalhe: nomeDoMes(m.mes.slice(0, 7)), valores: [m.recebido] }))}
                 formatar={reaisCurto}
               />
@@ -113,7 +113,7 @@ export default function Relatorios() {
               <BarrasMensais
                 titulo="Sessões por mês"
                 series={[
-                  { nome: 'Realizadas', cor: 'var(--ac)' },
+                  { nome: 'Realizadas', cor: 'var(--graf-1)' },
                   { nome: 'Faltas', cor: 'var(--graf-falta)' },
                 ]}
                 meses={r.porMes.map((m) => ({

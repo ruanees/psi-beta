@@ -10,7 +10,7 @@ import '@/styles/tokens.css';
 import '@/styles/components.css';
 
 export const metadata: Metadata = {
-  title: 'PSI',
+  title: 'Senda',
   description: 'Gestão de consultório de psicologia',
   robots: { index: false, follow: false },
 };

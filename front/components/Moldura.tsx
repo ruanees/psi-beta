@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Simbolo } from './Simbolo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, definirAoExpirar, ErroApi, type Dto } from '@/lib/api.ts';
@@ -26,11 +27,9 @@ type Carga =
 
 export function Marca({ comTexto = true }: { comTexto?: boolean }) {
   return (
-    <Link href="/inicio" className="marca" aria-label="PSI, início">
-      <span className="marca-sinal" aria-hidden="true">
-        Ψ
-      </span>
-      {comTexto && <span className="marca-texto">PSI</span>}
+    <Link href="/inicio" className="marca" aria-label="Senda, início">
+      <Simbolo tamanho={34} solido="var(--nav-tx-ativo)" />
+      {comTexto && <span className="marca-texto">senda</span>}
     </Link>
   );
 }
