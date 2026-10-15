@@ -148,7 +148,7 @@ export default function Inicio() {
           )}
         </section>
 
-        {financeiro && (financeiro.aReceber > 0 || financeiro.pacotesAcabando.length > 0) && (
+        {financeiro && (financeiro.aReceber > 0 || financeiro.semRecibo > 0 || financeiro.pacotesAcabando.length > 0) && (
           <section className="cartao">
             <div className="cartao-topo">
               <h2>Financeiro</h2>
@@ -170,6 +170,16 @@ export default function Inicio() {
                 <span className="metrica-rotulo">Recebido no mês</span>
               </div>
             </div>
+            {financeiro.semRecibo > 0 && (
+              <p className="mudo pequeno">
+                <Icone nome="alerta" tamanho={14} />{' '}
+                {financeiro.semRecibo === 1 ? '1 pagamento recebido' : `${financeiro.semRecibo} pagamentos recebidos`} sem recibo no
+                Receita Saúde.{' '}
+                <Link className="lk" href="/financeiro">
+                  Ver recibos
+                </Link>
+              </p>
+            )}
             {financeiro.pacotesAcabando.length > 0 && (
               <p className="mudo pequeno">
                 <Icone nome="alerta" tamanho={14} /> Pacote acabando:{' '}

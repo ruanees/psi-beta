@@ -419,21 +419,18 @@ Pacote nasce com a cobrança do valor inteiro (pago adiantado, sem validade). Me
 
 ## 11 — Fase 4 — Recibos (Receita Saúde) e relatórios (pedidos 6, 7)
 
-**Banco:** `documentos_fiscais`, `documento_cobrancas`, bucket privado `fiscais`; `pode_arquivo` conhecendo o bucket **no mesmo commit** (a lição do `producoes` no DIME).
+**Banco** (migration `20261015000008_recibos_relatorios.sql`): `recibos` e `recibo_cobrancas`. O recibo guarda uma cópia de quem pagou e de quem foi atendido (nome e CPF): mudar o cadastro depois não reescreve documento emitido. O pagador é o responsável marcado como "paga as sessões"; sem ele, o próprio paciente. O número do recibo não se repete na conta. Pagamento com recibo não se desfaz antes de cancelar o registro do recibo.
 
-**Back**
-- [ ] Fila "a emitir no Receita Saúde": toda cobrança paga sem recibo, com os dados do recibo já montados — CPF do paciente, CPF do pagador (o responsável, quando é menor), valor, data do pagamento, forma e descrição do serviço
-- [ ] `FiscalService`: registrar a emissão (número, data) ligada a uma ou mais cobranças pagas, e anexar o PDF que o Receita Saúde gera — servidor decide o caminho e devolve URL assinada
-- [ ] Recibo interno em PDF, para quem pedir um comprovante antes do oficial
-- [ ] Conferir se a Receita oferece integração (API) para emissão; até onde se sabe hoje não oferece, e a emissão é pelo app ou pelo e-CAC — se surgir, a fila vira emissão automática sem mudar o resto
-- [ ] `PendenciaService` ganha: pagamento sem documento fiscal ao fim do mês
-- [ ] `ReportBuilderService`: atendimentos realizados, faltas e taxa de falta, recebido, pendente, valor por mês (últimos 12) — um construtor, três saídas
+A Receita não oferece API de emissão do Receita Saúde: a emissão é no app ou no e-CAC. O PSI faz o resto — a fila do que falta emitir, os dados prontos para copiar e o registro do número depois.
 
-**Front**
-- [ ] Financeiro → **Recibos**: a fila do que falta emitir (com botão de copiar cada dado, na ordem dos campos do Receita Saúde) e o histórico do que já foi emitido, com filtro por mês
-- [ ] Aviso quando falta CPF do paciente ou do pagador, com atalho para o cadastro
-- [ ] Aba **Recibos** na ficha
-- [ ] **Relatórios**: seletor de mês, quadros de resumo, gráfico mensal com legenda, exportar CSV e imprimir
+- [x] Fila "A emitir no Receita Saúde": todo pagamento recebido sem recibo, agrupado por paciente, com CPF de quem pagou, CPF do beneficiário (quando é o responsável quem paga), valor, data e descrição do serviço, cada um com **Copiar**
+- [x] Aviso quando falta CPF, com atalho para a ficha
+- [x] Registrar o recibo (número e data) cobrindo um ou mais pagamentos do mesmo paciente; cancelar o registro com motivo (os pagamentos voltam para a fila, o registro fica)
+- [x] Financeiro com abas Cobranças e **Recibos** (quantos a emitir); aba **Recibos** na ficha; aviso no Início
+- [x] **Relatórios**: mês escolhido em números (realizadas e online, taxa de falta, pacientes atendidos e novos, recebido, a receber), gráficos dos 12 meses (recebido; realizadas e faltas), tabela mês a mês, **exportar planilha** (CSV que abre no Excel) e **imprimir**
+- [x] 20 provas pgTAP
+- [ ] Anexar o PDF do Receita Saúde ao recibo (precisa do Storage do Supabase; fica para um passo próprio)
+- [ ] Recibo interno em PDF, para quem pedir comprovante antes do oficial
 
 ## 12 — Fase 5 — Atendimento online com Google Meet (pedido 11)
 

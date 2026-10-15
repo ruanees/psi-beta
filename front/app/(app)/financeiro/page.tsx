@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
 import { ListaCobrancas } from '@/components/ListaCobrancas';
+import { Recibos } from '@/components/Recibos';
 import { api, type Dto } from '@/lib/api.ts';
 import { hoje } from '@/lib/datas.ts';
 import { limitesDoMes, nomeDoMes } from '@/lib/financeiro.ts';
@@ -32,6 +33,7 @@ export default function Financeiro() {
   const [mes, setMes] = useState('');
   const [nome, setNome] = useState('');
   const [erro, setErro] = useState<string | null>(null);
+  const [vista, setVista] = useState<'cobrancas' | 'recibos'>('cobrancas');
 
   const carregar = useCallback(async () => {
     try {
@@ -118,43 +120,56 @@ export default function Financeiro() {
         </div>
       )}
 
-      <section className="cartao">
-        <div className="filtros">
-          <div className="segmento" role="group" aria-label="Situação">
-            {FILTROS.map((f) => (
-              <button key={f.id} type="button" aria-pressed={filtro === f.id} onClick={() => setFiltro(f.id)}>
-                {f.rotulo}
-              </button>
-            ))}
+      <nav className="abas" aria-label="Seções do financeiro">
+        <button type="button" aria-current={vista === 'cobrancas' ? 'page' : undefined} onClick={() => setVista('cobrancas')}>
+          Cobranças
+        </button>
+        <button type="button" aria-current={vista === 'recibos' ? 'page' : undefined} onClick={() => setVista('recibos')}>
+          Recibos{painel && painel.semRecibo > 0 ? ` (${painel.semRecibo} a emitir)` : ''}
+        </button>
+      </nav>
+
+      {vista === 'recibos' && <Recibos />}
+
+      {vista === 'cobrancas' && (
+        <section className="cartao">
+          <div className="filtros">
+            <div className="segmento" role="group" aria-label="Situação">
+              {FILTROS.map((f) => (
+                <button key={f.id} type="button" aria-pressed={filtro === f.id} onClick={() => setFiltro(f.id)}>
+                  {f.rotulo}
+                </button>
+              ))}
+            </div>
+            <div className="linha">
+              <label className="campo campo-inline">
+                <span className="oculto">Mês do vencimento</span>
+                <input className="ent" type="month" value={mes} onChange={(e) => setMes(e.target.value)} />
+              </label>
+              {mes && (
+                <button className="btn" data-v="leve" onClick={() => setMes('')}>
+                  Todos os meses
+                </button>
+              )}
+              <label className="campo campo-inline">
+                <span className="oculto">Paciente</span>
+                <input className="ent" placeholder="Paciente" value={nome} onChange={(e) => setNome(e.target.value)} />
+              </label>
+            </div>
           </div>
-          <div className="linha">
-            <label className="campo campo-inline">
-              <span className="oculto">Mês do vencimento</span>
-              <input className="ent" type="month" value={mes} onChange={(e) => setMes(e.target.value)} />
-            </label>
-            {mes && (
-              <button className="btn" data-v="leve" onClick={() => setMes('')}>
-                Todos os meses
-              </button>
-            )}
-            <label className="campo campo-inline">
-              <span className="oculto">Paciente</span>
-              <input className="ent" placeholder="Paciente" value={nome} onChange={(e) => setNome(e.target.value)} />
-            </label>
-          </div>
-        </div>
-        {cobrancas === null && !erro ? (
-          <p className="mudo">Carregando…</p>
-        ) : (
-          <>
-            <p className="mudo pequeno">
-              {visiveis.length === 1 ? '1 cobrança' : `${visiveis.length} cobranças`} · total {moeda(total)}
-              {mes ? ` · vencimento em ${nomeDoMes(mes)}` : ''}
-            </p>
-            <ListaCobrancas cobrancas={visiveis} aoMudar={() => void carregar()} />
-          </>
-        )}
-      </section>
+          {cobrancas === null && !erro ? (
+            <p className="mudo">Carregando…</p>
+          ) : (
+            <>
+              <p className="mudo pequeno">
+                {visiveis.length === 1 ? '1 cobrança' : `${visiveis.length} cobranças`} · total {moeda(total)}
+                {mes ? ` · vencimento em ${nomeDoMes(mes)}` : ''}
+              </p>
+              <ListaCobrancas cobrancas={visiveis} aoMudar={() => void carregar()} />
+            </>
+          )}
+        </section>
+      )}
     </div>
   );
 }

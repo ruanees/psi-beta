@@ -2009,6 +2009,244 @@
         ]
       }
     },
+    "/contas/{conta}/recibos/fila": {
+      "get": {
+        "operationId": "Financeiro_filaRecibos",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pagamentos ainda sem recibo, com os dados do Receita Saúde.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemFilaReciboDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/recibos": {
+      "get": {
+        "operationId": "Financeiro_recibos",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "de",
+            "required": false,
+            "in": "query",
+            "description": "Emitido a partir de.",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "ate",
+            "required": false,
+            "in": "query",
+            "description": "Emitido até.",
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReciboDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      },
+      "post": {
+        "operationId": "Financeiro_registrarRecibo",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovoReciboDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registra o recibo emitido no Receita Saúde.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/recibos/{recibo}/cancelar": {
+      "post": {
+        "operationId": "Financeiro_cancelarRecibo",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recibo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MotivoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "As cobranças voltam para a fila; o registro fica, com o motivo."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
+    "/contas/{conta}/relatorios/mensal": {
+      "get": {
+        "operationId": "Financeiro_relatorio",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mes",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "2026-10",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelatorioMensalDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "financeiro"
+        ]
+      }
+    },
     "/contas/{conta}/sessoes/{sessao}/financeiro": {
       "get": {
         "operationId": "Financeiro_daSessao",
@@ -3655,6 +3893,10 @@
             "type": "number",
             "description": "Pagas neste mês."
           },
+          "semRecibo": {
+            "type": "number",
+            "description": "Cobranças pagas ainda sem recibo registrado."
+          },
           "pacotesAcabando": {
             "description": "Pacientes ativos com 1 ou 0 sessão de pacote restante.",
             "type": "array",
@@ -3668,6 +3910,7 @@
           "vencidas",
           "valorVencido",
           "recebidoMes",
+          "semRecibo",
           "pacotesAcabando"
         ]
       },
@@ -3920,6 +4163,284 @@
             "description": "Sem valor, o do plano do paciente."
           }
         }
+      },
+      "PacienteReciboDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true,
+            "description": "11 dígitos, sem pontuação."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "nome",
+          "cpf",
+          "id"
+        ]
+      },
+      "PagadorReciboDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true,
+            "description": "11 dígitos, sem pontuação."
+          },
+          "responsavel": {
+            "type": "boolean",
+            "description": "É o responsável marcado como \"paga as sessões\" (não o próprio paciente)."
+          }
+        },
+        "required": [
+          "nome",
+          "cpf",
+          "responsavel"
+        ]
+      },
+      "ItemFilaReciboDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A cobrança paga."
+          },
+          "origem": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrigemCobranca"
+              }
+            ]
+          },
+          "valor": {
+            "type": "number"
+          },
+          "pagaEm": {
+            "type": "string",
+            "format": "date"
+          },
+          "forma": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FormaPagamento"
+              }
+            ]
+          },
+          "sessaoInicio": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "pacoteQuantidade": {
+            "type": "number",
+            "nullable": true
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "paciente": {
+            "$ref": "#/components/schemas/PacienteReciboDto"
+          },
+          "pagador": {
+            "$ref": "#/components/schemas/PagadorReciboDto"
+          }
+        },
+        "required": [
+          "id",
+          "origem",
+          "valor",
+          "pagaEm",
+          "forma",
+          "sessaoInicio",
+          "pacoteQuantidade",
+          "referencia",
+          "paciente",
+          "pagador"
+        ]
+      },
+      "ReciboDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pacienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "emitidoEm": {
+            "type": "string",
+            "format": "date"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "pagadorNome": {
+            "type": "string"
+          },
+          "pagadorCpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "beneficiarioNome": {
+            "type": "string"
+          },
+          "beneficiarioCpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "canceladoEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "canceladoMotivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "cobrancas": {
+            "type": "number",
+            "description": "Quantas cobranças o recibo cobre."
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "numero",
+          "emitidoEm",
+          "valor",
+          "pagadorNome",
+          "pagadorCpf",
+          "beneficiarioNome",
+          "beneficiarioCpf",
+          "canceladoEm",
+          "canceladoMotivo",
+          "cobrancas"
+        ]
+      },
+      "NovoReciboDto": {
+        "type": "object",
+        "properties": {
+          "cobrancas": {
+            "description": "Cobranças pagas do mesmo paciente.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "numero": {
+            "type": "string",
+            "description": "Número do recibo no Receita Saúde."
+          },
+          "emitidoEm": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "cobrancas",
+          "numero",
+          "emitidoEm"
+        ]
+      },
+      "MesRelatorioDto": {
+        "type": "object",
+        "properties": {
+          "mes": {
+            "type": "string",
+            "format": "date",
+            "description": "Primeiro dia do mês."
+          },
+          "realizadas": {
+            "type": "number"
+          },
+          "faltas": {
+            "type": "number"
+          },
+          "recebido": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "mes",
+          "realizadas",
+          "faltas",
+          "recebido"
+        ]
+      },
+      "RelatorioMensalDto": {
+        "type": "object",
+        "properties": {
+          "mes": {
+            "type": "string",
+            "format": "date",
+            "description": "Primeiro dia do mês."
+          },
+          "realizadas": {
+            "type": "number"
+          },
+          "faltas": {
+            "type": "number"
+          },
+          "desmarcadas": {
+            "type": "number"
+          },
+          "online": {
+            "type": "number",
+            "description": "Realizadas online."
+          },
+          "pacientesAtendidos": {
+            "type": "number"
+          },
+          "pacientesNovos": {
+            "type": "number"
+          },
+          "recebido": {
+            "type": "number",
+            "description": "Pagamentos com data no mês."
+          },
+          "aReceber": {
+            "type": "number",
+            "description": "Pendentes com vencimento no mês."
+          },
+          "porMes": {
+            "description": "Os 12 meses até o escolhido, do mais antigo ao mais novo.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MesRelatorioDto"
+            }
+          }
+        },
+        "required": [
+          "mes",
+          "realizadas",
+          "faltas",
+          "desmarcadas",
+          "online",
+          "pacientesAtendidos",
+          "pacientesNovos",
+          "recebido",
+          "aReceber",
+          "porMes"
+        ]
       },
       "PacoteDaSessaoDto": {
         "type": "object",

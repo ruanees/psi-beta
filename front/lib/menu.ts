@@ -24,7 +24,7 @@ export const MENU: readonly ItemMenu[] = [
   { id: 'agenda', rotulo: 'Agenda', rota: '/agenda', icone: 'agenda', pronta: true, fase: 1 },
   { id: 'pacientes', rotulo: 'Pacientes', rota: '/pacientes', icone: 'pacientes', pronta: true, fase: 1 },
   { id: 'financeiro', rotulo: 'Financeiro', rota: '/financeiro', icone: 'financeiro', pronta: true, fase: 3 },
-  { id: 'relatorios', rotulo: 'Relatórios', rota: '/relatorios', icone: 'relatorios', pronta: false, fase: 4 },
+  { id: 'relatorios', rotulo: 'Relatórios', rota: '/relatorios', icone: 'relatorios', pronta: true, fase: 4 },
 ];
 
 /** Itens da folha da conta (o círculo no canto). */
