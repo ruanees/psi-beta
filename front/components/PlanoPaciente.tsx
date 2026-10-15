@@ -15,11 +15,13 @@ interface Props {
   conta: string;
   paciente: string;
   plano: Dto<'PlanoDto'>;
+  /** Valor da sessão avulsa guardado, mesmo com o paciente em outro plano. */
+  valorSessao: number | null;
   valorPadrao: number | null | undefined;
   aoGravar: () => Promise<void>;
 }
 
-export function PlanoPaciente({ conta, paciente, plano, valorPadrao, aoGravar }: Props) {
+export function PlanoPaciente({ conta, paciente, plano, valorSessao, valorPadrao, aoGravar }: Props) {
   const [tipo, setTipo] = useState<Plano>(plano.tipo);
   const [sessoes, setSessoes] = useState(plano.sessoes?.toString() ?? '');
   const [valor, setValor] = useState(reaisParaCampo(plano.valor));
@@ -35,12 +37,13 @@ export function PlanoPaciente({ conta, paciente, plano, valorPadrao, aoGravar }:
   useEffect(voltar, [plano.tipo, plano.sessoes, plano.valor]);
 
   // Ao trocar o tipo, o valor do outro plano não serve: começa do que estava gravado para este.
+  // Voltar para avulsa traz o valor da sessão que o paciente já tinha.
   const escolher = (t: Plano) => {
     setTipo(t);
     setErro(null);
     setGravado(false);
     setSessoes(t === plano.tipo ? (plano.sessoes?.toString() ?? '') : '');
-    setValor(t === plano.tipo ? reaisParaCampo(plano.valor) : '');
+    setValor(t === plano.tipo ? reaisParaCampo(plano.valor) : t === 'avulsa' ? reaisParaCampo(valorSessao) : '');
   };
 
   const nSessoes = sessoes.trim() ? Number(sessoes) : null;

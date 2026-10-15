@@ -323,6 +323,7 @@ function Dados({
         conta={conta.id}
         paciente={p.id}
         plano={p.plano}
+        valorSessao={p.valorSessao}
         valorPadrao={conta.perfil?.valorSessaoPadrao}
         aoGravar={recarregar}
       />
