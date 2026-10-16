@@ -24,6 +24,12 @@ const O_QUE: Record<string, string> = {
   sessoes: 'sessão',
   recorrencias: 'repetição',
   responsaveis: 'responsável',
+  anamneses: 'a anamnese',
+  cobrancas: 'cobrança',
+  pacotes: 'pacote',
+  recibos: 'recibo',
+  salas_pacientes: 'o link da sala do paciente',
+  salas_sessoes: 'o link da chamada',
 };
 
 export function AcessosPaciente({ paciente }: { paciente: string }) {
