@@ -198,7 +198,7 @@ function nomeDoDiaSemana(dia: string): string {
 
 // ------------------------------------------------------------ ver, remarcar, desmarcar
 
-type Etapa = 'ver' | 'remarcar' | 'desmarcar' | 'encerrar';
+type Etapa = 'ver' | 'remarcar' | 'desmarcar' | 'encerrar' | 'excluir';
 
 // Situações que se escolhem direto na janela. Falta tem botão próprio
 // ("Marcar falta" / "Corrigir para falta"); desmarcar passa pela conta do aviso.
@@ -263,6 +263,9 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
   }
   if (etapa === 'desmarcar') {
     return <Desmarcar sessao={sessao} subtitulo={subtitulo} voltar={() => setEtapa('ver')} aoFechar={aoFechar} aoMudar={aoMudar} />;
+  }
+  if (etapa === 'excluir') {
+    return <Excluir sessao={sessao} subtitulo={subtitulo} voltar={() => setEtapa('ver')} aoFechar={aoFechar} aoMudar={aoMudar} />;
   }
 
   return (
@@ -405,6 +408,9 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
                   Encerrar repetição
                 </button>
               )}
+              <button className="btn" data-v="leve" onClick={() => setEtapa('excluir')}>
+                <Icone nome="lixo" tamanho={16} /> Excluir sessão
+              </button>
             </div>
             {sessao.modalidade === 'online' && (aberta || status === 'realizada') && (
               <SalaOnline sessao={sessao.id} paciente={sessao.pacienteId} />
@@ -598,6 +604,122 @@ function Desmarcar({
               desmarcada, sem cobrança, e o horário fica livre.
             </div>
           ))}
+      </div>
+    </Janela>
+  );
+}
+
+/** Para sessão marcada por engano: some da agenda e do histórico, sem contar como falta nem desmarcada. */
+function Excluir({
+  sessao,
+  subtitulo,
+  voltar,
+  aoFechar,
+  aoMudar,
+}: {
+  sessao: SessaoVista;
+  subtitulo: string;
+  voltar: () => void;
+  aoFechar: () => void;
+  aoMudar: () => void;
+}) {
+  const { conta } = useApp();
+  const [escopo, setEscopo] = useState<'esta' | 'repeticao'>('esta');
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const [mantidas, setMantidas] = useState<{ excluidas: number; mantidas: number } | null>(null);
+
+  const excluir = async () => {
+    setErro(null);
+    setOcupado(true);
+    try {
+      const r = await api('delete', '/contas/{conta}/sessoes/{sessao}', {
+        params: { conta: conta.id, sessao: sessao.id },
+        consulta: { escopo },
+      });
+      aoMudar();
+      // Repetição com sessões que não podem sair: mostra quantas ficaram antes de fechar.
+      if (r.mantidas > 0) setMantidas(r);
+      else aoFechar();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível excluir.');
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  if (mantidas) {
+    return (
+      <Janela
+        titulo="Repetição excluída"
+        subtitulo={sessao.pacienteNome}
+        icone="lixo"
+        aoFechar={aoFechar}
+        rodape={
+          <button className="btn" onClick={aoFechar}>
+            Fechar
+          </button>
+        }
+      >
+        <div className="aviso" data-t="atencao">
+          {mantidas.excluidas === 1 ? '1 sessão excluída' : `${mantidas.excluidas} sessões excluídas`}.{' '}
+          {mantidas.mantidas === 1 ? '1 sessão ficou' : `${mantidas.mantidas} sessões ficaram`} porque tem observação no
+          prontuário ou pagamento recebido. A repetição não gera mais sessões.
+        </div>
+      </Janela>
+    );
+  }
+
+  return (
+    <Janela
+      titulo={`Excluir sessão de ${sessao.pacienteNome}`}
+      subtitulo={subtitulo}
+      icone="lixo"
+      aoFechar={aoFechar}
+      rodape={
+        <>
+          <button className="btn" data-v="sec" onClick={voltar}>
+            Voltar
+          </button>
+          <button className="btn" data-v="perigo" disabled={ocupado} onClick={() => void excluir()}>
+            {escopo === 'repeticao' ? 'Excluir a repetição' : 'Excluir sessão'}
+          </button>
+        </>
+      }
+    >
+      <div className="pilha" data-g="p">
+        {erro && (
+          <div className="aviso" data-t="erro" role="alert">
+            {erro}
+          </div>
+        )}
+        <p>
+          Use para sessão marcada por engano, com data ou horário errado. Ela some da agenda e do histórico, sem contar como
+          falta nem como desmarcada. Se o paciente faltou ou desmarcou, use a situação da sessão.
+        </p>
+        {sessao.recorrenciaId && (
+          <div className="campo">
+            <span>O que excluir</span>
+            <div className="segmento" role="group" aria-label="O que excluir">
+              <button type="button" aria-pressed={escopo === 'esta'} onClick={() => setEscopo('esta')}>
+                Só esta sessão
+              </button>
+              <button type="button" aria-pressed={escopo === 'repeticao'} onClick={() => setEscopo('repeticao')}>
+                Toda a repetição
+              </button>
+            </div>
+            {escopo === 'repeticao' && (
+              <small>
+                Todas as sessões desta repetição saem, as passadas e as futuras, e ela para de gerar sessões novas. As que já
+                têm observação ou pagamento ficam.
+              </small>
+            )}
+          </div>
+        )}
+        <div className="aviso" data-t="atencao">
+          Cobrança ainda não paga sai junto e a sessão de pacote volta ao saldo. Sessão com observação no prontuário ou
+          com pagamento recebido não pode ser excluída.
+        </div>
       </div>
     </Janela>
   );

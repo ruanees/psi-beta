@@ -80,6 +80,14 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
+  excluir_com_observacao: [
+    409,
+    'Esta sessão tem observação no prontuário e não pode ser excluída. Se a situação está errada, corrija a situação.',
+  ],
+  excluir_com_pagamento: [
+    409,
+    'Esta sessão tem pagamento recebido ou recibo. Desfaça o pagamento no Financeiro antes de excluir.',
+  ],
   medicacoes_invalidas: [422, 'Confira a lista de medicamentos: cada um precisa do nome.'],
   link_invalido: [422, 'Cole o link completo da chamada, começando com https://'],
   google_indisponivel: [503, 'A conexão com o Google ainda não foi liberada.'],

@@ -1160,6 +1160,60 @@
         "tags": [
           "agenda"
         ]
+      },
+      "delete": {
+        "operationId": "Agenda_excluir",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessao",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "escopo",
+            "required": false,
+            "in": "query",
+            "description": "`repeticao`: todas as sessões da repetição semanal, passadas e futuras.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "esta",
+                "repeticao"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Para sessão marcada por engano: some sem contar como falta. Com observação ou pagamento, o banco recusa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExclusaoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "agenda"
+        ]
       }
     },
     "/contas/{conta}/sessoes/{sessao}/status": {
@@ -4060,6 +4114,22 @@
           "resultado",
           "horasAviso",
           "prazoHoras"
+        ]
+      },
+      "ExclusaoDto": {
+        "type": "object",
+        "properties": {
+          "excluidas": {
+            "type": "number"
+          },
+          "mantidas": {
+            "type": "number",
+            "description": "Sessões da repetição que ficaram por ter observação ou pagamento."
+          }
+        },
+        "required": [
+          "excluidas",
+          "mantidas"
         ]
       },
       "RemovidasDto": {

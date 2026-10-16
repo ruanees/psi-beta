@@ -464,6 +464,13 @@ O Meet não pode ser embutido numa página de outro site — o Google bloqueia p
 - [x] Aba **Anamnese** na ficha e cartão **Saúde** no Resumo (laudo e medicação de relance); entra na ficha exportada
 - [x] Dado clínico: só o psicólogo do paciente lê e grava, toda leitura vai para a auditoria, cada gravação guarda a versão anterior (trigger). Não trava com o tempo, ao contrário da observação
 
+## 12c — Excluir sessão marcada por engano ✅
+
+- [x] "Excluir sessão" na janela da sessão: some da agenda e do histórico, sem contar como falta nem desmarcada
+- [x] Em repetição semanal: só esta sessão ou a repetição inteira (passadas e futuras); a repetição para de gerar sessões
+- [x] Não sai o que virou prontuário (observação, adendo) nem dinheiro (pagamento recebido, recibo); cobrança não paga sai junto e o pacote recupera a sessão
+- [x] Fica na auditoria como exclusão
+
 ## 13 — Fase 6 — Beta com psicólogos
 
 - [ ] Teste de invasão focado em RLS, IDOR, na rota pública da sala e no armazenamento dos tokens do Google

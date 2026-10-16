@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UUID } from '../comum/pipes';
 import { Jwt } from '../comum/publico';
@@ -7,6 +7,8 @@ import {
   AlterarSessaoDto,
   DesmarcarDto,
   DesmarcarRespostaDto,
+  ExcluirSessaoDto,
+  ExclusaoDto,
   NovaSessaoDto,
   PainelDto,
   PeriodoDto,
@@ -80,6 +82,20 @@ export class AgendaController {
     @Body() dto: DesmarcarDto,
   ) {
     return this.agenda.desmarcar(jwt, conta, sessao, dto);
+  }
+
+  @Delete('sessoes/:sessao')
+  @ApiOkResponse({
+    type: ExclusaoDto,
+    description: 'Para sessão marcada por engano: some sem contar como falta. Com observação ou pagamento, o banco recusa.',
+  })
+  excluir(
+    @Jwt() jwt: string,
+    @Param('conta', UUID) conta: string,
+    @Param('sessao', UUID) sessao: string,
+    @Query() dto: ExcluirSessaoDto,
+  ) {
+    return this.agenda.excluir(jwt, conta, sessao, dto.escopo);
   }
 
   @Post('sessoes/:sessao/encerrar-repeticao')
