@@ -50,12 +50,12 @@ interface Opcoes<O> {
 }
 
 export class ErroApi extends Error {
-  constructor(
-    readonly status: number,
-    mensagem: string,
-    readonly codigo?: string,
-  ) {
+  readonly status: number;
+  readonly codigo?: string;
+  constructor(status: number, mensagem: string, codigo?: string) {
     super(mensagem);
+    this.status = status;
+    this.codigo = codigo;
   }
 }
 
@@ -68,6 +68,16 @@ const ouvintesGravacao = new Set<(e: EstadoGravacao) => void>();
 export function aoMudarGravacao(f: (e: EstadoGravacao) => void): () => void {
   ouvintesGravacao.add(f);
   return () => ouvintesGravacao.delete(f);
+}
+
+/**
+ * O selo é para alteração que se perdeu: sem conexão ou servidor fora do ar.
+ * Recusa por regra (4xx: validação, sessão com observação, pagamento…) quem
+ * mostra é a tela que pediu, perto do botão; repetida no selo, parece falha.
+ */
+export function falhaDeGravacao(e: unknown): boolean {
+  if (!(e instanceof ErroApi)) return true;
+  return e.status === 0 || e.status >= 500;
 }
 
 function marcarGravacao(e: EstadoGravacao) {
@@ -137,7 +147,7 @@ export async function api<P extends keyof paths, M extends MetodosDe<P>>(
   } catch (e) {
     // Só escrita mexe no selo. Um GET que volta 200 diz que o servidor está
     // de pé, não que a alteração chegou lá (lição do DIME).
-    if (escrita && !(e instanceof ErroApi && e.status === 401)) {
+    if (escrita && falhaDeGravacao(e)) {
       marcarGravacao({ falhou: true, mensagem: e instanceof Error ? e.message : 'Erro ao gravar.' });
     }
     throw e;
