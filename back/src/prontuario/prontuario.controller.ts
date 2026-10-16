@@ -11,6 +11,7 @@ import {
   PendenciaDto,
   TextoObservacaoDto,
 } from './prontuario.dto';
+import { AnamneseDto, AnamneseParcialDto } from './anamnese.dto';
 import { ProntuarioService } from './prontuario.service';
 
 @ApiTags('prontuario')
@@ -18,6 +19,24 @@ import { ProntuarioService } from './prontuario.service';
 @Controller('contas/:conta')
 export class ProntuarioController {
   constructor(private readonly prontuario: ProntuarioService) {}
+
+  @Get('pacientes/:paciente/anamnese')
+  @ApiOkResponse({ type: AnamneseDto, description: 'Leitura auditada. Para quem não é o psicólogo do paciente, só podeClinico: false.' })
+  anamnese(@Jwt() jwt: string, @Param('conta', UUID) conta: string, @Param('paciente', UUID) paciente: string) {
+    return this.prontuario.anamnese(jwt, conta, paciente);
+  }
+
+  @Put('pacientes/:paciente/anamnese')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Grava só os campos enviados. A versão anterior fica guardada.' })
+  gravarAnamnese(
+    @Jwt() jwt: string,
+    @Param('conta', UUID) conta: string,
+    @Param('paciente', UUID) paciente: string,
+    @Body() dto: AnamneseParcialDto,
+  ) {
+    return this.prontuario.gravarAnamnese(jwt, conta, paciente, dto);
+  }
 
   @Get('sessoes/:sessao/observacao')
   @ApiOkResponse({ type: ObservacaoDto })

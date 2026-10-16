@@ -12,6 +12,7 @@ import { PacotesPaciente, SaldoPacote } from '@/components/PacotesPaciente';
 import { Recibos } from '@/components/Recibos';
 import { LinhaSessao } from '@/components/LinhaSessao';
 import { AcessosPaciente } from '@/components/AcessosPaciente';
+import { AnamnesePaciente, SaudeResumo } from '@/components/AnamnesePaciente';
 import { PlanoPaciente } from '@/components/PlanoPaciente';
 import { iniciais } from '@/components/Moldura';
 import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
@@ -25,10 +26,11 @@ import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
 
 type Paciente = Dto<'PacienteDto'>;
-type Aba = 'resumo' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'recibos' | 'dados';
+type Aba = 'resumo' | 'anamnese' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'recibos' | 'dados';
 
 const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }[] = [
   { id: 'resumo', rotulo: 'Resumo', pronta: true },
+  { id: 'anamnese', rotulo: 'Anamnese', pronta: true },
   { id: 'sessoes', rotulo: 'Sessões', pronta: true },
   { id: 'historico', rotulo: 'Histórico', pronta: true },
   { id: 'dados', rotulo: 'Dados', pronta: true },
@@ -143,7 +145,11 @@ export default function FichaDoPaciente() {
         )}
       </nav>
 
-      {aba === 'resumo' && <Resumo p={p} gravar={gravar} abrirSessao={abrirSessao} sessoes={sessoes ?? []} />}
+      {aba === 'resumo' && (
+        <Resumo p={p} gravar={gravar} abrirSessao={abrirSessao} sessoes={sessoes ?? []} abrirAnamnese={() => setAba('anamnese')} />
+      )}
+
+      {aba === 'anamnese' && <AnamnesePaciente paciente={p.id} />}
 
       {aba === 'sessoes' && (
         <section className="cartao">
@@ -198,11 +204,13 @@ function Resumo({
   gravar,
   abrirSessao,
   sessoes,
+  abrirAnamnese,
 }: {
   p: Paciente;
   gravar: (c: Dto<'PacienteParcialDto'>) => Promise<void>;
   abrirSessao: (s: Dto<'SessaoDoPacienteDto'>) => void;
   sessoes: Dto<'SessaoDoPacienteDto'>[];
+  abrirAnamnese: () => void;
 }) {
   const { conta } = useApp();
   const valorPadrao = conta.perfil?.valorSessaoPadrao;
@@ -271,6 +279,8 @@ function Resumo({
           />
         </section>
       )}
+
+      {p.podeClinico && <SaudeResumo paciente={p.id} abrir={abrirAnamnese} />}
     </div>
   );
 }

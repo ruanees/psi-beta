@@ -2164,3 +2164,53 @@ select.ent {
 .proxima-online-texto strong {
   font-size: 16px;
 }
+
+/* ---------------------------------------------------------------- anamnese */
+
+.anamnese-bloco {
+  display: grid;
+  gap: var(--e3);
+  padding: var(--e4);
+  border-radius: var(--r2);
+  background: var(--sf2);
+}
+.anamnese-bloco .segmento {
+  justify-self: start;
+}
+.anamnese-med {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.5fr) auto;
+  gap: var(--e3);
+  align-items: end;
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--bd);
+}
+@media (max-width: 860px) {
+  .anamnese-med {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .anamnese-med > .btn-icone {
+    justify-self: end;
+    grid-column: 2;
+  }
+}
+/* Resumo da ficha: laudo e medicação de relance. */
+.saude-resumo {
+  display: grid;
+  gap: var(--e3);
+  margin: 0;
+}
+.saude-resumo dt {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tx3);
+}
+.saude-resumo dd {
+  margin: 2px 0 0;
+}
+.saude-resumo ul {
+  margin: 0;
+  padding-left: 1.1em;
+}

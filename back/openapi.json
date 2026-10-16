@@ -1304,6 +1304,93 @@
         ]
       }
     },
+    "/contas/{conta}/pacientes/{paciente}/anamnese": {
+      "get": {
+        "operationId": "Prontuario_anamnese",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leitura auditada. Para quem não é o psicólogo do paciente, só podeClinico: false.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnamneseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      },
+      "put": {
+        "operationId": "Prontuario_gravarAnamnese",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paciente",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnamneseParcialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Grava só os campos enviados. A versão anterior fica guardada."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prontuario"
+        ]
+      }
+    },
     "/contas/{conta}/sessoes/{sessao}/observacao": {
       "get": {
         "operationId": "Prontuario_observacao",
@@ -3119,6 +3206,114 @@
           "valor"
         ]
       },
+      "Resposta": {
+        "type": "string",
+        "enum": [
+          "sim",
+          "nao",
+          "nao_sabe"
+        ],
+        "description": "Possui laudo ou diagnóstico?"
+      },
+      "MedicacaoDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Metilfenidato"
+          },
+          "dose": {
+            "type": "string",
+            "nullable": true,
+            "example": "10 mg"
+          },
+          "frequencia": {
+            "type": "string",
+            "nullable": true,
+            "example": "De manhã"
+          },
+          "prescritor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Quem receitou.",
+            "example": "Dra. Lima, psiquiatra"
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "AnamneseParcialDto": {
+        "type": "object",
+        "properties": {
+          "laudo": {
+            "nullable": true,
+            "description": "Possui laudo ou diagnóstico?",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Resposta"
+              }
+            ]
+          },
+          "laudoDescricao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Qual laudo ou diagnóstico, quem emitiu e quando."
+          },
+          "medicacao": {
+            "nullable": true,
+            "description": "Toma alguma medicação?",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Resposta"
+              }
+            ]
+          },
+          "medicacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MedicacaoDto"
+            }
+          },
+          "acompanhamentos": {
+            "type": "string",
+            "nullable": true,
+            "description": "Outros profissionais que acompanham: psiquiatra, neurologista, fono…"
+          },
+          "saudeGeral": {
+            "type": "string",
+            "nullable": true,
+            "description": "Doenças, internações, cirurgias, alergias."
+          },
+          "tratamentosAnteriores": {
+            "type": "string",
+            "nullable": true,
+            "description": "Psicoterapia ou outros tratamentos anteriores."
+          },
+          "historicoFamiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "substancias": {
+            "type": "string",
+            "nullable": true,
+            "description": "Álcool, tabaco e outras substâncias."
+          },
+          "sonoAlimentacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "rotina": {
+            "type": "string",
+            "nullable": true,
+            "description": "Escola, trabalho e rotina."
+          },
+          "observacoes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "NovoResponsavelDto": {
         "type": "object",
         "properties": {
@@ -3170,6 +3365,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/PlanoDto"
+              }
+            ]
+          },
+          "anamnese": {
+            "description": "Anamnese inicial, gravada junto com o cadastro.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AnamneseParcialDto"
               }
             ]
           },
@@ -3870,6 +4073,100 @@
           "removidas"
         ]
       },
+      "AnamneseDto": {
+        "type": "object",
+        "properties": {
+          "podeClinico": {
+            "type": "boolean",
+            "description": "Falso para quem não é o psicólogo do paciente: o resto vem vazio."
+          },
+          "laudo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Resposta"
+              }
+            ]
+          },
+          "laudoDescricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "medicacao": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Resposta"
+              }
+            ]
+          },
+          "medicacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MedicacaoDto"
+            }
+          },
+          "acompanhamentos": {
+            "type": "string",
+            "nullable": true
+          },
+          "saudeGeral": {
+            "type": "string",
+            "nullable": true
+          },
+          "tratamentosAnteriores": {
+            "type": "string",
+            "nullable": true
+          },
+          "historicoFamiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "substancias": {
+            "type": "string",
+            "nullable": true
+          },
+          "sonoAlimentacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "rotina": {
+            "type": "string",
+            "nullable": true
+          },
+          "observacoes": {
+            "type": "string",
+            "nullable": true
+          },
+          "versao": {
+            "type": "number",
+            "nullable": true,
+            "description": "null enquanto ninguém preencheu."
+          },
+          "alteradaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "podeClinico",
+          "laudo",
+          "laudoDescricao",
+          "medicacao",
+          "medicacoes",
+          "acompanhamentos",
+          "saudeGeral",
+          "tratamentosAnteriores",
+          "historicoFamiliar",
+          "substancias",
+          "sonoAlimentacao",
+          "rotina",
+          "observacoes",
+          "versao",
+          "alteradaEm"
+        ]
+      },
       "VersaoObservacaoDto": {
         "type": "object",
         "properties": {
@@ -4159,6 +4456,16 @@
             "type": "string",
             "format": "date-time"
           },
+          "anamnese": {
+            "nullable": true,
+            "description": "null se a anamnese nunca foi preenchida.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AnamneseDto"
+              }
+            ]
+          },
           "sessoes": {
             "description": "Da mais antiga para a mais recente.",
             "type": "array",
@@ -4171,6 +4478,7 @@
           "paciente",
           "profissional",
           "emitidaEm",
+          "anamnese",
           "sessoes"
         ]
       },

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { paraBanco } from '../comum/campos';
+import { anamneseParaBanco } from '../prontuario/anamnese';
 import { SupabaseService } from '../supabase/supabase.service';
 import type {
   BuscaPacientesDto,
@@ -107,6 +108,7 @@ export class PacientesService {
       ...paraBanco(dto, CAMPOS_PACIENTE),
       consentimento: dto.consentimento,
       ...(dto.plano && { plano: planoParaBanco(dto.plano) }),
+      ...(dto.anamnese && { anamnese: anamneseParaBanco(dto.anamnese) }),
     };
     const resps = (dto.responsaveis ?? []).map((r: NovoResponsavelDto) => paraBanco(r, CAMPOS_RESPONSAVEL));
     const id = await this.supabase.rpc<string>(jwt, 'paciente_criar', { c: conta, p, resps });

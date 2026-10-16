@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useApp } from '@/components/EstadoApp';
+import { RESPOSTA, TEMAS, linhaMedicacao } from '@/lib/anamnese.ts';
 import { api, type Dto } from '@/lib/api.ts';
 import { cpfFormatado } from '@/lib/campos.ts';
 import { partes } from '@/lib/datas.ts';
@@ -90,6 +91,8 @@ export default function FichaParaImpressao() {
         <p className="observacao-texto">{p.queixaPrincipal || 'Não registrada.'}</p>
       </section>
 
+      <AnamneseImpressa a={f.anamnese} />
+
       <section className="cartao">
         <h2>
           Sessões ({p.contagem.realizadas} realizadas, {p.contagem.faltas} faltas, {p.contagem.canceladas} desmarcadas)
@@ -124,5 +127,49 @@ export default function FichaParaImpressao() {
         Documento sigiloso. Prontuário psicológico guardado por no mínimo 5 anos (Resolução CFP 001/2009).
       </p>
     </div>
+  );
+}
+
+function AnamneseImpressa({ a }: { a: Dto<'AnamneseDto'> | null }) {
+  if (!a) {
+    return (
+      <section className="cartao">
+        <h2>Anamnese</h2>
+        <p className="mudo">Não preenchida.</p>
+      </section>
+    );
+  }
+  const temas = TEMAS.filter((t) => a[t.campo]);
+  return (
+    <section className="cartao">
+      <div className="cartao-topo">
+        <h2>Anamnese</h2>
+        {a.alteradaEm && <small className="mudo">Atualizada em {fdh(a.alteradaEm)} · versão {a.versao}</small>}
+      </div>
+      <dl className="dados-ficha">
+        <dt>Possui laudo ou diagnóstico</dt>
+        <dd>
+          {a.laudo ? RESPOSTA[a.laudo] : 'Não respondido'}
+          {a.laudo === 'sim' && a.laudoDescricao ? ` — ${a.laudoDescricao}` : ''}
+        </dd>
+        <dt>Toma medicação</dt>
+        <dd>
+          {a.medicacao ? RESPOSTA[a.medicacao] : 'Não respondido'}
+          {a.medicacao === 'sim' && a.medicacoes.length > 0 && (
+            <ul>
+              {a.medicacoes.map((m, i) => (
+                <li key={i}>{linhaMedicacao(m)}</li>
+              ))}
+            </ul>
+          )}
+        </dd>
+      </dl>
+      {temas.map((t) => (
+        <div key={t.campo}>
+          <h3>{t.rotulo}</h3>
+          <p className="observacao-texto">{a[t.campo]}</p>
+        </div>
+      ))}
+    </section>
   );
 }
