@@ -454,7 +454,15 @@ O Meet não pode ser embutido numa página de outro site — o Google bloqueia p
 - [x] Token recusado (revogado ou vencido): marca para reconectar e a tela pede "Conectar de novo"
 - [x] "Desconectar" apaga a conexão e revoga o token no Google
 - [x] Escopos: só `meetings.space.created`, `openid` e `email`. Nenhuma gravação nem transcrição
-- [ ] **Ligar** (depende do domínio próprio — ver seção 15): projeto no Google Cloud com a Google Meet API, tela de consentimento, cliente OAuth "Aplicativo da Web" com o URI de redirecionamento `https://<front>/google/retorno`, e três segredos no Worker do back: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `GOOGLE_CHAVE` (`openssl rand -base64 32`). Sem os três, o cartão do Google nem aparece
+- [ ] **Ligar** (depende do domínio próprio — ver seção 15): projeto no Google Cloud com a Google Meet API, tela de consentimento, cliente OAuth "Aplicativo da Web" com o URI de redirecionamento `https://<front>/google/retorno`, e três segredos no Worker do back: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `GOOGLE_CHAVE` (`openssl rand -base64 32`). Sem os três, o cartão do Google aparece, mas "Conectar Google" só avisa que ainda não está disponível
+
+## 12b — Anamnese (pedido dos psicólogos, depois da Fase 5) ✅
+
+- [x] Ficha de anamnese por paciente, parte do prontuário: **laudo ou diagnóstico** (sim / não / não sabe + qual, quem emitiu e quando) e **medicação** (sim / não / não sabe + lista com nome, dose, quando toma e quem receitou)
+- [x] Temas em texto livre: acompanhamento com outros profissionais, saúde geral, psicoterapia e tratamentos anteriores, histórico familiar, substâncias, sono e alimentação, escola/trabalho/rotina, outras observações
+- [x] No cadastro do paciente: laudo e medicação à vista e "Preencher a anamnese completa"; em branco, não grava nada
+- [x] Aba **Anamnese** na ficha e cartão **Saúde** no Resumo (laudo e medicação de relance); entra na ficha exportada
+- [x] Dado clínico: só o psicólogo do paciente lê e grava, toda leitura vai para a auditoria, cada gravação guarda a versão anterior (trigger). Não trava com o tempo, ao contrário da observação
 
 ## 13 — Fase 6 — Beta com psicólogos
 

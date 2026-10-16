@@ -80,6 +80,7 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   transicao_invalida: [409, 'Essa mudança de situação não é permitida.'],
   sem_recorrencia: [409, 'Esta sessão não se repete.'],
   periodo_invalido: [400, 'Período inválido: escolha até 62 dias.'],
+  medicacoes_invalidas: [422, 'Confira a lista de medicamentos: cada um precisa do nome.'],
   link_invalido: [422, 'Cole o link completo da chamada, começando com https://'],
   google_indisponivel: [503, 'A conexão com o Google ainda não foi liberada.'],
   google_estado_invalido: [400, 'O retorno do Google não confere com o seu pedido. Tente conectar de novo.'],

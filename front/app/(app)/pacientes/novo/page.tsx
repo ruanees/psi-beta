@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { CamposAnamnese } from '@/components/CamposAnamnese';
 import { CamposDoPlano } from '@/components/CamposDoPlano';
 import { useApp } from '@/components/EstadoApp';
 import { Icone } from '@/components/Icone';
+import { ANAMNESE_VAZIA, anamneseParaEnviar, temConteudo, type Anamnese } from '@/lib/anamnese.ts';
 import { api, type Dto } from '@/lib/api.ts';
 import { hoje, idade } from '@/lib/datas.ts';
 import { soDigitos, valorEmReais } from '@/lib/campos.ts';
@@ -22,6 +24,8 @@ export default function NovoPaciente() {
   const [tipo, setTipo] = useState<Dto<'Plano'>>('avulsa');
   const [sessoes, setSessoes] = useState('');
   const [valor, setValor] = useState('');
+  const [anamnese, setAnamnese] = useState<Anamnese>(ANAMNESE_VAZIA);
+  const [anamneseCompleta, setAnamneseCompleta] = useState(false);
   const menor = (idade(nascimento) ?? 99) < 18;
 
   const mudarResp = (chave: number, p: Partial<Responsavel>) =>
@@ -49,6 +53,8 @@ export default function NovoPaciente() {
             ? { valorSessao: valorEmReais(valor) }
             : { plano: { tipo, sessoes: sessoes ? Number(sessoes) : null, valor: valorEmReais(valor) ?? null } }),
           queixaPrincipal: texto('queixa'),
+          // Só vai se algo foi respondido: anamnese em branco não vira registro no prontuário.
+          ...(temConteudo(anamnese) && { anamnese: anamneseParaEnviar(anamnese) }),
           consentimento: f.get('consentimento') === 'on',
           responsaveis: responsaveis
             .filter((r) => r.nome.trim())
@@ -184,6 +190,24 @@ export default function NovoPaciente() {
           <textarea className="ent" name="queixa" rows={4} maxLength={4000} placeholder="O motivo que trouxe o paciente ao atendimento." />
           <small>Dado clínico: só você, psicólogo do paciente, vê este campo.</small>
         </label>
+      </section>
+
+      <section className="cartao">
+        <div className="cartao-topo">
+          <h2>Anamnese</h2>
+          <span className="etiqueta">Dado clínico · só você vê</span>
+        </div>
+        <CamposAnamnese valor={anamnese} aoMudar={setAnamnese} completa={anamneseCompleta} />
+        {!anamneseCompleta ? (
+          <div className="linha">
+            <button type="button" className="btn" data-v="suave" onClick={() => setAnamneseCompleta(true)}>
+              <Icone nome="mais" tamanho={18} /> Preencher a anamnese completa
+            </button>
+            <small className="mudo">Opcional agora: fica na aba Anamnese do paciente para completar depois.</small>
+          </div>
+        ) : (
+          <small className="mudo">O que ficar em branco pode ser completado depois, na aba Anamnese do paciente.</small>
+        )}
       </section>
 
       <section className="cartao">

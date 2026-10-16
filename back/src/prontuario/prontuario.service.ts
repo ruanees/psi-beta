@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { SessaoAgendaDto } from '../agenda/agenda.dto';
 import { pacienteDoBanco, type PacienteBanco } from '../pacientes/pacientes.service';
 import { SupabaseService } from '../supabase/supabase.service';
+import { anamneseDoBanco, anamneseParaBanco } from './anamnese';
+import type { AnamneseDto, AnamneseParcialDto } from './anamnese.dto';
 import type {
   AcessoDto,
   FichaClinicaDto,
@@ -46,6 +48,7 @@ type HistoricoBanco = SessaoBanco & {
 type PendenciaBanco = SessaoBanco & { paciente_id: string; paciente_nome: string; editavel_ate: string };
 
 type FichaBanco = PacienteBanco & {
+  anamnese: Record<string, unknown> | null;
   emitida_em: string;
   profissional: { nome: string; crp: string | null } | null;
   sessoes: (SessaoBanco & {
@@ -121,6 +124,7 @@ export class ProntuarioService {
       paciente: pacienteDoBanco(b),
       profissional: b.profissional,
       emitidaEm: b.emitida_em,
+      anamnese: b.anamnese ? anamneseDoBanco(b.anamnese) : null,
       sessoes: b.sessoes.map((s) => ({
         id: s.id,
         inicio: s.inicio,
@@ -132,6 +136,18 @@ export class ProntuarioService {
         adendos: s.adendos.map((a) => ({ texto: a.texto, criadoEm: a.criado_em })),
       })),
     };
+  }
+
+  async anamnese(jwt: string, conta: string, paciente: string): Promise<AnamneseDto> {
+    const r = await this.supabase.rpc<Record<string, unknown> & { pode_clinico: boolean }>(jwt, 'anamnese_ler', {
+      c: conta,
+      p: paciente,
+    });
+    return anamneseDoBanco(r.pode_clinico ? r : null, r.pode_clinico);
+  }
+
+  gravarAnamnese(jwt: string, conta: string, paciente: string, dto: AnamneseParcialDto): Promise<void> {
+    return this.supabase.rpc<void>(jwt, 'anamnese_gravar', { c: conta, p: paciente, d: anamneseParaBanco(dto) });
   }
 
   acessos(jwt: string, conta: string, paciente: string): Promise<AcessoDto[]> {

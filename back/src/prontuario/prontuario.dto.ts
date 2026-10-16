@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength } from 'class-validator';
 import { MODALIDADES, STATUS_SESSAO, type Modalidade, type StatusSessao, PacienteDto } from '../pacientes/pacientes.dto';
 import { SessaoAgendaDto } from '../agenda/agenda.dto';
+import { AnamneseDto } from './anamnese.dto';
 
 // ------------------------------------------------------------ observação
 
@@ -85,6 +86,7 @@ export class FichaClinicaDto {
   @ApiProperty({ type: PacienteDto }) paciente: PacienteDto;
   @ApiProperty({ type: ProfissionalFichaDto, nullable: true }) profissional: ProfissionalFichaDto | null;
   @ApiProperty({ format: 'date-time' }) emitidaEm: string;
+  @ApiProperty({ type: AnamneseDto, nullable: true, description: 'null se a anamnese nunca foi preenchida.' }) anamnese: AnamneseDto | null;
   @ApiProperty({ type: SessaoFichaDto, isArray: true, description: 'Da mais antiga para a mais recente.' }) sessoes: SessaoFichaDto[];
 }
 

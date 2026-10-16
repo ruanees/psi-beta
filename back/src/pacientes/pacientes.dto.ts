@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { AnamneseParcialDto } from '../prontuario/anamnese.dto';
 import {
   ArrayMaxSize,
   Equals,
@@ -192,6 +193,12 @@ export class NovoPacienteDto {
   @ValidateNested()
   @Type(() => PlanoDto)
   plano?: PlanoDto;
+
+  @ApiPropertyOptional({ type: AnamneseParcialDto, description: 'Anamnese inicial, gravada junto com o cadastro.' })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AnamneseParcialDto)
+  anamnese?: AnamneseParcialDto;
 
   @ApiProperty({ description: 'O paciente (ou responsável) consentiu com o uso dos dados (LGPD). Precisa ser true.' })
   @Equals(true, { message: 'Confirme o consentimento do paciente para o uso dos dados.' })
