@@ -5,6 +5,7 @@ import type {
   AlterarSessaoDto,
   DesmarcarDto,
   DesmarcarRespostaDto,
+  ExclusaoDto,
   NovaSessaoDto,
   PainelDto,
   SessaoAgendaDto,
@@ -123,6 +124,10 @@ export class AgendaService {
       { c: conta, s: sessaoId, aviso_em: dto.avisoEm ?? new Date().toISOString(), simular: dto.simular ?? false },
     );
     return { resultado: r.resultado, horasAviso: Number(r.horas_aviso), prazoHoras: r.prazo_horas };
+  }
+
+  excluir(jwt: string, conta: string, sessaoId: string, escopo: 'esta' | 'repeticao' = 'esta'): Promise<ExclusaoDto> {
+    return this.supabase.rpc<ExclusaoDto>(jwt, 'sessao_excluir', { c: conta, s: sessaoId, escopo });
   }
 
   async encerrarRepeticao(jwt: string, conta: string, sessaoId: string): Promise<{ removidas: number }> {

@@ -134,3 +134,17 @@ export class DesmarcarRespostaDto {
 export class RemovidasDto {
   @ApiProperty() removidas: number;
 }
+
+export const ESCOPOS_EXCLUSAO = ['esta', 'repeticao'] as const;
+
+export class ExcluirSessaoDto {
+  @ApiPropertyOptional({ enum: ESCOPOS_EXCLUSAO, description: '`repeticao`: todas as sessões da repetição semanal, passadas e futuras.' })
+  @IsOptional()
+  @IsIn(ESCOPOS_EXCLUSAO, { message: 'Escolha excluir esta sessão ou a repetição.' })
+  escopo?: (typeof ESCOPOS_EXCLUSAO)[number];
+}
+
+export class ExclusaoDto {
+  @ApiProperty() excluidas: number;
+  @ApiProperty({ description: 'Sessões da repetição que ficaram por ter observação ou pagamento.' }) mantidas: number;
+}
