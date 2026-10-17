@@ -140,7 +140,15 @@ npm run prova               # formatadores e menu x páginas
 npm run build               # o mesmo build da Cloudflare
 ```
 
-A CI roda tudo isso a cada push e em todo PR.
+A CI roda tudo isso a cada push e em todo PR. Para rodar o mesmo de uma vez, na raiz:
+
+```bash
+scripts/validar.sh               # back, banco (migrations do zero + pgTAP) e front
+scripts/validar.sh banco         # só uma parte: back, banco ou front
+scripts/validar.sh --alterado    # só as partes que os commits fora da main tocam
+```
+
+Com `git config core.hooksPath .githooks`, o `--alterado` roda sozinho antes de cada `git push`. Na sessão do Claude Code na nuvem isso já vem ligado: o hook de início (`.claude/hooks/session-start.sh`) instala as dependências, liga o pre-push e deixa o Supabase local no ar.
 
 ## Regras do repositório
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Antes de publicar, roda aqui o que a CI vai rodar nas partes que os commits tocam.
+# Ligado com: git config core.hooksPath .githooks (a sessão na nuvem já liga sozinha).
+exec "$(git rev-parse --show-toplevel)/scripts/validar.sh" --alterado
