@@ -25,13 +25,14 @@ jobs:
       SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
       VERSOES: ${{ inputs.versoes }}
     steps:
+      # Primeiro o checkout: a pasta back/ (working-directory padrão) só existe depois dele.
+      - uses: actions/checkout@v4
       - name: Conferir entrada
         run: |
           [[ "$VERSOES" =~ ^[0-9]{14}( [0-9]{14})*$ ]] || {
             echo "::error::Use só números de 14 dígitos separados por espaço, como 20261014000001 20261015000001."
             exit 1
           }
-      - uses: actions/checkout@v4
       - name: Cada versão existe no repositório
         run: |
           for v in $VERSOES; do
