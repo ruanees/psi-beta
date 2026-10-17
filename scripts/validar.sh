@@ -35,7 +35,8 @@ rodar() {
 }
 
 # O Docker Hub limita download anônimo (429). Cada imagem que desce fica no cache,
-# então tentar de novo avança.
+# então tentar de novo avança. Ao retomar a sessão, os containers voltam sozinhos
+# e o banco passa alguns segundos "starting": aí basta esperar.
 com_novas_tentativas() {
   local log t
   log=$(mktemp)
@@ -45,8 +46,8 @@ com_novas_tentativas() {
       rm -f "$log"
       return 0
     fi
-    grep -qE 'Too Many Requests|ImagePrepullError|failed to pull' "$log" || break
-    echo "download de imagem limitado, nova tentativa em $((t * 15))s"
+    grep -qE 'Too Many Requests|ImagePrepullError|failed to pull|StatusDbNotReadyError' "$log" || break
+    echo "imagem limitada ou banco ainda subindo, nova tentativa em $((t * 15))s"
     sleep $((t * 15))
   done
   cat "$log"

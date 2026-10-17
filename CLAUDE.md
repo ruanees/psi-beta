@@ -15,3 +15,4 @@ Visão geral, arquitetura e regras do repositório: [`README.md`](README.md). Pl
 - O hook de início instala as dependências, liga o pre-push e sobe o Supabase local (banco + auth). Se ele avisar que o Supabase não subiu, `scripts/validar.sh banco` tenta de novo.
 - O Docker Hub às vezes responde 429 (limite de download); o script tenta de novo sozinho. ECR e GHCR são bloqueados pela rede da sessão, por isso o script usa `SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`.
 - Daqui nada vai para homologação ou produção: migrations e Workers só sobem pelo workflow `publicar`, no merge na `main`.
+- O `publicar` fica verde mesmo quando falta segredo, só com um aviso, e pula banco, back e front. Depois de um merge, conferir se os jobs rodaram de fato (não "skipped").
