@@ -5,10 +5,12 @@
 // São dois endereços, então duas sessões: o sessionStorage de um não existe
 // no outro. A troca leva a sessão no fragmento do endereço (#entrar=…), que
 // não vai ao servidor nem ao log, e o outro lado tira do endereço na hora.
-// O que vai é só o token de renovação, que é de uso único: o outro lado o
-// troca imediatamente por uma sessão própria, e o token que ficou na
-// história do navegador já não serve para nada. Quem saiu apaga a própria
-// sessão antes de sair, para nunca haver dois apps com o mesmo token.
+// O que vai é só o token de renovação: o outro lado o troca imediatamente
+// por uma sessão própria. O Supabase ainda aceita o mesmo token por 10
+// segundos (refresh_token_reuse_interval, para dois pedidos simultâneos não
+// derrubarem a sessão); passado isso, quem tentar reusar o que ficou na
+// história do navegador é recusado. Quem saiu apaga a própria sessão antes
+// de sair, para nunca haver dois apps com o mesmo token.
 //
 // Quem recebe pergunta "continuar como fulano?" antes de abrir: sem isso,
 // um link montado por outra pessoa entraria na conta dela, e o que se
