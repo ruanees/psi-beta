@@ -308,7 +308,7 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] `eh_membro`, `tem_papel`, `eh_super`, `aal_ok` (segundo fator exigido pelo banco), `privado.registrar`
 - [x] pgTAP (22 provas): conta A não lê nem grava nada da conta B; escrita direta recusada; `aal1` com fator cadastrado não lê nada. Conferido quebrando a política de propósito
 - [x] Conta nasce por `conta_criar`, só pelo editor SQL — sem Edge Function `admin-contas` no beta
-- [x] Depois: backoffice em repositório próprio (`senda-backoffice`), com `plataforma_*` (migration `20261019000001_plataforma`) e a Edge Function `admin-contas` para criar e cuidar dos logins
+- [x] Depois: backoffice em repositório próprio (`senda-backoffice`), com `plataforma_*` (migration `20261019000002_plataforma`) e a Edge Function `admin-contas` para criar e cuidar dos logins
 
 **Back**
 - [x] Guard global de JWT (HS256 com segredo ou JWKS), `@Publico()` explícito; prova que toda rota fora da lista pede sessão

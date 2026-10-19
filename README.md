@@ -96,7 +96,7 @@ Sem eles o `publicar` só avisa e não publica nada. Migration que foi rodada à
 
 O backoffice da plataforma mora em outro repositório, com API e front próprios, mas o banco é este. O que ele lê e grava está aqui:
 
-- `back/supabase/migrations/20261019000001_plataforma.sql`: assinaturas, pagamentos e as funções `plataforma_*`. Toda função abre com `exigir_super()`, e nenhuma lê tabela clínica (a prova `0014_plataforma` confere isso no código das funções).
+- `back/supabase/migrations/20261019000002_plataforma.sql`: assinaturas, pagamentos e as funções `plataforma_*`. Toda função abre com `exigir_super()`, e nenhuma lê tabela clínica (a prova `0015_plataforma` confere isso no código das funções).
 - `back/supabase/functions/admin-contas/`: cria login, troca senha e e-mail, desativa e apaga. É o único código que usa a chave de serviço, e o Supabase entrega a chave pelo ambiente da função. Antes de agir, a função pergunta ao banco com o token de quem pediu. Sobe no job **Banco** do `publicar`, depois das migrations.
 
 Para entrar no backoffice, o seu login precisa estar em `super_admins` (uma vez, no **SQL Editor**):
