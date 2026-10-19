@@ -162,7 +162,7 @@ select is(
   (select count(*)::int
      from pg_proc f join pg_namespace n on n.oid = f.pronamespace
     where ((n.nspname = 'public' and f.proname like 'plataforma\_%')
-           or (n.nspname = 'privado' and f.proname in ('resumo_conta', 'meses_em_aberto', 'papeis_pedidos', 'titular_em_outro', 'sobra_titular')))
+           or (n.nspname = 'privado' and f.proname in ('resumo_conta', 'meses_em_aberto', 'papeis_pedidos', 'titular_em_outro', 'sobra_titular', 'contato_captacao')))
       and f.prosrc ~* '\m(pacientes|sessoes|observacoes|anamneses|pacotes|cobrancas|documentos_fiscais|responsaveis|recorrencias)\M'),
   0, 'nenhuma função do painel lê tabela clínica ou financeira do consultório'
 );
