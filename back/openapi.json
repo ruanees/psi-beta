@@ -4124,7 +4124,7 @@
           },
           "mantidas": {
             "type": "number",
-            "description": "Sessões da repetição que ficaram por ter observação ou pagamento."
+            "description": "Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm observação ou pagamento."
           }
         },
         "required": [

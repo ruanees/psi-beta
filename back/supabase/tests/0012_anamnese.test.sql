@@ -98,9 +98,9 @@ select throws_ok('select * from public.anamneses', '42501', null, 'tabela da ana
 
 -- ------------------------------------------------ excluir cadastro feito por engano
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ac","role":"authenticated","aal":"aal1"}', true);
-select lives_ok(
+select throws_ok(
   format($$select public.paciente_excluir(%L, %L)$$, (select conta from ids), (select p1 from ids)),
-  'paciente sem atendimento ainda se exclui, levando a anamnese junto'
+  'P0001', 'paciente_com_anamnese', 'paciente com anamnese não se exclui: a anamnese é prontuário'
 );
 
 select * from finish();

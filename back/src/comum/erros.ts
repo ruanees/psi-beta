@@ -47,6 +47,10 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
     409,
     'Paciente com atendimento registrado não pode ser excluído: o prontuário tem guarda mínima de 5 anos. Use Arquivar.',
   ],
+  paciente_com_anamnese: [
+    409,
+    'Paciente com anamnese registrada não pode ser excluído: a anamnese é prontuário e tem guarda mínima de 5 anos. Use Arquivar.',
+  ],
   paciente_inativo: [409, 'Paciente com alta ou arquivado. Reative o cadastro antes de agendar.'],
   sessao_encerrada: [409, 'Sessão realizada ou com falta não vira desmarcada. Volte para agendada antes, se foi engano.'],
   sessao_com_pagamento: [409, 'Esta sessão já tem pagamento recebido. Desfaça o pagamento no Financeiro antes de mudar a situação.'],

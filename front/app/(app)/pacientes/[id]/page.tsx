@@ -493,7 +493,7 @@ function Dados({
         )}
         <p className="mudo pequeno">
           {podeExcluir
-            ? 'Excluir serve para cadastro feito por engano, sem atendimento registrado. Depois da primeira sessão realizada ou falta, o prontuário tem guarda mínima de 5 anos (Resolução CFP 001/2009) e o caminho é arquivar.'
+            ? 'Excluir serve para cadastro feito por engano, sem atendimento nem anamnese registrados. Depois da primeira sessão realizada ou falta, ou da anamnese preenchida, o prontuário tem guarda mínima de 5 anos (Resolução CFP 001/2009) e o caminho é arquivar.'
             : 'Paciente com atendimento registrado não se exclui: o prontuário tem guarda mínima de 5 anos (Resolução CFP 001/2009). Arquivar tira o paciente das listas sem perder nada.'}
         </p>
       </section>
