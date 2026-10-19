@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { CampoGravavel } from '@/components/CampoGravavel';
 import { ConexaoGoogle } from '@/components/ConexaoGoogle';
 import { useApp } from '@/components/EstadoApp';
+import { TransferirPacientes } from '@/components/TransferirPacientes';
 import { api, type Dto } from '@/lib/api.ts';
 import { gravarSessao } from '@/lib/sessao.ts';
 
@@ -115,6 +116,8 @@ export default function Configuracoes() {
           </label>
         </section>
       )}
+
+      {titular && <TransferirPacientes conta={conta.id} />}
 
       <TrocarSenha />
       <SegundoFator />
