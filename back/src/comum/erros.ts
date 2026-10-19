@@ -73,6 +73,13 @@ const CHAVES_BANCO: Record<string, [number, string]> = {
   cobranca_nao_pendente: [409, 'Esta cobrança não está pendente.'],
   cobranca_nao_paga: [409, 'Esta cobrança não está paga.'],
   motivo_obrigatorio: [422, 'Informe o motivo.'],
+  destino_invalido: [422, 'Quem recebe precisa ser outro psicólogo, que ainda entra no consultório.'],
+  paciente_de_outro: [409, 'Algum paciente escolhido já não é de quem entrega. Recarregue a lista.'],
+  agenda_em_choque: [
+    409,
+    'Uma sessão futura destes pacientes cai no mesmo horário de uma sessão de quem recebe. Remarque uma das duas antes de transferir.',
+  ],
+  nada_a_transferir: [409, 'Não há paciente para transferir.'],
   pagamento_futuro: [422, 'A data do pagamento não pode estar no futuro.'],
   cobranca_com_recibo: [409, 'Este pagamento já tem recibo registrado. Cancele o registro do recibo antes.'],
   recibo_sem_cobranca: [422, 'Escolha ao menos um pagamento para o recibo.'],

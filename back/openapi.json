@@ -498,6 +498,171 @@
         ]
       }
     },
+    "/contas/{conta}/psicologos": {
+      "get": {
+        "operationId": "Equipe_psicologos",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PsicologoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "equipe"
+        ]
+      }
+    },
+    "/contas/{conta}/psicologos/{membro}/pacientes": {
+      "get": {
+        "operationId": "Equipe_pacientesDe",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "membro",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PacienteDoPsicologoDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "equipe"
+        ]
+      }
+    },
+    "/contas/{conta}/transferencias": {
+      "get": {
+        "operationId": "Equipe_transferencias",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransferenciaDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "equipe"
+        ]
+      },
+      "post": {
+        "operationId": "Equipe_transferir",
+        "parameters": [
+          {
+            "name": "conta",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferirDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferidosDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "equipe"
+        ]
+      }
+    },
     "/contas/{conta}/pacientes/buscar": {
       "post": {
         "operationId": "Pacientes_buscar",
@@ -3200,6 +3365,145 @@
             "maximum": 28
           }
         }
+      },
+      "PsicologoDto": {
+        "type": "object",
+        "properties": {
+          "membroId": {
+            "type": "string",
+            "description": "O vínculo do psicólogo com o consultório."
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome do perfil profissional, ou o e-mail."
+          },
+          "ativo": {
+            "type": "boolean",
+            "description": "Entra no consultório como psicólogo: só quem está ativo recebe paciente."
+          },
+          "pacientes": {
+            "type": "number",
+            "description": "Quantos pacientes são dele, em qualquer situação."
+          }
+        },
+        "required": [
+          "membroId",
+          "nome",
+          "ativo",
+          "pacientes"
+        ]
+      },
+      "PacienteDoPsicologoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string",
+            "enum": [
+              "ativo",
+              "alta",
+              "arquivado"
+            ]
+          },
+          "proximaSessao": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "situacao"
+        ]
+      },
+      "TransferenciaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pacienteId": {
+            "type": "string"
+          },
+          "paciente": {
+            "type": "string"
+          },
+          "de": {
+            "type": "string",
+            "description": "Quem entregou."
+          },
+          "para": {
+            "type": "string",
+            "description": "Quem recebeu."
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "quem": {
+            "type": "string",
+            "nullable": true,
+            "description": "E-mail de quem transferiu."
+          },
+          "em": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "pacienteId",
+          "paciente",
+          "de",
+          "para",
+          "em"
+        ]
+      },
+      "TransferirDto": {
+        "type": "object",
+        "properties": {
+          "de": {
+            "type": "string",
+            "description": "O psicólogo que entrega (membroId)."
+          },
+          "para": {
+            "type": "string",
+            "description": "O psicólogo que recebe (membroId), ativo no consultório."
+          },
+          "pacientes": {
+            "description": "Sem a lista, vão todos os pacientes de quem entrega.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "motivo": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "de",
+          "para"
+        ]
+      },
+      "TransferidosDto": {
+        "type": "object",
+        "properties": {
+          "transferidos": {
+            "type": "number",
+            "description": "Quantos pacientes foram transferidos."
+          }
+        },
+        "required": [
+          "transferidos"
+        ]
       },
       "SituacaoPaciente": {
         "type": "string",

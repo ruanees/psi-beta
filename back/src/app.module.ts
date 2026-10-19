@@ -5,6 +5,8 @@ import { AgendaService } from './agenda/agenda.service';
 import { AutenticacaoGuard } from './comum/autenticacao.guard';
 import { ContasController } from './contas/contas.controller';
 import { ContasService } from './contas/contas.service';
+import { EquipeController } from './equipe/equipe.controller';
+import { EquipeService } from './equipe/equipe.service';
 import { EuController } from './eu/eu.controller';
 import { FinanceiroController } from './financeiro/financeiro.controller';
 import { FinanceiroService } from './financeiro/financeiro.service';
@@ -22,11 +24,12 @@ import { GoTrueService } from './supabase/gotrue.service';
 import { SupabaseService } from './supabase/supabase.service';
 
 @Module({
-  controllers: [SaudeController, SessaoController, EuController, ContasController, PacientesController, AgendaController, ProntuarioController, FinanceiroController, SalaController, GoogleController],
+  controllers: [SaudeController, SessaoController, EuController, ContasController, EquipeController, PacientesController, AgendaController, ProntuarioController, FinanceiroController, SalaController, GoogleController],
   providers: [
     SupabaseService,
     GoTrueService,
     ContasService,
+    EquipeService,
     PacientesService,
     AgendaService,
     ProntuarioService,
