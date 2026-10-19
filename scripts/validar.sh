@@ -125,6 +125,8 @@ partes_alteradas() {
   fi
   local partes=()
   grep -q '^back/supabase/' <<<"$arquivos" && partes+=(banco)
+  # A lógica da função admin-contas é provada pelos testes do back.
+  grep -q '^back/supabase/functions/' <<<"$arquivos" && partes+=(back)
   # O front gera os tipos de back/openapi.json, então mudança no back também prova o front.
   grep -v '^back/supabase/' <<<"$arquivos" | grep -q '^back/' && partes+=(back front)
   grep -q '^front/' <<<"$arquivos" && partes+=(front)

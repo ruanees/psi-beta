@@ -136,7 +136,7 @@ Cada uma bloqueia só a fase indicada. Enquanto não houver resposta, vale o pad
 | **Paciente** na sala online | Sim, sem login, só a página da sala | Qualquer dado além de data, hora e nome do psicólogo |
 | **Recepção / secretaria** | Depois do beta | Nada clínico: queixa, observações |
 | **Financeiro** | Depois do beta | Nada clínico |
-| **Super-admin** (você) | Sim, só para criar contas | Nenhum dado clínico — nem por suporte |
+| **Super-admin** (você) | Sim, pelo backoffice (`senda-backoffice`): consultórios, logins e assinaturas | Nenhum dado clínico — nem por suporte, nem contagem |
 
 ### O que a regulamentação pede, e como o beta cumpre
 
@@ -246,6 +246,7 @@ integracoes_google  membro_id, email_google, refresh_token_cifrado, conectada_em
 | `registrar_leitura(paciente, tabela, id)` | grava em `auditoria`; chamada **dentro** das RPCs de leitura clínica, não pelo Nest |
 | `sala_publica(token)` | a única RPC aberta ao papel anon: devolve só data, hora e nome do profissional da próxima sessão online, e o link da chamada só dentro da janela |
 | `eh_super()` | super-admin, sem acesso clínico nenhum |
+| `exigir_super()` | porta de toda função `plataforma_*` do backoffice: levanta `so_super` ou `segundo_fator` em vez de devolver vazio |
 
 A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `historico_paciente(paciente)`), nunca por `select` direto — é o que garante que a auditoria não dependa de alguém lembrar de chamá-la. Mesmo princípio do DIME: quem protege é a RPC.
 
@@ -307,6 +308,7 @@ Nada de tela de negócio. Só o esqueleto que todo módulo vai importar, e o log
 - [x] `eh_membro`, `tem_papel`, `eh_super`, `aal_ok` (segundo fator exigido pelo banco), `privado.registrar`
 - [x] pgTAP (22 provas): conta A não lê nem grava nada da conta B; escrita direta recusada; `aal1` com fator cadastrado não lê nada. Conferido quebrando a política de propósito
 - [x] Conta nasce por `conta_criar`, só pelo editor SQL — sem Edge Function `admin-contas` no beta
+- [x] Depois: backoffice em repositório próprio (`senda-backoffice`), com `plataforma_*` (migration `20261019000001_plataforma`) e a Edge Function `admin-contas` para criar e cuidar dos logins
 
 **Back**
 - [x] Guard global de JWT (HS256 com segredo ou JWKS), `@Publico()` explícito; prova que toda rota fora da lista pede sessão
