@@ -86,7 +86,7 @@ select throws_ok(format('select public.plataforma_cliente(%L)', gen_random_uuid(
 
 -- criar
 select throws_ok(
-  $$select public.plataforma_cliente_criar('{"email":"ninguem@plataforma.teste","conta":"X","nome":"X"}')$$, 'P0001', 'login_inexistente',
+  $$select public.plataforma_cliente_criar('{"email":"ninguem@plataforma.teste","conta":"X","nome":"X"}')$$, 'P0001', 'email_sem_login',
   'consultório só nasce para login que existe');
 select throws_ok(
   $$select public.plataforma_cliente_criar('{"email":"ana@plataforma.teste","conta":"Outro","nome":"Ana"}')$$, 'P0001', 'login_ja_titular',

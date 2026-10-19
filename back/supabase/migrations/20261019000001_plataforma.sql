@@ -319,7 +319,7 @@ begin
   end if;
   select u.id into v_user from auth.users u where lower(u.email) = v_email;
   if v_user is null then
-    raise exception 'login_inexistente' using errcode = 'P0001';
+    raise exception 'email_sem_login' using errcode = 'P0001';
   end if;
   if exists (select 1 from public.membros m where m.user_id = v_user and 'titular' = any (m.papeis)) then
     raise exception 'login_ja_titular' using errcode = 'P0001';
