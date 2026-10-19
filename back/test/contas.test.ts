@@ -72,3 +72,12 @@ describe('gravação campo a campo', () => {
     });
   });
 });
+
+describe('escolha de contexto: /eu x plataforma_eu', () => {
+  it('a função em vigor monta as chaves que o /eu lê', () => {
+    const todas = [...sql.matchAll(/create (?:or replace )?function public\.plataforma_eu\(\)[\s\S]*?\n\$\$;/g)];
+    assert.ok(todas.length, 'plataforma_eu não encontrada');
+    const corpo = todas[todas.length - 1][0];
+    for (const chave of ['id', 'email', 'super', 'consultorios']) assert.match(corpo, new RegExp(`'${chave}',`), chave);
+  });
+});

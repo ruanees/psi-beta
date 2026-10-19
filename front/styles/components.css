@@ -2214,3 +2214,27 @@ select.ent {
   margin: 0;
   padding-left: 1.1em;
 }
+
+/* ================================================================ escolha de contexto */
+
+.solta > .contextos {
+  max-width: 760px;
+}
+.contextos-cabeca {
+  display: grid;
+  gap: var(--e2);
+  justify-items: center;
+  text-align: center;
+}
+.contexto-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r2);
+  background: var(--ac-suave);
+  color: var(--act);
+}
+.contextos > .lk {
+  justify-self: center;
+}

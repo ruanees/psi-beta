@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, definirAoExpirar, ErroApi, type Dto } from '@/lib/api.ts';
 import { fdh } from '@/lib/formato.ts';
 import { itemAtivo, MENU, MENU_CONTA, type ItemMenu } from '@/lib/menu.ts';
+import { trocarPara, URL_BACKOFFICE } from '@/lib/contexto.ts';
 import { caminhoDeSaida, gravarSessao, lerSessao, type MotivoSaida } from '@/lib/sessao.ts';
 import { aplicarTema, lerTema, temaEfetivo } from '@/lib/tema.ts';
 import { useInatividade } from '@/lib/use-inatividade.ts';
@@ -21,8 +22,8 @@ import { SeloGravacao } from './SeloGravacao';
 
 type Carga =
   | { etapa: 'carregando' }
-  | { etapa: 'pronta'; conta: Dto<'ContaDto'> }
-  | { etapa: 'sem-conta' }
+  | { etapa: 'pronta'; conta: Dto<'ContaDto'>; backoffice: boolean }
+  | { etapa: 'sem-conta'; backoffice: boolean }
   | { etapa: 'erro'; mensagem: string };
 
 export function Marca({ comTexto = true }: { comTexto?: boolean }) {
@@ -61,10 +62,12 @@ export function Moldura({ children }: { children: React.ReactNode }) {
 
   const carregar = useCallback(async () => {
     try {
-      const contas = await api('get', '/contas');
-      if (contas.length === 0) return setCarga({ etapa: 'sem-conta' });
+      // Quem opera a plataforma ganha o caminho para o backoffice. /eu fora do ar não trava o consultório.
+      const [contas, eu] = await Promise.all([api('get', '/contas'), api('get', '/eu').catch(() => null)]);
+      const backoffice = Boolean(eu?.super && URL_BACKOFFICE);
+      if (contas.length === 0) return setCarga({ etapa: 'sem-conta', backoffice });
       const conta = await api('get', '/contas/{conta}', { params: { conta: contas[0].id } });
-      setCarga({ etapa: 'pronta', conta });
+      setCarga({ etapa: 'pronta', conta, backoffice });
     } catch (e) {
       if (e instanceof ErroApi && (e.status === 401 || e.codigo === 'segundo_fator')) return void sair('expirou');
       setCarga({ etapa: 'erro', mensagem: e instanceof Error ? e.message : 'Erro ao carregar.' });
@@ -101,6 +104,11 @@ export function Moldura({ children }: { children: React.ReactNode }) {
         <div className="cartao">
           <h1>Acesso sem consultório</h1>
           <p className="mudo">Seu login funciona, mas ainda não está ligado a um consultório. Fale com o suporte.</p>
+          {carga.backoffice && (
+            <button className="btn" onClick={() => trocarPara(URL_BACKOFFICE)}>
+              Ir para o backoffice
+            </button>
+          )}
           <button className="btn" data-v="sec" onClick={() => void sair()}>
             Sair
           </button>
@@ -154,7 +162,12 @@ export function Moldura({ children }: { children: React.ReactNode }) {
               <span className="topo-titulo">{titulo}</span>
               <BuscaPaciente />
               <div className="topo-direita">
-                <MenuConta conta={estado.conta} caminho={caminho} aoSair={() => void sair()} />
+                <MenuConta
+                  conta={estado.conta}
+                  caminho={caminho}
+                  aoSair={() => void sair()}
+                  aoBackoffice={carga.etapa === 'pronta' && carga.backoffice ? () => trocarPara(URL_BACKOFFICE) : undefined}
+                />
               </div>
             </div>
           </header>
@@ -201,7 +214,18 @@ function ItemDoMenu({ item, caminho }: { item: ItemMenu; caminho: string }) {
   );
 }
 
-function MenuConta({ conta, caminho, aoSair }: { conta: Dto<'ContaDto'>; caminho: string; aoSair: () => void }) {
+function MenuConta({
+  conta,
+  caminho,
+  aoSair,
+  aoBackoffice,
+}: {
+  conta: Dto<'ContaDto'>;
+  caminho: string;
+  aoSair: () => void;
+  /** Só para quem opera a plataforma: troca de contexto, levando a sessão (lib/contexto.ts). */
+  aoBackoffice?: () => void;
+}) {
   const [aberta, setAberta] = useState(false);
   const nome = conta.perfil?.nome ?? conta.nome;
 
@@ -235,6 +259,12 @@ function MenuConta({ conta, caminho, aoSair }: { conta: Dto<'ContaDto'>; caminho
               {item.rotulo}
             </Link>
           ))}
+          {aoBackoffice && (
+            <button className="folha-item" role="menuitem" onClick={aoBackoffice}>
+              <Icone nome="escudo" />
+              Ir para o backoffice
+            </button>
+          )}
           <button className="folha-item" role="menuitem" onClick={alternarTema}>
             <Icone nome="tema" />
             Alternar tema
