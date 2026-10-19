@@ -1,5 +1,6 @@
 # Publicação de homologação. Todo merge na main publica, sempre nesta ordem:
 #   1. banco  — migrations novas de back/supabase/migrations (supabase db push)
+#               e a função admin-contas de back/supabase/functions (usada pelo senda-backoffice)
 #   2. back   — Worker psi-back-homolog
 #   3. front  — Worker psi-front-homolog
 # Se um passo falha, os seguintes não rodam: back novo nunca sobe com banco velho.
@@ -72,6 +73,10 @@ jobs:
         run: npx supabase db push -p "$SUPABASE_DB_PASSWORD" --skip-vault --yes
       - name: Depois
         run: npx supabase migration list -p "$SUPABASE_DB_PASSWORD"
+      # Depois das migrations: a função pergunta ao banco (plataforma_*) antes de agir.
+      # A chave de serviço quem entrega é o Supabase, pelo ambiente da função; ela não passa por aqui.
+      - name: Função admin-contas (backoffice)
+        run: npx supabase functions deploy admin-contas --project-ref "$SUPABASE_PROJECT_REF" --use-api
 
   back:
     name: Back (Worker)
