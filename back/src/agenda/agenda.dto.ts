@@ -146,5 +146,5 @@ export class ExcluirSessaoDto {
 
 export class ExclusaoDto {
   @ApiProperty() excluidas: number;
-  @ApiProperty({ description: 'Sessões da repetição que ficaram por ter observação ou pagamento.' }) mantidas: number;
+  @ApiProperty({ description: 'Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm observação ou pagamento.' }) mantidas: number;
 }

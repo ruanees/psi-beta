@@ -663,8 +663,8 @@ function Excluir({
       >
         <div className="aviso" data-t="atencao">
           {mantidas.excluidas === 1 ? '1 sessão excluída' : `${mantidas.excluidas} sessões excluídas`}.{' '}
-          {mantidas.mantidas === 1 ? '1 sessão ficou' : `${mantidas.mantidas} sessões ficaram`} porque tem observação no
-          prontuário ou pagamento recebido. A repetição não gera mais sessões.
+          {mantidas.mantidas === 1 ? '1 sessão ficou' : `${mantidas.mantidas} sessões ficaram`} no histórico porque já
+          aconteceu (realizada, falta ou desmarcada) ou tem observação ou pagamento. A repetição não gera mais sessões.
         </div>
       </Janela>
     );
@@ -710,8 +710,8 @@ function Excluir({
             </div>
             {escopo === 'repeticao' && (
               <small>
-                Todas as sessões desta repetição saem, as passadas e as futuras, e ela para de gerar sessões novas. As que já
-                têm observação ou pagamento ficam.
+                Saem as sessões agendadas e confirmadas desta repetição, e ela para de gerar sessões novas. As que já
+                aconteceram (realizadas, faltas e desmarcadas) ficam no histórico.
               </small>
             )}
           </div>
