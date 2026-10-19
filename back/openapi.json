@@ -2906,6 +2906,11 @@
             "type": "string",
             "minLength": 10,
             "maxLength": 72
+          },
+          "senhaAtual": {
+            "type": "string",
+            "maxLength": 72,
+            "description": "Obrigatória, exceto logo depois do link de recuperação de senha."
           }
         },
         "required": [
@@ -3429,6 +3434,11 @@
                 "$ref": "#/components/schemas/AnamneseParcialDto"
               }
             ]
+          },
+          "profissionalId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Membro psicólogo que atende o paciente. Sem ele: quem cadastra, se for psicólogo, ou o único psicólogo da conta."
           },
           "consentimento": {
             "type": "boolean",

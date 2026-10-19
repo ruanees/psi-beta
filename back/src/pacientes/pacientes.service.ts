@@ -107,6 +107,7 @@ export class PacientesService {
     const p = {
       ...paraBanco(dto, CAMPOS_PACIENTE),
       consentimento: dto.consentimento,
+      ...(dto.profissionalId && { profissional_id: dto.profissionalId }),
       ...(dto.plano && { plano: planoParaBanco(dto.plano) }),
       ...(dto.anamnese && { anamnese: anamneseParaBanco(dto.anamnese) }),
     };

@@ -31,8 +31,11 @@ describe('pacientes: API x banco', () => {
     assert.deepEqual(chaves(corpo('paciente_gravar'), 'campos', '?'), Object.values(CAMPOS_PACIENTE).sort());
   });
 
-  it('paciente_criar lê todos os campos do paciente, mais o consentimento', () => {
-    assert.deepEqual(chaves(corpo('paciente_criar'), 'p', '->>'), [...Object.values(CAMPOS_PACIENTE), 'consentimento'].sort());
+  it('paciente_criar lê todos os campos do paciente, mais o consentimento e o psicólogo', () => {
+    assert.deepEqual(
+      chaves(corpo('paciente_criar'), 'p', '->>'),
+      [...Object.values(CAMPOS_PACIENTE), 'consentimento', 'profissional_id'].sort(),
+    );
   });
 
   it('responsáveis: criar e salvar leem os mesmos nomes que a API manda', () => {

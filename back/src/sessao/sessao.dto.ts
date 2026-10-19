@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class EntrarDto {
   @ApiProperty({ example: 'psicologa@exemplo.com.br' })
@@ -32,6 +32,15 @@ export class NovaSenhaDto {
   @MinLength(10, { message: 'A senha precisa ter ao menos 10 caracteres.' })
   @MaxLength(72, { message: 'A senha pode ter no máximo 72 caracteres.' })
   senha: string;
+
+  @ApiPropertyOptional({
+    maxLength: 72,
+    description: 'Obrigatória, exceto logo depois do link de recuperação de senha.',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(72)
+  senhaAtual?: string;
 }
 
 export class CodigoDto {

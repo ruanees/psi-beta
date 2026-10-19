@@ -15,7 +15,8 @@ type Etapa =
   | { nome: 'codigo'; sessao: Dto<'SessaoDto'> }
   | { nome: 'esqueci' }
   | { nome: 'enviado' }
-  | { nome: 'nova-senha'; token: string };
+  | { nome: 'nova-senha'; token: string }
+  | { nome: 'nova-senha-codigo'; token: string; fatorId: string; senha: string };
 
 const AVISOS: Record<string, { t: 'ok' | 'atencao'; texto: string }> = {
   inatividade: { t: 'atencao', texto: 'A sessão foi encerrada por inatividade. Entre de novo.' },
@@ -109,7 +110,33 @@ export function Entrada() {
     const senha = String(f.get('senha'));
     if (senha !== String(f.get('repetir'))) return setErro('As duas senhas não são iguais.');
     void executar(async () => {
-      await api('post', '/sessao/senha', { jwt: token, corpo: { senha } });
+      try {
+        await api('post', '/sessao/senha', { jwt: token, corpo: { senha } });
+      } catch (erro) {
+        // Quem ativou o segundo fator confirma o código antes: só o link do e-mail não basta.
+        if (!(erro instanceof ErroApi) || erro.codigo !== 'insufficient_aal') throw erro;
+        const fatores = await api('get', '/sessao/fatores', { jwt: token });
+        const fator = fatores.find((f) => f.situacao === 'verificado');
+        if (!fator) throw erro;
+        return setEtapa({ nome: 'nova-senha-codigo', token, fatorId: fator.id, senha });
+      }
+      setAviso('senha-trocada');
+      setEtapa({ nome: 'entrar' });
+    });
+  };
+
+  const confirmarCodigoNovaSenha = (
+    e: FormEvent<HTMLFormElement>,
+    etapaAtual: Extract<Etapa, { nome: 'nova-senha-codigo' }>,
+  ) => {
+    e.preventDefault();
+    const codigo = String(new FormData(e.currentTarget).get('codigo')).replace(/\D/g, '');
+    void executar(async () => {
+      const s = await api('post', '/sessao/segundo-fator', {
+        jwt: etapaAtual.token,
+        corpo: { fatorId: etapaAtual.fatorId, codigo },
+      });
+      await api('post', '/sessao/senha', { jwt: s.acesso, corpo: { senha: etapaAtual.senha } });
       setAviso('senha-trocada');
       setEtapa({ nome: 'entrar' });
     });
@@ -235,6 +262,30 @@ export function Entrada() {
               </label>
               <button className="btn" data-largo disabled={ocupado}>
                 Salvar senha nova
+              </button>
+            </form>
+          )}
+
+          {etapa.nome === 'nova-senha-codigo' && (
+            <form className="pilha" onSubmit={(e) => confirmarCodigoNovaSenha(e, etapa)}>
+              <h1>Código do autenticador</h1>
+              <p className="mudo">
+                Sua conta tem o segundo fator ativado. Digite o código de 6 números do Senda para salvar a senha nova.
+              </p>
+              <input
+                className="ent"
+                data-codigo
+                name="codigo"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                pattern="\d{6}"
+                autoFocus
+                required
+                aria-label="Código de 6 números"
+              />
+              <button className="btn" data-largo disabled={ocupado}>
+                Confirmar e salvar senha
               </button>
             </form>
           )}

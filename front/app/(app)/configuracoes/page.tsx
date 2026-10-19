@@ -132,7 +132,7 @@ function TrocarSenha() {
     const senha = String(f.get('senha'));
     if (senha !== String(f.get('repetir'))) return setMsg({ t: 'erro', texto: 'As duas senhas não são iguais.' });
     try {
-      await api('post', '/sessao/senha', { corpo: { senha } });
+      await api('post', '/sessao/senha', { corpo: { senha, senhaAtual: String(f.get('atual')) } });
       form.reset();
       setMsg({ t: 'ok', texto: 'Senha trocada.' });
     } catch (erro) {
@@ -149,6 +149,11 @@ function TrocarSenha() {
         </div>
       )}
       <form className="grade" data-n="2" onSubmit={enviar}>
+        <label className="campo">
+          <span>Senha atual</span>
+          <input className="ent" name="atual" type="password" autoComplete="current-password" required />
+        </label>
+        <div />
         <label className="campo">
           <span>Senha nova</span>
           <input className="ent" name="senha" type="password" autoComplete="new-password" minLength={10} required />

@@ -11,6 +11,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Matches,
   Max,
   MaxLength,
@@ -199,6 +200,14 @@ export class NovoPacienteDto {
   @ValidateNested()
   @Type(() => AnamneseParcialDto)
   anamnese?: AnamneseParcialDto;
+
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description: 'Membro psicólogo que atende o paciente. Sem ele: quem cadastra, se for psicólogo, ou o único psicólogo da conta.',
+  })
+  @IsOptional()
+  @IsUUID('all', { message: 'Psicólogo inválido.' })
+  profissionalId?: string;
 
   @ApiProperty({ description: 'O paciente (ou responsável) consentiu com o uso dos dados (LGPD). Precisa ser true.' })
   @Equals(true, { message: 'Confirme o consentimento do paciente para o uso dos dados.' })

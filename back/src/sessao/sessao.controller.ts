@@ -71,7 +71,31 @@ export class SessaoController {
   @HttpCode(204)
   @ApiNoContentResponse()
   async senha(@Jwt() jwt: string, @Body() dto: NovaSenhaDto): Promise<void> {
+    const claims = lerClaims(jwt);
+    const u = await this.gotrue.usuario(jwt);
+    // Quem ativou o segundo fator confirma o código antes, também depois do link de
+    // recuperação: só o e-mail não basta para tomar a conta.
+    const temFator = (u.factors ?? []).some((f) => f.factor_type === 'totp' && f.status === 'verified');
+    if (temFator && claims.aal !== 'aal2') throw new ErroAuth(403, 'insufficient_aal');
+    // Sem acabar de chegar pelo link de recuperação, a senha atual é obrigatória:
+    // uma sessão esquecida aberta não troca a senha de ninguém.
+    if (!veioDaRecuperacao(claims)) {
+      if (!dto.senhaAtual) throw new ErroAuth(400, 'senha_atual_obrigatoria');
+      await this.conferirSenhaAtual(u.email ?? '', dto.senhaAtual);
+    }
     await this.gotrue.trocarSenha(jwt, dto.senha);
+  }
+
+  /** Confere sem mexer na sessão de quem pediu: a sessão aberta só para conferir é encerrada na hora. */
+  private async conferirSenhaAtual(email: string, senhaAtual: string): Promise<void> {
+    let conferida: SessaoGoTrue;
+    try {
+      conferida = await this.gotrue.entrar(email, senhaAtual);
+    } catch (e) {
+      if (e instanceof ErroAuth && e.status >= 400 && e.status < 429) throw new ErroAuth(422, 'senha_atual_incorreta');
+      throw e;
+    }
+    await this.gotrue.sair(conferida.access_token).catch(() => undefined);
   }
 
   @ApiBearerAuth()
@@ -144,12 +168,32 @@ function paraSessao(s: SessaoGoTrue, fatorPendente?: string): SessaoDto {
   };
 }
 
-/** Lê o `aal` sem validar: o token acabou de vir do GoTrue, e a validação de verdade é a do guard. */
-function lerAal(token: string): string | undefined {
+interface Claims {
+  aal?: string;
+  amr?: { method?: string; timestamp?: number }[];
+}
+
+/** Lê o corpo do token sem validar: a validação de verdade é a do guard (ou o token acabou de vir do GoTrue). */
+function lerClaims(token: string): Claims {
   try {
-    const corpo = JSON.parse(Buffer.from(token.split('.')[1] ?? '', 'base64url').toString('utf8')) as { aal?: string };
-    return corpo.aal;
+    return JSON.parse(Buffer.from(token.split('.')[1] ?? '', 'base64url').toString('utf8')) as Claims;
   } catch {
-    return undefined;
+    return {};
   }
+}
+
+function lerAal(token: string): string | undefined {
+  return lerClaims(token).aal;
+}
+
+/** O link de recuperação vale como prova de quem é por 15 minutos, não pela vida inteira da sessão. */
+const JANELA_RECUPERACAO_S = 15 * 60;
+
+export function veioDaRecuperacao(claims: Claims, agora = Math.floor(Date.now() / 1000)): boolean {
+  return (claims.amr ?? []).some(
+    (a) =>
+      (a.method === 'recovery' || a.method === 'otp') &&
+      typeof a.timestamp === 'number' &&
+      agora - a.timestamp <= JANELA_RECUPERACAO_S,
+  );
 }
