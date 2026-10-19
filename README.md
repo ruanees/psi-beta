@@ -107,6 +107,8 @@ insert into public.super_admins (user_id) select id from auth.users where email 
 
 Super-admin opera consultório, login e assinatura, e nunca ganha acesso clínico por estar nessa tabela.
 
+**Escolha de contexto.** Quem está em `super_admins` vê, depois de entrar, a tela "Por onde você quer entrar?" (`/perfil`): consultório ou backoffice. O menu da conta também ganha "Ir para o backoffice". Como são dois endereços, a sessão vai junto no fragmento do endereço (`#entrar=`, que não chega ao servidor): é só o token de renovação, de uso único, trocado na hora pelo outro lado, e quem recebe pergunta "continuar como fulano?" antes de abrir. O endereço do backoffice é a variável de build `NEXT_PUBLIC_BACKOFFICE_URL` (no `publicar`); sem ela, a escolha não aparece.
+
 ### Se algo não subir
 
 | Sintoma | Causa provável |

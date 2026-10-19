@@ -124,6 +124,8 @@ jobs:
       NEXT_TELEMETRY_DISABLED: 1
       # Variável de build: é colada no bundle. Endereço público do back, não é segredo.
       NEXT_PUBLIC_API_URL: https://psi-back-homolog.balbuquerc.workers.dev
+      # Para quem opera a plataforma: a escolha de contexto e o "Ir para o backoffice" (lib/contexto.ts).
+      NEXT_PUBLIC_BACKOFFICE_URL: https://senda-backoffice-homolog.balbuquerc.workers.dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

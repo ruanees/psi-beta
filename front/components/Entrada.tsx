@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, ErroApi, type Dto } from '@/lib/api.ts';
+import { destinoDepoisDeEntrar, emailDoToken, lerTroca } from '@/lib/contexto.ts';
 import { gravarSessao, lerSessao } from '@/lib/sessao.ts';
 import { Padrao } from './Padrao';
 import { Simbolo } from './Simbolo';
@@ -15,13 +16,16 @@ type Etapa =
   | { nome: 'codigo'; sessao: Dto<'SessaoDto'> }
   | { nome: 'esqueci' }
   | { nome: 'enviado' }
-  | { nome: 'nova-senha'; token: string };
+  | { nome: 'nova-senha'; token: string }
+  | { nome: 'trocando' }
+  | { nome: 'continuar'; sessao: Dto<'SessaoDto'>; email: string | null };
 
 const AVISOS: Record<string, { t: 'ok' | 'atencao'; texto: string }> = {
   inatividade: { t: 'atencao', texto: 'A sessão foi encerrada por inatividade. Entre de novo.' },
   expirou: { t: 'atencao', texto: 'A sessão expirou. Entre de novo.' },
   'senha-trocada': { t: 'ok', texto: 'Senha trocada. Entre com a nova senha.' },
   'link-expirado': { t: 'atencao', texto: 'O link de recuperação expirou ou já foi usado. Peça outro.' },
+  'troca-expirou': { t: 'atencao', texto: 'A passagem do backoffice expirou ou já foi usada. Entre de novo.' },
 };
 
 export function Entrada() {
@@ -32,6 +36,20 @@ export function Entrada() {
   const [ocupado, setOcupado] = useState(false);
 
   useEffect(() => {
+    // Vindo do backoffice com a sessão no fragmento (lib/contexto.ts): sai do endereço na hora e é trocada.
+    const troca = lerTroca(window.location.hash);
+    if (troca) {
+      window.history.replaceState(null, '', '/');
+      setEtapa({ nome: 'trocando' });
+      api('post', '/sessao/renovar', { publica: true, corpo: { renovacao: troca } }).then(
+        (s) => setEtapa({ nome: 'continuar', sessao: s, email: emailDoToken(s.acesso) }),
+        () => {
+          setAviso('troca-expirou');
+          setEtapa({ nome: 'entrar' });
+        },
+      );
+      return;
+    }
     const busca = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.slice(1));
     // Volta do e-mail de recuperação: o token chega no hash e sai da barra de endereço na hora.
@@ -62,10 +80,20 @@ export function Entrada() {
     }
   }
 
-  function concluir(s: Dto<'SessaoDto'>) {
+  /** Sem destino: quem opera a plataforma vai escolher o contexto; o resto vai direto para o consultório. */
+  async function concluir(s: Dto<'SessaoDto'>, destino?: string) {
     gravarSessao({ acesso: s.acesso, renovacao: s.renovacao, expiraEm: s.expiraEm });
-    router.replace('/inicio');
+    if (destino) return router.replace(destino);
+    // /eu fora do ar não impede ninguém de entrar no consultório.
+    const eu = await api('get', '/eu').catch(() => null);
+    router.replace(destinoDepoisDeEntrar(eu));
   }
+
+  // "Não sou eu": a sessão que chegou é encerrada, não guardada.
+  const recusarTroca = (sessao: Dto<'SessaoDto'>) => {
+    void api('post', '/sessao/sair', { jwt: sessao.acesso }).catch(() => undefined);
+    setEtapa({ nome: 'entrar' });
+  };
 
   const entrar = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,7 +104,7 @@ export function Entrada() {
         corpo: { email: String(f.get('email')), senha: String(f.get('senha')) },
       });
       if (s.etapa === 'segundo_fator') setEtapa({ nome: 'codigo', sessao: s });
-      else concluir(s);
+      else await concluir(s);
     });
   };
 
@@ -84,7 +112,7 @@ export function Entrada() {
     e.preventDefault();
     const codigo = String(new FormData(e.currentTarget).get('codigo')).replace(/\D/g, '');
     void executar(async () => {
-      concluir(
+      await concluir(
         await api('post', '/sessao/segundo-fator', {
           jwt: sessao.acesso,
           corpo: { fatorId: sessao.fatorId ?? '', codigo },
@@ -144,6 +172,25 @@ export function Entrada() {
           {erro && (
             <div className="aviso" data-t="erro" role="alert">
               {erro}
+            </div>
+          )}
+
+          {etapa.nome === 'trocando' && (
+            <p className="mudo" aria-busy="true">
+              Abrindo a sessão do backoffice…
+            </p>
+          )}
+
+          {etapa.nome === 'continuar' && (
+            <div className="pilha">
+              <h1>Continuar como {etapa.email ?? 'este login'}?</h1>
+              <p className="mudo">Você está vindo do backoffice. Confira se o login é o seu antes de abrir o consultório.</p>
+              <button className="btn" data-largo onClick={() => void concluir(etapa.sessao, '/inicio')}>
+                Continuar
+              </button>
+              <button type="button" className="lk" onClick={() => recusarTroca(etapa.sessao)}>
+                Não sou eu
+              </button>
             </div>
           )}
 

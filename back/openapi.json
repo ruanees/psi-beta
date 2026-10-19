@@ -332,6 +332,32 @@
         ]
       }
     },
+    "/eu": {
+      "get": {
+        "operationId": "Eu_eu",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EuDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eu"
+        ]
+      }
+    },
     "/contas": {
       "get": {
         "operationId": "Contas_listar",
@@ -2965,6 +2991,32 @@
         },
         "required": [
           "codigo"
+        ]
+      },
+      "EuDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "super": {
+            "type": "boolean",
+            "description": "Opera a plataforma (super_admins): pode ir para o backoffice."
+          },
+          "consultorios": {
+            "type": "number",
+            "description": "Quantos consultórios este login alcança. Zero: não há operação para entrar."
+          }
+        },
+        "required": [
+          "id",
+          "super",
+          "consultorios"
         ]
       },
       "Papel": {

@@ -107,7 +107,8 @@ validar_front() {
   rodar "front: tipos" npm run typecheck
   rodar "front: provas" npm run prova
   # Endereço qualquer, o mesmo da CI: a trava do build exige a variável.
-  rodar "front: build" env NEXT_PUBLIC_API_URL=https://psi-back-homolog.exemplo.workers.dev npm run build
+  rodar "front: build" env NEXT_PUBLIC_API_URL=https://psi-back-homolog.exemplo.workers.dev \
+    NEXT_PUBLIC_BACKOFFICE_URL=https://senda-backoffice-homolog.exemplo.workers.dev npm run build
 }
 
 # Partes tocadas pelos commits fora da main e pelo que ainda não foi commitado.

@@ -25,6 +25,7 @@ jobs:
       NEXT_TELEMETRY_DISABLED: 1
       # Endereço qualquer só para o build: a trava exige a variável, o valor real mora na Cloudflare.
       NEXT_PUBLIC_API_URL: https://psi-back-homolog.exemplo.workers.dev
+      NEXT_PUBLIC_BACKOFFICE_URL: https://senda-backoffice-homolog.exemplo.workers.dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
