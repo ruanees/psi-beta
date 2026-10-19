@@ -78,7 +78,7 @@ select is(
 );
 select is(
   (select array_agg(k order by k) from jsonb_object_keys(public.plataforma_cliente((select ana from ids)) -> 'membros' -> 0) k),
-  array['criado_em', 'desativado', 'email', 'nome', 'papeis', 'segundo_fator', 'ultimo_acesso', 'user_id'],
+  array['criado_em', 'desativado', 'email', 'id', 'nome', 'papeis', 'removido_em', 'segundo_fator', 'ultimo_acesso', 'user_id'],
   'e de cada acesso, só estas'
 );
 select throws_ok(format('select public.plataforma_cliente(%L)', gen_random_uuid()), 'P0001', 'conta_inexistente',
@@ -162,7 +162,7 @@ select is(
   (select count(*)::int
      from pg_proc f join pg_namespace n on n.oid = f.pronamespace
     where ((n.nspname = 'public' and f.proname like 'plataforma\_%')
-           or (n.nspname = 'privado' and f.proname in ('resumo_conta', 'meses_em_aberto')))
+           or (n.nspname = 'privado' and f.proname in ('resumo_conta', 'meses_em_aberto', 'papeis_pedidos', 'titular_em_outro', 'sobra_titular')))
       and f.prosrc ~* '\m(pacientes|sessoes|observacoes|anamneses|pacotes|cobrancas|documentos_fiscais|responsaveis|recorrencias)\M'),
   0, 'nenhuma função do painel lê tabela clínica ou financeira do consultório'
 );
