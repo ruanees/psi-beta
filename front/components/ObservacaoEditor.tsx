@@ -1,13 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, type Dto } from '@/lib/api.ts';
 import { fd, fdh } from '@/lib/formato.ts';
 import { useApp } from './EstadoApp';
 
-// Observação da sessão. Grava sozinha ao sair do campo; cada correção guarda a
-// versão anterior (o banco faz isso, não a tela). Um mês depois da sessão ela
-// trava, e o que faltou dizer entra como adendo, que não muda mais.
+// Observação da sessão. Grava no botão Salvar e também ao sair do campo; cada
+// correção guarda a versão anterior (o banco faz isso, não a tela). Um mês
+// depois da sessão ela trava, e o que faltou dizer entra como adendo, que não
+// muda mais.
 
 type Observacao = Dto<'ObservacaoDto'>;
 
@@ -26,6 +27,8 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
   const [verVersoes, setVerVersoes] = useState(false);
   const [estado, setEstado] = useState<'parado' | 'gravando' | 'gravado'>('parado');
   const [erro, setErro] = useState<string | null>(null);
+  // Clicar em Salvar tira o foco do campo: sem a trava, o mesmo texto gravaria duas vezes.
+  const gravandoAgora = useRef(false);
 
   const carregar = useCallback(async () => {
     try {
@@ -52,9 +55,12 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
   if (!o.podeClinico) return <p className="mudo pequeno">A observação desta sessão só aparece para o psicólogo do paciente.</p>;
   if (!o.registravel) return <p className="mudo pequeno">Marque presença ou falta para registrar a observação.</p>;
 
+  // Texto igual ao gravado, ou campo vazio sem nada gravado antes: nada a salvar.
+  const alterada = texto.trim() !== (o.texto ?? '').trim() && (texto.trim() !== '' || Boolean(o.texto));
+
   async function gravar() {
-    if (texto.trim() === (o?.texto ?? '').trim()) return;
-    if (!texto.trim() && !o?.texto) return;
+    if (!alterada || gravandoAgora.current) return;
+    gravandoAgora.current = true;
     setEstado('gravando');
     setErro(null);
     try {
@@ -65,6 +71,8 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Não foi possível gravar.');
       setEstado('parado');
+    } finally {
+      gravandoAgora.current = false;
     }
   }
 
@@ -86,10 +94,12 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
 
   const situacao =
     estado === 'gravando'
-      ? 'Gravando…'
-      : o.versao
-        ? `Versão ${o.versao}, gravada em ${fdh(o.alteradaEm!)}`
-        : 'Ainda sem observação';
+      ? 'Salvando…'
+      : alterada
+        ? 'Alterações ainda não salvas'
+        : o.versao
+          ? `Versão ${o.versao}, gravada em ${fdh(o.alteradaEm!)}`
+          : 'Ainda sem observação';
 
   return (
     <div className="observacao pilha" data-g="p">
@@ -99,24 +109,36 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
       </div>
 
       {o.editavel ? (
-        <label className="campo">
-          <span className="oculto">Observação da sessão</span>
-          <textarea
-            className="ent"
-            rows={6}
-            maxLength={20000}
-            value={texto}
-            placeholder="Como foi a sessão: temas trabalhados, combinados, o que observar na próxima."
-            onChange={(e) => {
-              setTexto(e.target.value);
-              setEstado('parado');
-            }}
-            onBlur={() => void gravar()}
-          />
-          <small>
-            {situacao} · grava ao sair do campo · pode ser corrigida até {fd(o.editavelAte)}
-          </small>
-        </label>
+        <>
+          <label className="campo">
+            <span className="oculto">Observação da sessão</span>
+            <textarea
+              className="ent"
+              rows={6}
+              maxLength={20000}
+              value={texto}
+              placeholder="Como foi a sessão: temas trabalhados, combinados, o que observar na próxima."
+              onChange={(e) => {
+                setTexto(e.target.value);
+                setEstado('parado');
+              }}
+              onBlur={() => void gravar()}
+            />
+            <small>
+              {situacao} · pode ser corrigida até {fd(o.editavelAte)}
+            </small>
+          </label>
+          <div className="linha">
+            <button type="button" className="btn" disabled={!alterada || estado === 'gravando'} onClick={() => void gravar()}>
+              {estado === 'gravando' ? 'Salvando…' : 'Salvar'}
+            </button>
+            {estado === 'gravado' && !alterada && (
+              <span className="pequeno mudo" role="status">
+                Observação salva.
+              </span>
+            )}
+          </div>
+        </>
       ) : (
         <>
           {o.texto ? <p className="observacao-texto">{o.texto}</p> : <p className="mudo">Sem observação registrada.</p>}
