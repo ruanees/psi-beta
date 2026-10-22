@@ -953,8 +953,20 @@ a.lateral-item[aria-current='page']:hover {
   display: none;
 }
 @media (max-width: 760px) {
+  /* No celular a página não rola: rola só o conteúdo. Com a página rolando, o
+     Safari do iPhone encolhe e estica a barra de endereço, e a barra de baixo
+     sobe e desce junto (às vezes some atrás dela). Assim ela fica parada. */
   .app {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .principal {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
   .lateral {
     display: none;
@@ -973,16 +985,13 @@ a.lateral-item[aria-current='page']:hover {
     padding: 0 var(--e4);
   }
   .conteudo {
-    padding: var(--e2) var(--e4) calc(var(--alvo-nav) + var(--e6));
+    padding: var(--e2) var(--e4) var(--e6);
   }
   .rodape {
     display: none;
   }
   .nav-baixo {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
     z-index: 25;
     display: grid;
     grid-template-columns: repeat(var(--itens, 5), minmax(0, 1fr));

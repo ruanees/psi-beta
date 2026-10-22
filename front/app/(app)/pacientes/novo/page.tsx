@@ -72,7 +72,9 @@ export default function NovoPaciente() {
       setErro(er instanceof Error ? er.message : 'Não foi possível cadastrar.');
       setOcupado(false);
       // O botão fica no fim do formulário e o aviso no começo: sem rolar, o erro passa batido.
+      // No celular quem rola é a área do conteúdo (.principal), não a janela.
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.querySelector('.principal')?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
