@@ -1811,6 +1811,53 @@ select.ent {
   display: grid;
   gap: var(--e3);
 }
+/* Aba Relatos: um cartão por sessão; o que falta escrever leva a borda âmbar. */
+.relatos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e3);
+}
+.relato {
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  background: var(--sf);
+}
+.relato[data-pendente] {
+  box-shadow: inset 3px 0 0 var(--at);
+}
+.relato-topo {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e3) var(--e4);
+  border: 0;
+  border-radius: var(--r2);
+  background: none;
+  color: var(--tx);
+  font: inherit;
+  text-align: left;
+}
+button.relato-topo {
+  cursor: pointer;
+}
+button.relato-topo:hover {
+  background: var(--ac-suave);
+}
+.relato-topo-texto {
+  flex: 1;
+  min-width: 10rem;
+  display: grid;
+}
+.relato-corpo {
+  display: grid;
+  gap: var(--e2);
+  padding: 0 var(--e4) var(--e4);
+}
 .linha-do-tempo {
   list-style: none;
   margin: 0;

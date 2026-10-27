@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength } from 'class-validator';
-import { MODALIDADES, STATUS_SESSAO, type Modalidade, type StatusSessao, PacienteDto } from '../pacientes/pacientes.dto';
+import { INTERVALOS, MODALIDADES, STATUS_SESSAO, type Modalidade, type StatusSessao, PacienteDto } from '../pacientes/pacientes.dto';
 import { SessaoAgendaDto } from '../agenda/agenda.dto';
 import { AnamneseDto } from './anamnese.dto';
 
@@ -21,7 +21,7 @@ export class AdendoDto {
 export class ObservacaoDto {
   @ApiProperty({ description: 'Quem lê é o psicólogo do paciente. Se não for, os outros campos vêm vazios.' })
   podeClinico: boolean;
-  @ApiProperty({ description: 'Sessão realizada ou com falta: aceita observação.' }) registravel: boolean;
+  @ApiProperty({ description: 'Sessão realizada ou com falta: aceita relato.' }) registravel: boolean;
   @ApiProperty({ description: 'Ainda dá para corrigir (30 dias depois da sessão). Depois, só adendo.' }) editavel: boolean;
   @ApiProperty({ type: String, nullable: true, format: 'date-time' }) editavelAte: string | null;
   @ApiProperty({ type: String, nullable: true }) texto: string | null;
@@ -35,7 +35,7 @@ export class ObservacaoDto {
 export class TextoObservacaoDto {
   @ApiProperty({ maxLength: 20000 })
   @IsString()
-  @MaxLength(20000, { message: 'Observação com até 20 mil caracteres.' })
+  @MaxLength(20000, { message: 'Relato com até 20 mil caracteres.' })
   texto: string;
 }
 
@@ -48,7 +48,8 @@ export class ItemHistoricoDto {
   @ApiProperty({ enum: MODALIDADES, enumName: 'Modalidade' }) modalidade: Modalidade;
   @ApiProperty({ enum: STATUS_SESSAO, enumName: 'StatusSessao' }) status: StatusSessao;
   @ApiProperty({ type: String, nullable: true, format: 'uuid' }) recorrenciaId: string | null;
-  @ApiProperty({ type: String, nullable: true, description: 'Só para o psicólogo do paciente.' }) observacao: string | null;
+  @ApiProperty({ type: Number, nullable: true, enum: INTERVALOS }) intervaloSemanas: number | null;
+  @ApiProperty({ type: String, nullable: true, description: 'Relato da sessão. Só para o psicólogo do paciente.' }) observacao: string | null;
   @ApiProperty({ type: String, nullable: true, format: 'date-time' }) alteradaEm: string | null;
   @ApiProperty({ type: Number, nullable: true }) versao: number | null;
   @ApiProperty() adendos: number;
@@ -56,7 +57,7 @@ export class ItemHistoricoDto {
 }
 
 export class PendenciaDto extends SessaoAgendaDto {
-  @ApiProperty({ format: 'date-time', description: 'Depois disso, a observação só entra como adendo.' }) editavelAte: string;
+  @ApiProperty({ format: 'date-time', description: 'Depois disso, o que faltou no relato só entra como adendo.' }) editavelAte: string;
 }
 
 // ------------------------------------------------------------ ficha

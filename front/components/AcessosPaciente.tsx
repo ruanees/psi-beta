@@ -19,7 +19,7 @@ const ACAO: Record<Dto<'AcaoAuditoria'>, string> = {
 
 const O_QUE: Record<string, string> = {
   pacientes: 'a ficha',
-  observacoes: 'observação',
+  observacoes: 'relato de sessão',
   adendos: 'adendo',
   sessoes: 'sessão',
   recorrencias: 'repetição',

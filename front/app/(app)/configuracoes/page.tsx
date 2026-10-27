@@ -38,12 +38,6 @@ export default function Configuracoes() {
               gravar={(v) => gravarPerfil({ crp: v || null })}
             />
             <CampoGravavel
-              rotulo="Cadastro e-Psi"
-              valor={p.epsiNumero ?? ''}
-              dica="Exigido pelo CFP para atendimento online."
-              gravar={(v) => gravarPerfil({ epsiNumero: v || null })}
-            />
-            <CampoGravavel
               rotulo="Valor padrão da sessão (R$)"
               valor={p.valorSessaoPadrao == null ? '' : String(p.valorSessaoPadrao).replace('.', ',')}
               inputMode="decimal"

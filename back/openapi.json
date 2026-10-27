@@ -1387,7 +1387,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Para sessão marcada por engano: some sem contar como falta. Com observação ou pagamento, o banco recusa.",
+            "description": "Para sessão marcada por engano: some sem contar como falta. Com relato ou pagamento, o banco recusa.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1756,7 +1756,7 @@
         },
         "responses": {
           "200": {
-            "description": "Só depois de a observação travar (30 dias da sessão).",
+            "description": "Só depois de o relato travar (30 dias da sessão).",
             "content": {
               "application/json": {
                 "schema": {
@@ -1926,7 +1926,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Sessões realizadas ainda sem observação.",
+            "description": "Sessões realizadas ainda sem relato.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3930,6 +3930,14 @@
                 "$ref": "#/components/schemas/Modalidade"
               }
             ]
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "1 = toda semana, 2 = a cada 15 dias."
           }
         },
         "required": [
@@ -3937,7 +3945,8 @@
           "diaSemana",
           "hora",
           "duracaoMin",
-          "modalidade"
+          "modalidade",
+          "intervaloSemanas"
         ]
       },
       "ContagemDto": {
@@ -4168,7 +4177,16 @@
             "type": "string",
             "nullable": true,
             "format": "uuid",
-            "description": "Preenchido quando a sessão se repete toda semana."
+            "description": "Preenchido quando a sessão faz parte de uma repetição."
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Da repetição: 1 = toda semana, 2 = a cada 15 dias."
           }
         },
         "required": [
@@ -4179,7 +4197,8 @@
           "fim",
           "modalidade",
           "status",
-          "recorrenciaId"
+          "recorrenciaId",
+          "intervaloSemanas"
         ]
       },
       "PacienteSemProximaDto": {
@@ -4244,7 +4263,16 @@
             "type": "string",
             "nullable": true,
             "format": "uuid",
-            "description": "Preenchido quando a sessão se repete toda semana."
+            "description": "Preenchido quando a sessão faz parte de uma repetição."
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Da repetição: 1 = toda semana, 2 = a cada 15 dias."
           },
           "link": {
             "type": "string",
@@ -4261,6 +4289,7 @@
           "modalidade",
           "status",
           "recorrenciaId",
+          "intervaloSemanas",
           "link"
         ]
       },
@@ -4338,6 +4367,14 @@
             "type": "string",
             "nullable": true,
             "format": "uuid"
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              1,
+              2
+            ]
           }
         },
         "required": [
@@ -4346,7 +4383,8 @@
           "fim",
           "modalidade",
           "status",
-          "recorrenciaId"
+          "recorrenciaId",
+          "intervaloSemanas"
         ]
       },
       "NovaSessaoDto": {
@@ -4376,7 +4414,15 @@
           },
           "repetirSemanal": {
             "type": "boolean",
-            "description": "Repete toda semana, no mesmo dia e hora."
+            "description": "Repete no mesmo dia e hora; o intervalo diz de quanto em quanto."
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Com repetirSemanal: 1 = toda semana (padrão), 2 = a cada 15 dias."
           }
         },
         "required": [
@@ -4412,6 +4458,14 @@
               "proximas"
             ],
             "description": "`proximas`: esta e as próximas da repetição."
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Só com escopo `proximas`: 1 = toda semana, 2 = a cada 15 dias. Sem ele, mantém o da repetição."
           }
         }
       },
@@ -4480,7 +4534,7 @@
           },
           "mantidas": {
             "type": "number",
-            "description": "Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm observação ou pagamento."
+            "description": "Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm relato ou pagamento."
           }
         },
         "required": [
@@ -4643,7 +4697,7 @@
           },
           "registravel": {
             "type": "boolean",
-            "description": "Sessão realizada ou com falta: aceita observação."
+            "description": "Sessão realizada ou com falta: aceita relato."
           },
           "editavel": {
             "type": "boolean",
@@ -4739,10 +4793,18 @@
             "nullable": true,
             "format": "uuid"
           },
+          "intervaloSemanas": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              1,
+              2
+            ]
+          },
           "observacao": {
             "type": "string",
             "nullable": true,
-            "description": "Só para o psicólogo do paciente."
+            "description": "Relato da sessão. Só para o psicólogo do paciente."
           },
           "alteradaEm": {
             "type": "string",
@@ -4768,6 +4830,7 @@
           "modalidade",
           "status",
           "recorrenciaId",
+          "intervaloSemanas",
           "observacao",
           "alteradaEm",
           "versao",
@@ -4989,12 +5052,21 @@
             "type": "string",
             "nullable": true,
             "format": "uuid",
-            "description": "Preenchido quando a sessão se repete toda semana."
+            "description": "Preenchido quando a sessão faz parte de uma repetição."
+          },
+          "intervaloSemanas": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Da repetição: 1 = toda semana, 2 = a cada 15 dias."
           },
           "editavelAte": {
             "type": "string",
             "format": "date-time",
-            "description": "Depois disso, a observação só entra como adendo."
+            "description": "Depois disso, o que faltou no relato só entra como adendo."
           }
         },
         "required": [
@@ -5006,6 +5078,7 @@
           "modalidade",
           "status",
           "recorrenciaId",
+          "intervaloSemanas",
           "editavelAte"
         ]
       },
@@ -5724,10 +5797,6 @@
             "type": "string",
             "description": "Token do link do paciente: o front monta /sala/<token>."
           },
-          "epsiOk": {
-            "type": "boolean",
-            "description": "Falso quando o perfil não tem o número do e-Psi."
-          },
           "google": {
             "description": "`indisponivel`: integração desligada; `reconectar`: o Google recusou o token.",
             "allOf": [
@@ -5748,7 +5817,6 @@
           "linkMeet",
           "linkPerfil",
           "token",
-          "epsiOk",
           "google",
           "avisoMeet"
         ]

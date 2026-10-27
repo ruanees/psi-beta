@@ -1,6 +1,16 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import { diaDaSemana, idade, inicioDaSemana, instante, partes, rotuloDaSemana, somarDias } from './datas.ts';
+import {
+  diaDaSemana,
+  frequencia,
+  idade,
+  inicioDaSemana,
+  instante,
+  partes,
+  repeticaoPorExtenso,
+  rotuloDaSemana,
+  somarDias,
+} from './datas.ts';
 
 describe('datas no fuso do consultório', () => {
   it('17h UTC é 14h em São Paulo, no mesmo dia', () => {
@@ -36,5 +46,15 @@ describe('datas no fuso do consultório', () => {
   it('idade em anos completos', () => {
     assert.equal(idade(null), null);
     assert.ok((idade('2000-01-01') ?? 0) >= 26);
+  });
+
+  it('repetição semanal e quinzenal por extenso', () => {
+    assert.equal(frequencia(1), 'toda semana');
+    assert.equal(frequencia(null), 'toda semana');
+    assert.equal(frequencia(2), 'a cada 15 dias');
+    assert.equal(repeticaoPorExtenso(2, 1), 'Toda terça');
+    assert.equal(repeticaoPorExtenso(6, 1), 'Todo sábado');
+    assert.equal(repeticaoPorExtenso(0, null), 'Todo domingo');
+    assert.equal(repeticaoPorExtenso(4, 2), 'Quinta, a cada 15 dias');
   });
 });
