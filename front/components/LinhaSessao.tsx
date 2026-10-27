@@ -1,11 +1,12 @@
 'use client';
 
 import type { Dto } from '@/lib/api.ts';
-import { diaPorExtenso, partes } from '@/lib/datas.ts';
+import { diaPorExtenso, frequencia, partes } from '@/lib/datas.ts';
 import { MODALIDADE, STATUS_SESSAO } from '@/lib/status.ts';
 import { Icone } from './Icone';
 
 type Sessao = Pick<Dto<'SessaoAgendaDto'>, 'inicio' | 'fim' | 'modalidade' | 'status' | 'recorrenciaId'> & {
+  intervaloSemanas?: number | null;
   pacienteNome?: string;
 };
 
@@ -24,7 +25,7 @@ export function LinhaSessao({ sessao, aoAbrir, comNome = true }: { sessao: Sessa
         <strong>{comNome ? sessao.pacienteNome : diaPorExtenso(ini.dia)}</strong>
         <small className="mudo">
           {MODALIDADE[sessao.modalidade]}
-          {sessao.recorrenciaId ? ' · toda semana' : ''}
+          {sessao.recorrenciaId ? ` · ${frequencia(sessao.intervaloSemanas)}` : ''}
         </small>
       </span>
       {sessao.modalidade === 'online' && (

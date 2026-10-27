@@ -17,8 +17,6 @@ export class SalaSessaoDto {
   linkPerfil: string | null;
   @ApiProperty({ description: 'Token do link do paciente: o front monta /sala/<token>.' })
   token: string;
-  @ApiProperty({ description: 'Falso quando o perfil não tem o número do e-Psi.' })
-  epsiOk: boolean;
   @ApiProperty({
     enum: GOOGLE_SALA,
     enumName: 'GoogleSala',

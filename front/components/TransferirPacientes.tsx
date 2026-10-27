@@ -88,7 +88,7 @@ export function TransferirPacientes({ conta }: { conta: string }) {
     const ok = window.confirm(
       `Transferir ${frasePacientes(escolhidos.length)} de ${nomeDe} para ${nomePara}?\n\n` +
         `${nomePara} passa a ler e escrever o prontuário, e ${nomeDe} deixa de ler. ` +
-        'As sessões futuras e a repetição semanal vão junto; as passadas ficam com quem atendeu.',
+        'As sessões futuras e a repetição vão junto; as passadas ficam com quem atendeu.',
     );
     if (!ok) return;
     setOcupado(true);
@@ -120,7 +120,7 @@ export function TransferirPacientes({ conta }: { conta: string }) {
       <h2>Transferir pacientes</h2>
       <p className="mudo">
         Passa pacientes de um psicólogo para outro do consultório, com o prontuário. Quem recebe passa a ler e escrever o
-        clínico; quem entregou deixa de ler. As sessões futuras e a repetição semanal vão junto, e as passadas ficam com
+        clínico; quem entregou deixa de ler. As sessões futuras e a repetição vão junto, e as passadas ficam com
         quem atendeu.
       </p>
       {msg && (

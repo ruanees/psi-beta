@@ -80,12 +80,6 @@ export function SalaOnline({ sessao, paciente }: { sessao: string; paciente: str
         </span>
       </div>
 
-      {!sala.epsiOk && (
-        <div className="aviso" data-t="atencao">
-          Atendimento online pede cadastro no e-Psi (Resolução CFP 11/2018). Preencha o número em{' '}
-          <Link href="/configuracoes">Configurações</Link>.
-        </div>
-      )}
       {sala.google === 'reconectar' && (
         <div className="aviso" data-t="atencao">
           O Google não aceita mais a sua conexão, então o Senda não cria salas do Meet. Conecte de novo em{' '}

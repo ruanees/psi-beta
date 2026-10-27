@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsIn, IsInt, IsISO8601, IsOptional, IsUUID, Max, Min } from 'class-validator';
-import { MODALIDADES, STATUS_SESSAO, type Modalidade, type StatusSessao } from '../pacientes/pacientes.dto';
+import { INTERVALOS, MODALIDADES, STATUS_SESSAO, type Modalidade, type StatusSessao } from '../pacientes/pacientes.dto';
 
 export class SessaoAgendaDto {
   @ApiProperty({ format: 'uuid' }) id: string;
@@ -10,8 +10,10 @@ export class SessaoAgendaDto {
   @ApiProperty({ format: 'date-time' }) fim: string;
   @ApiProperty({ enum: MODALIDADES, enumName: 'Modalidade' }) modalidade: Modalidade;
   @ApiProperty({ enum: STATUS_SESSAO, enumName: 'StatusSessao' }) status: StatusSessao;
-  @ApiProperty({ type: String, nullable: true, format: 'uuid', description: 'Preenchido quando a sessão se repete toda semana.' })
+  @ApiProperty({ type: String, nullable: true, format: 'uuid', description: 'Preenchido quando a sessão faz parte de uma repetição.' })
   recorrenciaId: string | null;
+  @ApiProperty({ type: Number, nullable: true, enum: INTERVALOS, description: 'Da repetição: 1 = toda semana, 2 = a cada 15 dias.' })
+  intervaloSemanas: number | null;
 }
 
 export class SessaoDoPacienteDto {
@@ -21,6 +23,7 @@ export class SessaoDoPacienteDto {
   @ApiProperty({ enum: MODALIDADES, enumName: 'Modalidade' }) modalidade: Modalidade;
   @ApiProperty({ enum: STATUS_SESSAO, enumName: 'StatusSessao' }) status: StatusSessao;
   @ApiProperty({ type: String, nullable: true, format: 'uuid' }) recorrenciaId: string | null;
+  @ApiProperty({ type: Number, nullable: true, enum: INTERVALOS }) intervaloSemanas: number | null;
 }
 
 export class PacienteSemProximaDto {
@@ -73,10 +76,15 @@ export class NovaSessaoDto {
   @IsIn(MODALIDADES, { message: 'Escolha presencial ou online.' })
   modalidade: Modalidade;
 
-  @ApiPropertyOptional({ description: 'Repete toda semana, no mesmo dia e hora.' })
+  @ApiPropertyOptional({ description: 'Repete no mesmo dia e hora; o intervalo diz de quanto em quanto.' })
   @IsOptional()
   @IsBoolean()
   repetirSemanal?: boolean;
+
+  @ApiPropertyOptional({ enum: INTERVALOS, description: 'Com repetirSemanal: 1 = toda semana (padrão), 2 = a cada 15 dias.' })
+  @IsOptional()
+  @IsIn(INTERVALOS, { message: 'Escolha repetir toda semana ou a cada 15 dias.' })
+  intervaloSemanas?: number;
 }
 
 export const ESCOPOS = ['esta', 'proximas'] as const;
@@ -103,6 +111,11 @@ export class AlterarSessaoDto {
   @IsOptional()
   @IsIn(ESCOPOS)
   escopo?: (typeof ESCOPOS)[number];
+
+  @ApiPropertyOptional({ enum: INTERVALOS, description: 'Só com escopo `proximas`: 1 = toda semana, 2 = a cada 15 dias. Sem ele, mantém o da repetição.' })
+  @IsOptional()
+  @IsIn(INTERVALOS, { message: 'Escolha repetir toda semana ou a cada 15 dias.' })
+  intervaloSemanas?: number;
 }
 
 export const STATUS_MARCAVEIS = ['agendada', 'confirmada', 'realizada', 'falta'] as const;
@@ -146,5 +159,5 @@ export class ExcluirSessaoDto {
 
 export class ExclusaoDto {
   @ApiProperty() excluidas: number;
-  @ApiProperty({ description: 'Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm observação ou pagamento.' }) mantidas: number;
+  @ApiProperty({ description: 'Sessões da repetição que ficaram: já aconteceram (realizada, falta, desmarcada) ou têm relato ou pagamento.' }) mantidas: number;
 }

@@ -43,6 +43,13 @@ describe('pacientes: API x banco', () => {
 
   it('sessao_criar lê o que o serviço da agenda manda', () => {
     assert.deepEqual(chaves(corpo('sessao_criar'), 'd', '->>'), ['duracao_min', 'inicio', 'modalidade', 'paciente_id', 'repetir_semanal']);
+    assert.match(corpo('sessao_criar'), /privado\.intervalo_pedido\(d\)/);
+    assert.match(sql, /d ->> 'intervalo_semanas'/);
+  });
+
+  it('sessao_alterar lê o que o serviço da agenda manda', () => {
+    assert.deepEqual(chaves(corpo('sessao_alterar'), 'd', '->>'), ['duracao_min', 'inicio', 'modalidade']);
+    assert.match(corpo('sessao_alterar'), /privado\.intervalo_pedido\(d, rc\.intervalo_semanas\)/);
   });
 
   it('paciente_criar repassa o plano para paciente_plano', () => {

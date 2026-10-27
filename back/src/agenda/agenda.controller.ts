@@ -87,7 +87,7 @@ export class AgendaController {
   @Delete('sessoes/:sessao')
   @ApiOkResponse({
     type: ExclusaoDto,
-    description: 'Para sessão marcada por engano: some sem contar como falta. Com observação ou pagamento, o banco recusa.',
+    description: 'Para sessão marcada por engano: some sem contar como falta. Com relato ou pagamento, o banco recusa.',
   })
   excluir(
     @Jwt() jwt: string,

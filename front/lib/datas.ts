@@ -93,3 +93,18 @@ export function idade(nascimento: string | null | undefined): number | null {
 }
 
 export const DIAS_DA_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+/** De quantas em quantas semanas a sessão volta. */
+export type Intervalo = 1 | 2;
+
+/** A repetição em poucas palavras, para uma linha de sessão: "toda semana" ou "a cada 15 dias". */
+export function frequencia(intervalo: number | null | undefined): string {
+  return intervalo === 2 ? 'a cada 15 dias' : 'toda semana';
+}
+
+/** A repetição com o dia: "Toda terça", "Todo sábado", "Terça, a cada 15 dias". */
+export function repeticaoPorExtenso(diaSemana: number, intervalo: number | null | undefined): string {
+  const dia = DIAS_DA_SEMANA[diaSemana] ?? 'semana';
+  if (intervalo === 2) return `${dia[0].toUpperCase()}${dia.slice(1)}, a cada 15 dias`;
+  return `${diaSemana === 0 || diaSemana === 6 ? 'Todo' : 'Toda'} ${dia}`;
+}

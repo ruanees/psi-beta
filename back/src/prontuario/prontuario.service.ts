@@ -35,6 +35,7 @@ interface SessaoBanco {
   modalidade: SessaoAgendaDto['modalidade'];
   status: SessaoAgendaDto['status'];
   recorrencia_id?: string | null;
+  intervalo_semanas?: number | null;
 }
 
 type HistoricoBanco = SessaoBanco & {
@@ -95,6 +96,7 @@ export class ProntuarioService {
       modalidade: l.modalidade,
       status: l.status,
       recorrenciaId: l.recorrencia_id ?? null,
+      intervaloSemanas: l.intervalo_semanas ?? null,
       observacao: l.observacao,
       alteradaEm: l.alterada_em,
       versao: l.versao,
@@ -114,6 +116,7 @@ export class ProntuarioService {
       modalidade: l.modalidade,
       status: l.status,
       recorrenciaId: l.recorrencia_id ?? null,
+      intervaloSemanas: l.intervalo_semanas ?? null,
       editavelAte: l.editavel_ate,
     }));
   }

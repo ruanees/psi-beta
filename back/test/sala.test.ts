@@ -58,7 +58,7 @@ describe('sala online: API x banco', () => {
   });
 
   it('o serviço lê as chaves que as funções devolvem', () => {
-    for (const chave of ['link', 'link_sessao', 'link_meet', 'link_perfil', 'token', 'epsi_ok', 'paciente_id', 'modalidade', 'google']) {
+    for (const chave of ['link', 'link_sessao', 'link_meet', 'link_perfil', 'token', 'paciente_id', 'modalidade', 'google']) {
       assert.match(definicao('sala_sessao')[0], new RegExp(`'${chave}'`), chave);
     }
     for (const chave of ['profissional', 'situacao', 'inicio', 'fim', 'abre_em', 'link']) {

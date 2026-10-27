@@ -51,7 +51,6 @@ export default function Inicio() {
   const primeiroNome = nome.split(' ')[0];
   const pendencias = [
     !conta.perfil?.crp && 'CRP',
-    !conta.perfil?.epsiNumero && 'cadastro e-Psi',
     conta.perfil?.valorSessaoPadrao == null && 'valor padrão da sessão',
   ].filter(Boolean) as string[];
   const nHoje = painel?.hoje.length ?? 0;
@@ -195,8 +194,8 @@ export default function Inicio() {
         {semObservacao.length > 0 && (
           <section className="cartao">
             <div className="cartao-topo">
-              <h2>Observações pendentes</h2>
-              <span className="mudo pequeno">Sessões realizadas ainda sem observação</span>
+              <h2>Relatos pendentes</h2>
+              <span className="mudo pequeno">Sessões realizadas ainda sem relato</span>
             </div>
             <ul className="lista-sessoes">
               {semObservacao.map((s) => {

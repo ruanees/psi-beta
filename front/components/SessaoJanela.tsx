@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, type Dto } from '@/lib/api.ts';
-import { DESLOCAMENTO, diaPorExtenso, hoje, instante, partes } from '@/lib/datas.ts';
+import { DESLOCAMENTO, diaDaSemana, diaPorExtenso, hoje, instante, partes, repeticaoPorExtenso, type Intervalo } from '@/lib/datas.ts';
 import { duracao } from '@/lib/formato.ts';
 import { MODALIDADE, STATUS_SESSAO } from '@/lib/status.ts';
 import { useApp } from './EstadoApp';
@@ -19,7 +19,7 @@ import { SalaOnline } from './SalaOnline';
 
 export type SessaoVista = Pick<
   Dto<'SessaoAgendaDto'>,
-  'id' | 'pacienteId' | 'pacienteNome' | 'inicio' | 'fim' | 'modalidade' | 'status' | 'recorrenciaId'
+  'id' | 'pacienteId' | 'pacienteNome' | 'inicio' | 'fim' | 'modalidade' | 'status' | 'recorrenciaId' | 'intervaloSemanas'
 >;
 
 export type ModoSessao =
@@ -108,7 +108,8 @@ function NovaSessao({
     duracaoMin: 50,
     modalidade: 'presencial',
   });
-  const [repetir, setRepetir] = useState(true);
+  // 0 = não repete; 1 = toda semana; 2 = a cada 15 dias.
+  const [repetir, setRepetir] = useState<0 | Intervalo>(1);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
@@ -127,7 +128,14 @@ function NovaSessao({
     try {
       await api('post', '/contas/{conta}/sessoes', {
         params: { conta: conta.id },
-        corpo: { pacienteId, inicio: instante(v.dia, v.hora), duracaoMin: v.duracaoMin, modalidade: v.modalidade, repetirSemanal: repetir },
+        corpo: {
+          pacienteId,
+          inicio: instante(v.dia, v.hora),
+          duracaoMin: v.duracaoMin,
+          modalidade: v.modalidade,
+          repetirSemanal: repetir > 0,
+          intervaloSemanas: repetir === 0 ? undefined : repetir,
+        },
       });
       aoMudar();
       aoFechar();
@@ -182,18 +190,28 @@ function NovaSessao({
           </label>
         )}
         <CamposDaSessao v={v} mudar={(p) => setV({ ...v, ...p })} />
-        <label className="alternar">
-          <input type="checkbox" checked={repetir} onChange={(e) => setRepetir(e.target.checked)} />
-          Repetir toda {nomeDoDiaSemana(v.dia)}, no mesmo horário
-        </label>
+        <div className="campo">
+          <span>Horário de sempre</span>
+          <div className="segmento" role="group" aria-label="Repetição">
+            <button type="button" aria-pressed={repetir === 0} onClick={() => setRepetir(0)}>
+              Só esta
+            </button>
+            <button type="button" aria-pressed={repetir === 1} onClick={() => setRepetir(1)}>
+              Toda semana
+            </button>
+            <button type="button" aria-pressed={repetir === 2} onClick={() => setRepetir(2)}>
+              A cada 15 dias
+            </button>
+          </div>
+          <small>
+            {repetir === 0
+              ? 'Uma sessão só, sem repetir.'
+              : `${repeticaoPorExtenso(diaDaSemana(v.dia), repetir)}, às ${v.hora || '--:--'}. As próximas entram na agenda sozinhas.`}
+          </small>
+        </div>
       </form>
     </Janela>
   );
-}
-
-function nomeDoDiaSemana(dia: string): string {
-  const n = new Date(`${dia}T12:00:00Z`).getUTCDay();
-  return ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][n] ?? 'semana';
 }
 
 // ------------------------------------------------------------ ver, remarcar, desmarcar
@@ -209,7 +227,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
   const [etapa, setEtapa] = useState<Etapa>('ver');
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  // Presença e falta não fecham a janela: o próximo passo é escrever a observação.
+  // Presença e falta não fecham a janela: o próximo passo é escrever o relato.
   const [status, setStatus] = useState(sessao.status);
   const ini = partes(sessao.inicio);
   const fim = partes(sessao.fim);
@@ -234,7 +252,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
   const mudarStatus = async (novo: Dto<'StatusSessaoDto'>['status']) => {
     const gravar = () =>
       api('post', '/contas/{conta}/sessoes/{sessao}/status', { params: { conta: conta.id, sessao: sessao.id }, corpo: { status: novo } });
-    // A janela fica aberta: dá para ver a nova situação e seguir (observação, cobrança).
+    // A janela fica aberta: dá para ver a nova situação e seguir (relato, cobrança).
     setErro(null);
     setOcupado(true);
     try {
@@ -333,7 +351,7 @@ function VerSessao({ sessao, aoFechar, aoMudar }: { sessao: SessaoVista; aoFecha
           <span className="etiqueta">{duracao(durMin)}</span>
           {sessao.recorrenciaId && (
             <span className="etiqueta" data-v="ac">
-              <Icone nome="repetir" tamanho={14} /> Toda {nomeDoDiaSemana(ini.dia)}
+              <Icone nome="repetir" tamanho={14} /> {repeticaoPorExtenso(diaDaSemana(ini.dia), sessao.intervaloSemanas)}
             </span>
           )}
         </div>
@@ -443,6 +461,7 @@ function Remarcar({
   const ini = partes(sessao.inicio);
   const [v, setV] = useState<Valores>({ dia: ini.dia, hora: ini.hora, duracaoMin: durMin, modalidade: sessao.modalidade });
   const [escopo, setEscopo] = useState<'esta' | 'proximas'>('esta');
+  const [intervalo, setIntervalo] = useState<Intervalo>(sessao.intervaloSemanas === 2 ? 2 : 1);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
@@ -453,7 +472,13 @@ function Remarcar({
     try {
       await api('patch', '/contas/{conta}/sessoes/{sessao}', {
         params: { conta: conta.id, sessao: sessao.id },
-        corpo: { inicio: instante(v.dia, v.hora), duracaoMin: v.duracaoMin, modalidade: v.modalidade, escopo },
+        corpo: {
+          inicio: instante(v.dia, v.hora),
+          duracaoMin: v.duracaoMin,
+          modalidade: v.modalidade,
+          escopo,
+          ...(escopo === 'proximas' && { intervaloSemanas: intervalo }),
+        },
       });
       aoMudar();
       aoFechar();
@@ -498,6 +523,22 @@ function Remarcar({
                 Esta e as próximas
               </button>
             </div>
+          </div>
+        )}
+        {sessao.recorrenciaId && escopo === 'proximas' && (
+          <div className="campo">
+            <span>Repete</span>
+            <div className="segmento" role="group" aria-label="Repete">
+              <button type="button" aria-pressed={intervalo === 1} onClick={() => setIntervalo(1)}>
+                Toda semana
+              </button>
+              <button type="button" aria-pressed={intervalo === 2} onClick={() => setIntervalo(2)}>
+                A cada 15 dias
+              </button>
+            </div>
+            <small>
+              {repeticaoPorExtenso(diaDaSemana(v.dia), intervalo)}, às {v.hora}, a partir de {diaPorExtenso(v.dia)}.
+            </small>
           </div>
         )}
       </form>
@@ -664,7 +705,7 @@ function Excluir({
         <div className="aviso" data-t="atencao">
           {mantidas.excluidas === 1 ? '1 sessão excluída' : `${mantidas.excluidas} sessões excluídas`}.{' '}
           {mantidas.mantidas === 1 ? '1 sessão ficou' : `${mantidas.mantidas} sessões ficaram`} no histórico porque já
-          aconteceu (realizada, falta ou desmarcada) ou tem observação ou pagamento. A repetição não gera mais sessões.
+          aconteceu (realizada, falta ou desmarcada) ou tem relato ou pagamento. A repetição não gera mais sessões.
         </div>
       </Janela>
     );
@@ -717,7 +758,7 @@ function Excluir({
           </div>
         )}
         <div className="aviso" data-t="atencao">
-          Cobrança ainda não paga sai junto e a sessão de pacote volta ao saldo. Sessão com observação no prontuário ou
+          Cobrança ainda não paga sai junto e a sessão de pacote volta ao saldo. Sessão com relato no prontuário ou
           com pagamento recebido não pode ser excluída.
         </div>
       </div>

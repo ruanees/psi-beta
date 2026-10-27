@@ -10,6 +10,7 @@ import { FinanceiroPaciente } from '@/components/FinanceiroPaciente';
 import { HistoricoPaciente } from '@/components/HistoricoPaciente';
 import { PacotesPaciente, SaldoPacote } from '@/components/PacotesPaciente';
 import { Recibos } from '@/components/Recibos';
+import { RelatosPaciente } from '@/components/RelatosPaciente';
 import { LinhaSessao } from '@/components/LinhaSessao';
 import { AcessosPaciente } from '@/components/AcessosPaciente';
 import { AnamnesePaciente, SaudeResumo } from '@/components/AnamnesePaciente';
@@ -18,7 +19,7 @@ import { iniciais } from '@/components/Moldura';
 import { SessaoJanela, type ModoSessao } from '@/components/SessaoJanela';
 import { api, type Dto } from '@/lib/api.ts';
 import { cpfFormatado, soDigitos } from '@/lib/campos.ts';
-import { DIAS_DA_SEMANA, diaPorExtenso, hoje, idade, partes } from '@/lib/datas.ts';
+import { diaPorExtenso, hoje, idade, partes, repeticaoPorExtenso } from '@/lib/datas.ts';
 import { duracao, fd } from '@/lib/formato.ts';
 import { resumoPlano } from '@/lib/planos.ts';
 import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
@@ -26,10 +27,12 @@ import { MODALIDADE, SITUACAO_PACIENTE, STATUS_SESSAO } from '@/lib/status.ts';
 // Ficha do paciente. Abas do beta (PLANO.md, seção 05): Resumo, Sessões e
 
 type Paciente = Dto<'PacienteDto'>;
-type Aba = 'resumo' | 'anamnese' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'recibos' | 'dados';
+type Aba = 'resumo' | 'relatos' | 'anamnese' | 'sessoes' | 'historico' | 'pacotes' | 'financeiro' | 'recibos' | 'dados';
 
-const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number }[] = [
+// `clinica`: só aparece para o psicólogo do paciente.
+const ABAS: { id: Aba | string; rotulo: string; pronta: boolean; fase?: number; clinica?: boolean }[] = [
   { id: 'resumo', rotulo: 'Resumo', pronta: true },
+  { id: 'relatos', rotulo: 'Relatos', pronta: true, clinica: true },
   { id: 'anamnese', rotulo: 'Anamnese', pronta: true },
   { id: 'sessoes', rotulo: 'Sessões', pronta: true },
   { id: 'historico', rotulo: 'Histórico', pronta: true },
@@ -132,7 +135,7 @@ export default function FichaDoPaciente() {
       </section>
 
       <nav className="abas" aria-label="Seções da ficha">
-        {ABAS.map((a) =>
+        {ABAS.filter((a) => !a.clinica || p.podeClinico).map((a) =>
           a.pronta ? (
             <button key={a.id} type="button" aria-current={aba === a.id ? 'page' : undefined} onClick={() => setAba(a.id as Aba)}>
               {a.rotulo}
@@ -147,6 +150,17 @@ export default function FichaDoPaciente() {
 
       {aba === 'resumo' && (
         <Resumo p={p} gravar={gravar} abrirSessao={abrirSessao} sessoes={sessoes ?? []} abrirAnamnese={() => setAba('anamnese')} />
+      )}
+
+      {aba === 'relatos' && p.podeClinico && (
+        <RelatosPaciente
+          paciente={p.id}
+          recarga={recarga}
+          aoMudar={() => {
+            void carregar();
+            setRecarga((n) => n + 1);
+          }}
+        />
       )}
 
       {aba === 'anamnese' && <AnamnesePaciente paciente={p.id} />}
@@ -235,7 +249,7 @@ function Resumo({
         )}
         {p.repeticao && (
           <span className="etiqueta" data-v="ac">
-            <Icone nome="repetir" tamanho={14} /> Toda {DIAS_DA_SEMANA[p.repeticao.diaSemana]}, {p.repeticao.hora},{' '}
+            <Icone nome="repetir" tamanho={14} /> {repeticaoPorExtenso(p.repeticao.diaSemana, p.repeticao.intervaloSemanas)}, {p.repeticao.hora},{' '}
             {duracao(p.repeticao.duracaoMin)}
           </span>
         )}
@@ -456,7 +470,7 @@ function Dados({
             <div className="aviso" data-t="atencao">
               {confirmar === 'ativo'
                 ? 'O paciente volta para a lista de ativos e pode receber sessões de novo.'
-                : 'A repetição semanal é encerrada e as sessões futuras saem da agenda. O histórico continua guardado.'}
+                : 'A repetição é encerrada e as sessões futuras saem da agenda. O histórico continua guardado.'}
             </div>
             <div className="linha">
               <button className="btn" onClick={() => void mudarSituacao(confirmar)}>

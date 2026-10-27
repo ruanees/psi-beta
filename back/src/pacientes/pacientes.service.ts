@@ -48,7 +48,7 @@ export interface PacienteBanco {
   criado_em: string;
   responsaveis: { id: string; nome: string; parentesco: string | null; telefone: string | null; cpf: string | null; financeiro: boolean }[];
   proxima_sessao: SessaoResumoDto | null;
-  repeticao: { id: string; dia_semana: number; hora: string; duracao_min: number; modalidade: 'presencial' | 'online' } | null;
+  repeticao: { id: string; dia_semana: number; hora: string; duracao_min: number; modalidade: 'presencial' | 'online'; intervalo_semanas?: number } | null;
   contagem: { realizadas: number; faltas: number; canceladas: number };
 }
 
@@ -75,6 +75,7 @@ export function pacienteDoBanco(b: PacienteBanco): PacienteDto {
       hora: b.repeticao.hora,
       duracaoMin: b.repeticao.duracao_min,
       modalidade: b.repeticao.modalidade,
+      intervaloSemanas: b.repeticao.intervalo_semanas ?? 1,
     },
     contagem: b.contagem,
   };

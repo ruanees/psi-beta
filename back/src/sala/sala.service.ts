@@ -10,7 +10,6 @@ interface SalaBanco {
   link_meet: string | null;
   link_perfil: string | null;
   token: string;
-  epsi_ok: boolean;
   paciente_id: string;
   modalidade: 'presencial' | 'online';
   google: 'desconectada' | 'conectada' | 'reconectar';
@@ -34,7 +33,6 @@ export class SalaService {
       linkMeet: r.link_meet,
       linkPerfil: r.link_perfil,
       token: r.token,
-      epsiOk: r.epsi_ok,
       google: this.google.disponivel() ? r.google : 'indisponivel',
       avisoMeet,
     };

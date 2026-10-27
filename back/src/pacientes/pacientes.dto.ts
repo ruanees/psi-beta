@@ -65,12 +65,16 @@ export class SessaoResumoDto {
   @ApiProperty({ enum: STATUS_SESSAO, enumName: 'StatusSessao' }) status: StatusSessao;
 }
 
+/** De quantas em quantas semanas a repetição volta: toda semana ou a cada 15 dias. */
+export const INTERVALOS = [1, 2] as const;
+
 export class RepeticaoDto {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty({ description: '0 = domingo.' }) diaSemana: number;
   @ApiProperty({ example: '14:00' }) hora: string;
   @ApiProperty() duracaoMin: number;
   @ApiProperty({ enum: MODALIDADES, enumName: 'Modalidade' }) modalidade: Modalidade;
+  @ApiProperty({ enum: INTERVALOS, description: '1 = toda semana, 2 = a cada 15 dias.' }) intervaloSemanas: number;
 }
 
 export class ContagemDto {

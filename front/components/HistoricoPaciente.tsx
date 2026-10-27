@@ -7,7 +7,7 @@ import { LinhaSessao } from './LinhaSessao';
 import { useApp } from './EstadoApp';
 
 // Aba Histórico: tudo o que já aconteceu com o paciente, da mais recente para
-// a mais antiga, com a observação de cada sessão para o psicólogo do paciente.
+// a mais antiga, com o relato de cada sessão para o psicólogo do paciente.
 
 type Item = Dto<'ItemHistoricoDto'>;
 type Periodo = '3' | '12' | 'tudo';
@@ -59,7 +59,7 @@ export function HistoricoPaciente({ paciente, podeClinico, recarga, aoAbrir }: P
       </div>
       {podeClinico && semObservacao > 0 && (
         <div className="aviso" data-t="atencao">
-          {semObservacao === 1 ? '1 sessão realizada está' : `${semObservacao} sessões realizadas estão`} sem observação.
+          {semObservacao === 1 ? '1 sessão realizada está' : `${semObservacao} sessões realizadas estão`} sem relato.
         </div>
       )}
       {erro && (
@@ -85,8 +85,8 @@ export function HistoricoPaciente({ paciente, podeClinico, recarga, aoAbrir }: P
                   ) : i.status === 'realizada' && i.adendos === 0 ? (
                     <button type="button" className="lk pequeno" onClick={() => aoAbrir(i)}>
                       {new Date(i.editavelAte).getTime() > Date.now()
-                        ? `Escrever a observação (até ${fd(i.editavelAte)})`
-                        : 'Sem observação · adicionar adendo'}
+                        ? `Escrever o relato (até ${fd(i.editavelAte)})`
+                        : 'Sem relato · adicionar adendo'}
                     </button>
                   ) : null}
                   {i.adendos > 0 && (

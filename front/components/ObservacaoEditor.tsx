@@ -5,10 +5,10 @@ import { api, type Dto } from '@/lib/api.ts';
 import { fd, fdh } from '@/lib/formato.ts';
 import { useApp } from './EstadoApp';
 
-// Observação da sessão. Grava no botão Salvar e também ao sair do campo; cada
-// correção guarda a versão anterior (o banco faz isso, não a tela). Um mês
-// depois da sessão ela trava, e o que faltou dizer entra como adendo, que não
-// muda mais.
+// Relato da sessão (no banco, `observacoes`). Grava no botão Salvar e também
+// ao sair do campo; cada correção guarda a versão anterior (o banco faz isso,
+// não a tela). Um mês depois da sessão ele trava, e o que faltou dizer entra
+// como adendo, que não muda mais.
 
 type Observacao = Dto<'ObservacaoDto'>;
 
@@ -16,9 +16,11 @@ interface Props {
   sessao: string;
   /** Avisa quem abriu (lista de pendências, histórico) que algo foi gravado. */
   aoGravar?: () => void;
+  /** Sem o título: quem abriu já mostra de que sessão é o relato. */
+  semTitulo?: boolean;
 }
 
-export function ObservacaoEditor({ sessao, aoGravar }: Props) {
+export function ObservacaoEditor({ sessao, aoGravar, semTitulo = false }: Props) {
   const { conta } = useApp();
   const params = { conta: conta.id, sessao };
   const [o, setO] = useState<Observacao | null>(null);
@@ -36,7 +38,7 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
       setO(lida);
       setTexto(lida.texto ?? '');
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível ler a observação.');
+      setErro(e instanceof Error ? e.message : 'Não foi possível ler o relato.');
     }
   }, [conta.id, sessao]);
 
@@ -51,9 +53,9 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
       </div>
     );
   }
-  if (!o) return <p className="mudo pequeno">Carregando observação…</p>;
-  if (!o.podeClinico) return <p className="mudo pequeno">A observação desta sessão só aparece para o psicólogo do paciente.</p>;
-  if (!o.registravel) return <p className="mudo pequeno">Marque presença ou falta para registrar a observação.</p>;
+  if (!o) return <p className="mudo pequeno">Carregando relato…</p>;
+  if (!o.podeClinico) return <p className="mudo pequeno">O relato desta sessão só aparece para o psicólogo do paciente.</p>;
+  if (!o.registravel) return <p className="mudo pequeno">Marque presença ou falta para escrever o relato.</p>;
 
   // Texto igual ao gravado, ou campo vazio sem nada gravado antes: nada a salvar.
   const alterada = texto.trim() !== (o.texto ?? '').trim() && (texto.trim() !== '' || Boolean(o.texto));
@@ -99,19 +101,21 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
         ? 'Alterações ainda não salvas'
         : o.versao
           ? `Versão ${o.versao}, gravada em ${fdh(o.alteradaEm!)}`
-          : 'Ainda sem observação';
+          : 'Ainda sem relato';
 
   return (
     <div className="observacao pilha" data-g="p">
-      <div className="cartao-topo">
-        <strong>Observação da sessão</strong>
-        <span className="etiqueta">Dado clínico · só você vê</span>
-      </div>
+      {!semTitulo && (
+        <div className="cartao-topo">
+          <strong>Relato da sessão</strong>
+          <span className="etiqueta">Dado clínico · só você vê</span>
+        </div>
+      )}
 
       {o.editavel ? (
         <>
           <label className="campo">
-            <span className="oculto">Observação da sessão</span>
+            <span className="oculto">Relato da sessão</span>
             <textarea
               className="ent"
               rows={6}
@@ -125,7 +129,7 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
               onBlur={() => void gravar()}
             />
             <small>
-              {situacao} · pode ser corrigida até {fd(o.editavelAte)}
+              {situacao} · pode ser corrigido até {fd(o.editavelAte)}
             </small>
           </label>
           <div className="linha">
@@ -134,17 +138,17 @@ export function ObservacaoEditor({ sessao, aoGravar }: Props) {
             </button>
             {estado === 'gravado' && !alterada && (
               <span className="pequeno mudo" role="status">
-                Observação salva.
+                Relato salvo.
               </span>
             )}
           </div>
         </>
       ) : (
         <>
-          {o.texto ? <p className="observacao-texto">{o.texto}</p> : <p className="mudo">Sem observação registrada.</p>}
+          {o.texto ? <p className="observacao-texto">{o.texto}</p> : <p className="mudo">Sem relato registrado.</p>}
           <small className="mudo">
-            {o.versao ? `${situacao} · ` : ''}Travada desde {fd(o.editavelAte)}: um mês depois da sessão a observação não
-            muda mais.
+            {o.versao ? `${situacao} · ` : ''}Travado desde {fd(o.editavelAte)}: um mês depois da sessão o relato não muda
+            mais.
           </small>
         </>
       )}

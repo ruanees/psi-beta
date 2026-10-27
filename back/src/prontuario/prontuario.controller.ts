@@ -57,7 +57,7 @@ export class ProntuarioController {
   }
 
   @Post('sessoes/:sessao/adendos')
-  @ApiOkResponse({ type: IdDto, description: 'Só depois de a observação travar (30 dias da sessão).' })
+  @ApiOkResponse({ type: IdDto, description: 'Só depois de o relato travar (30 dias da sessão).' })
   adendo(
     @Jwt() jwt: string,
     @Param('conta', UUID) conta: string,
@@ -86,7 +86,7 @@ export class ProntuarioController {
   }
 
   @Get('pendencias')
-  @ApiOkResponse({ type: PendenciaDto, isArray: true, description: 'Sessões realizadas ainda sem observação.' })
+  @ApiOkResponse({ type: PendenciaDto, isArray: true, description: 'Sessões realizadas ainda sem relato.' })
   pendencias(@Jwt() jwt: string, @Param('conta', UUID) conta: string) {
     return this.prontuario.pendencias(jwt, conta);
   }

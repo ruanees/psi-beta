@@ -21,6 +21,7 @@ interface SessaoBanco {
   modalidade: SessaoAgendaDto['modalidade'];
   status: SessaoAgendaDto['status'];
   recorrencia_id?: string | null;
+  intervalo_semanas?: number | null;
 }
 
 function sessao(b: SessaoBanco): SessaoAgendaDto {
@@ -33,6 +34,7 @@ function sessao(b: SessaoBanco): SessaoAgendaDto {
     modalidade: b.modalidade,
     status: b.status,
     recorrenciaId: b.recorrencia_id ?? null,
+    intervaloSemanas: b.intervalo_semanas ?? null,
   };
 }
 
@@ -61,6 +63,7 @@ export class AgendaService {
       modalidade: l.modalidade,
       status: l.status,
       recorrenciaId: l.recorrencia_id ?? null,
+      intervaloSemanas: l.intervalo_semanas ?? null,
     }));
   }
 
@@ -92,6 +95,7 @@ export class AgendaService {
         duracao_min: dto.duracaoMin,
         modalidade: dto.modalidade,
         repetir_semanal: dto.repetirSemanal ?? false,
+        intervalo_semanas: dto.intervaloSemanas ?? 1,
       },
     });
     if (dto.modalidade === 'online') await this.sala.prepararMeet(jwt, conta, id);
@@ -103,6 +107,7 @@ export class AgendaService {
     if (dto.inicio !== undefined) d.inicio = dto.inicio;
     if (dto.duracaoMin !== undefined) d.duracao_min = dto.duracaoMin;
     if (dto.modalidade !== undefined) d.modalidade = dto.modalidade;
+    if (dto.intervaloSemanas !== undefined) d.intervalo_semanas = dto.intervaloSemanas;
     const id = await this.supabase.rpc<string>(jwt, 'sessao_alterar', {
       c: conta,
       s: sessaoId,

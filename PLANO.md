@@ -146,7 +146,7 @@ Conferir com advogado antes da Fase 2 — as referências abaixo foram levantada
 |---|---|---|
 | Registro documental de cada atendimento, guarda mínima de 5 anos | Resolução CFP 001/2009 | Observação por sessão, com versões; nenhuma rota apaga paciente com atendimento — o paciente é **arquivado** |
 | Sigilo | Código de Ética | Conta isolada por RLS; auditoria de leitura; nada clínico em log, URL ou notificação |
-| Atendimento online exige cadastro no e-Psi | Resolução CFP 11/2018 | Perfil guarda o número do e-Psi; a sala online avisa se estiver vazio |
+| Cadastro no e-Psi para atendimento online | Exigido pela Resolução CFP 11/2018, que a Resolução CFP 09/2024 revogou | Deixou de ser exigido: o Senda não pede nem avisa mais (o número antigo continua guardado no perfil, sem uso) |
 | Dado de saúde é dado pessoal sensível | LGPD, art. 11 | Banco em São Paulo, consentimento registrado no cadastro, exportação dos dados do paciente |
 | Recibo do profissional pessoa física | Receita Saúde (Receita Federal) | O beta registra o número e anexa o comprovante; emissão integrada depois |
 | Teste psicológico restrito não se digitaliza | SATEPSI | Fora do beta |
@@ -274,7 +274,7 @@ A leitura clínica passa **sempre** por RPC (`ficha_clinica(paciente)`, `histori
 
 ### Ficha do paciente (abas)
 
-**Resumo** (próxima sessão, saldo do pacote, a receber, queixa principal) · **Histórico** (linha do tempo: sessão + observação + pagamento — o pedido 5 inteiro numa tela) · **Pacotes** · **Financeiro** · **Recibos** · **Dados** (cadastro, responsáveis, consentimento, acessos à ficha).
+**Resumo** (próxima sessão, saldo do pacote, a receber, queixa principal) · **Relatos** (o relato de cada sessão, o que falta escrever primeiro; só o psicólogo do paciente vê) · **Histórico** (linha do tempo: sessão + observação + pagamento — o pedido 5 inteiro numa tela) · **Pacotes** · **Financeiro** · **Recibos** · **Dados** (cadastro, responsáveis, consentimento, acessos à ficha).
 
 ---
 
@@ -445,7 +445,7 @@ O Meet não pode ser embutido numa página de outro site — o Google bloqueia p
 - [x] `/sala/:token` pública mostra só a próxima sessão online (data, hora, nome do profissional) e libera o botão da chamada de 15 minutos antes até 15 minutos depois do fim — o link do Meet não circula solto. A página se atualiza sozinha a cada 30 s; `no-referrer` impede o token de seguir para o Meet
 - [x] Botão "Copiar link do paciente" na sessão, para mandar pelo canal que o psicólogo já usa
 - [x] Início: "Próxima sessão online" com "Entrar no Meet"
-- [x] Aviso na sala se o e-Psi estiver vazio (o Início já lista o e-Psi nas pendências do perfil)
+- [x] ~~Aviso na sala se o e-Psi estiver vazio~~ — saiu em 27/10/2026: o cadastro no e-Psi deixou de ser exigido em 2024 (seção 12d)
 - [x] Filtro de agenda por modalidade (Todas, Presencial, Online) e realizadas presenciais × online em Relatórios
 
 **5b — Link do Meet gerado pela plataforma** — código pronto, desligado até o Google
@@ -472,6 +472,21 @@ O Meet não pode ser embutido numa página de outro site — o Google bloqueia p
 - [x] Em repetição semanal: só esta sessão ou a repetição inteira (passadas e futuras); a repetição para de gerar sessões
 - [x] Não sai o que virou prontuário (observação, adendo) nem dinheiro (pagamento recebido, recibo); cobrança não paga sai junto e o pacote recupera a sessão
 - [x] Fica na auditoria como exclusão
+
+## 12d — Pedidos das psicólogas do beta (27/10/2026)
+
+**Repetição quinzenal**
+- [x] O horário de sempre pode ser **toda semana** ou **a cada 15 dias** (`recorrencias.intervalo_semanas`, migration `20261027000001_repeticao_quinzenal.sql`). A quinzenal conta a partir do primeiro dia: a semana do meio fica livre
+- [x] Nova sessão: "Só esta", "Toda semana" ou "A cada 15 dias". Remarcar "esta e as próximas" também troca o intervalo
+- [x] Agenda, ficha e janela da sessão dizem "toda semana" ou "a cada 15 dias" (`intervaloSemanas` em toda leitura de sessão)
+
+**Relatos de sessão em destaque**
+- [x] Aba **Relatos** logo depois do Resumo, só para o psicólogo do paciente: as sessões realizadas e com falta, da mais recente para a mais antiga, com o relato escrito ali mesmo. A que falta escrever vem aberta e marcada
+- [x] Sessão cujo horário passou sem presença marcada aparece no topo com "Realizada" e "Falta": marcar abre o relato
+- [x] Na tela, "observação" passou a se chamar **relato**. No banco continua `observacoes`, com as mesmas regras: um mês para corrigir, versões guardadas, adendo depois
+
+**e-Psi**
+- [x] O cadastro no e-Psi não é mais exigido (Resolução CFP 09/2024 revogou a 11/2018): saíram o aviso da sala online, a pendência do Início e o campo em Configurações
 
 ## 13 — Fase 6 — Beta com psicólogos
 
